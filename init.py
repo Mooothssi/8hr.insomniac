@@ -17,7 +17,7 @@ class InsomniaGame(arcade.Window):
         arcade.set_background_color(arcade.color.WHEAT)
         self.background = arcade.load_texture("assets/images/bck.png")
         arcade.start_render()
-        arcade.draw_texture_rectangle(self.width, self.height, 1080, self.height, self.background)
+        arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.width, self.height, self.background)
 
 
 if __name__ == '__main__':
