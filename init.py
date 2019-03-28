@@ -1,4 +1,4 @@
-from drawer import LevelDrawer
+from drawer import LevelDrawer, TestCharRouting
 from manager import GameManager
 import arcade
 
