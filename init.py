@@ -1,5 +1,5 @@
 from drawer import LevelDrawer
-from manager import *
+from manager import GameManager
 import arcade
 
 GAME_TITLE = 'Insom8ia'

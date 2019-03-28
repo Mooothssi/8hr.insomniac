@@ -1,6 +1,6 @@
 import arcade
 import time
-from drawer import *
+from drawer import LevelDrawer
 
 class GameManager():
     DIR_DELTA = {
