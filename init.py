@@ -1,4 +1,4 @@
-from drawer import *
+from drawer import LevelDrawer
 from manager import *
 import arcade
 
@@ -31,5 +31,9 @@ class InsomniaGame(arcade.Window):
 if __name__ == '__main__':
     manager = GameManager()
     game = InsomniaGame(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE, manager)
+    pak = TestCharRouting()
+    # while True:
+    #     #input()
+    #     pak.check_collision_and_move()
     arcade.run()
 
