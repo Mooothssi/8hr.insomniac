@@ -1,4 +1,4 @@
-from drawer import LevelDrawer, TestCharRouting
+from drawer import LevelDrawer
 from manager import GameManager
 import arcade
 
@@ -26,14 +26,11 @@ class InsomniaGame(arcade.Window):
         self.manager.on_key_release(key, modifiers)
 
     def update(self, delta):
+        super().update(0.1)
         self.manager.update(delta)
 
 if __name__ == '__main__':
     manager = GameManager()
     game = InsomniaGame(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE, manager)
-    pak = TestCharRouting()
-    # while True:
-    #     #input()
-    #     pak.check_collision_and_move()
     arcade.run()
 

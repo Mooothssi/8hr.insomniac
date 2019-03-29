@@ -16,8 +16,8 @@ class GameManager():
 
     def update(self, delta):
         self.drawer.check_collision_and_move()
-        if self.character_moving:
-            self.drawer.character.set_position(self.drawer.character.center_x + self.DIR_DELTA[self.activated_keys[0]][0], self.drawer.character.center_y + self.DIR_DELTA[self.activated_keys[0]][1])
+        # if self.character_moving:
+        #     self.drawer.character.set_position(self.drawer.character.center_x + self.DIR_DELTA[self.activated_keys[0]][0], self.drawer.character.center_y + self.DIR_DELTA[self.activated_keys[0]][1])
 
     def on_key_press(self, key, modifiers):
         self.activated_keys.append(key)
