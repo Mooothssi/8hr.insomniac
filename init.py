@@ -3,8 +3,8 @@ from manager import GameManager
 import arcade
 
 GAME_TITLE = 'Insom8ia'
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 class InsomniaGame(arcade.Window):
     def __init__(self, width, height, title, manager):
@@ -16,6 +16,7 @@ class InsomniaGame(arcade.Window):
         self.background = arcade.load_texture("assets/images/bck.png")
         arcade.start_render()
         arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.width + 500, self.height + 500, self.background)
+        arcade.draw_text(f"FPS: {self.manager.fps:.2f}", 0, 0, arcade.color.BLACK)
         self.manager.drawer.draw()
         self.manager.cursor.draw()
 

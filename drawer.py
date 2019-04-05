@@ -29,16 +29,29 @@ DIR_OFFSETS = {
 
 BLOCK_SIZE = 40
 
+class World():
+    def __init__(self):
+        pass
 
 class LevelDrawer():
     def __init__(self):
         self.board = BOARD
-        self.character = Character('assets/images/chars/placeholder.png', self.get_initial_player_position())
+        self.enemies = []
+        #self.character = Character('assets/images/chars/placeholder.png', self.get_initial_player_position())
+
+        self.initialize_enemies()
+
         self.wall_sprite = arcade.Sprite('assets/images/levels/wall.png')
-        
+        self.__is_wall_drawn = False
        
         self.width = len(self.board[0])
         self.height = len(self.board)
+
+    def initialize_enemies(self):
+        initial_pos = self.get_initial_player_position()
+        for _ in range(5):
+            enemy = Character('assets/images/chars/placeholder.png', initial_pos)
+            self.enemies.append(enemy)
 
     def get_sprite_position(self, r, c):
         x = c * BLOCK_SIZE + (BLOCK_SIZE // 2)
@@ -58,8 +71,10 @@ class LevelDrawer():
         sprite.draw()
 
     def draw(self):
-        self.character.draw()
-        for r in range(self.height):
+        for enemy in self.enemies:
+            enemy.draw()
+       # self.character.draw()
+        for r in range(0,self.height):
             for c in range(self.width):
                 if self.is_wall_at((r,c)):
                     self.draw_sprite(self.wall_sprite, r, c)
@@ -67,34 +82,41 @@ class LevelDrawer():
       #  self.draw_sprite(self.character, a, b)
 
     def update(self):
-        self.character.update()
+        for enemy in self.enemies:
+            rand = random.randint(1,35)
+            print(f"Rand: {rand}")
+            if rand == 15:
+                continue
+            self.check_collision_and_move(enemy)
+            enemy.update()
+        #self.character.update()
 
     def preview_board(self):
         for line in self.board:
             print(line)
 
-    def check_collision_and_move(self):
+    def check_collision_and_move(self, agent):
         offsets = DIR_OFFSETS.keys()
         
         for offset_key in offsets:
-            offset = DIR_OFFSETS[offset_key]
-           
-            check_pos = (self.character.board_position[0] + offset[0], self.character.board_position[1] + offset[1])
+            offset = DIR_OFFSETS[offset_key]           
+            check_pos = (agent.board_position[0] + offset[0], agent.board_position[1] + offset[1])
             if not self.is_obstacle_char(check_pos):
-                line = list(self.board[self.character.board_position[0]])
-                line[self.character.board_position[1]] = '-'
-                self.board[self.character.board_position[0]] = ''.join(line)
+                line = list(self.board[agent.board_position[0]])
+                line[agent.board_position[1]] = '-'
+                self.board[agent.board_position[0]] = ''.join(line)
                 # TODO: add sprite velocity
                 #self.character.board_position = check_pos
-                self.character.next_board_pos = check_pos
+                agent.next_board_pos = check_pos
               
-                line = list(self.board[check_pos[0]])
-                line[check_pos[1]] = 'X'
-                self.board[check_pos[0]] = ''.join(line)
+                # Board syncing region
+                # line = list(self.board[check_pos[0]])
+                # line[check_pos[1]] = 'X'
+                # self.board[check_pos[0]] = ''.join(line)
 
-                self.preview_board()
+               # self.preview_board()
 
-                self.character.change_direction(offset_key)
+                agent.change_direction(offset_key)
 
     def is_wall_at(self, pos):
         if self.board[pos[0]][pos[1]] == '#':
@@ -112,20 +134,18 @@ class Character():
     def __init__(self, sprite_name, pos):
         self.sprite = arcade.Sprite(sprite_name)
         self.board_position = pos
-        self.next_board_pos = None
+        self.next_board_pos = (0,0)
         sp_pos_x, sp_pos_y = self.get_sprite_position(pos[0], pos[1])
         self.sprite.set_position(sp_pos_x, sp_pos_y)
         self.sprite.width = 50
         self.sprite.height = 50
         self.next_direction = DIR_UP
-
-    def auto_move(self):
-        pass
+        #print(pos)
 
     def check_in_place(self):
         r, c = self.next_board_pos
         next_x, next_y = self.get_sprite_position(r, c)
-        print(f'Next pos: {(next_x, next_y)}')
+       # print(f'Next pos: {(next_x, next_y)}')
         curr_x, curr_y = self.sprite.position
         return (curr_x - next_x)*DIR_OFFSETS[self.next_direction][1] >= 0 and (curr_y - next_y)*DIR_OFFSETS[self.next_direction][0] >= 0
 

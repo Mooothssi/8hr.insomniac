@@ -13,13 +13,19 @@ class GameManager():
         self.drawer = LevelDrawer()
         self.activated_keys = []
         self.character_moving = False
-        self.cursor = Character('assets/images/chars/placeholder.png',(10,10))
+        self.cursor = Character('assets/images/chars/placeholder.png',(-5,-5))
         self.cursor_pos = (0,0)
+        self.cursor.sprite.scale = 0.5
+        self.fps = 0
 
     def update(self, delta):
-        self.drawer.check_collision_and_move()
+        self.fps = 1/delta
+        
+        print("--")
+        #self.drawer.check_collision_and_move(self.drawer.character)
         self.drawer.update()
         self.cursor.set_position(self.cursor_pos[0],self.cursor_pos[1])
+        
         # if self.character_moving:
         #     self.drawer.character.set_position(self.drawer.character.center_x + self.DIR_DELTA[self.activated_keys[0]][0], self.drawer.character.center_y + self.DIR_DELTA[self.activated_keys[0]][1])
 
@@ -38,7 +44,6 @@ class GameManager():
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
-        print(x, y)
         self.cursor_pos = x,y
         # Move the center of the player sprite to match the mouse x, y
       
