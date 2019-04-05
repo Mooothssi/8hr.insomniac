@@ -17,16 +17,18 @@ class InsomniaGame(arcade.Window):
         arcade.start_render()
         arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.width + 500, self.height + 500, self.background)
         self.manager.drawer.draw()
-        self.manager.drawer.character.draw()
+        self.manager.cursor.draw()
 
     def on_key_press(self, key, modifiers):
         self.manager.on_key_press(key, modifiers)
 
     def on_key_release(self, key, modifiers):
         self.manager.on_key_release(key, modifiers)
+    
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.manager.on_mouse_motion(x, y, dx, dy)
 
     def update(self, delta):
-        super().update(0.1)
         self.manager.update(delta)
 
 if __name__ == '__main__':

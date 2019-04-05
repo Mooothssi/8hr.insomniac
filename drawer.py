@@ -1,4 +1,5 @@
 import arcade
+import random
 
 BOARD = [
         '#X################',
@@ -29,7 +30,7 @@ DIR_OFFSETS = {
 BLOCK_SIZE = 40
 
 
-class LevelDrawer(arcade.Sprite):
+class LevelDrawer():
     def __init__(self):
         self.board = BOARD
         self.character = Character('assets/images/chars/placeholder.png', self.get_initial_player_position())
@@ -62,10 +63,38 @@ class LevelDrawer(arcade.Sprite):
             for c in range(self.width):
                 if self.is_wall_at((r,c)):
                     self.draw_sprite(self.wall_sprite, r, c)
-        a, b = self.character.board_position
-        # self.character.set_position(a+1, b)
-        # self.character.draw()
-        self.draw_sprite(self.character, a, b)
+     #   a, b = self.character.board_position
+      #  self.draw_sprite(self.character, a, b)
+
+    def update(self):
+        self.character.update()
+
+    def preview_board(self):
+        for line in self.board:
+            print(line)
+
+    def check_collision_and_move(self):
+        offsets = DIR_OFFSETS.keys()
+        
+        for offset_key in offsets:
+            offset = DIR_OFFSETS[offset_key]
+           
+            check_pos = (self.character.board_position[0] + offset[0], self.character.board_position[1] + offset[1])
+            if not self.is_obstacle_char(check_pos):
+                line = list(self.board[self.character.board_position[0]])
+                line[self.character.board_position[1]] = '-'
+                self.board[self.character.board_position[0]] = ''.join(line)
+                # TODO: add sprite velocity
+                #self.character.board_position = check_pos
+                self.character.next_board_pos = check_pos
+              
+                line = list(self.board[check_pos[0]])
+                line[check_pos[1]] = 'X'
+                self.board[check_pos[0]] = ''.join(line)
+
+                self.preview_board()
+
+                self.character.change_direction(offset_key)
 
     def is_wall_at(self, pos):
         if self.board[pos[0]][pos[1]] == '#':
@@ -79,24 +108,59 @@ class LevelDrawer(arcade.Sprite):
         else:
             return False
 
-    def check_collision_and_move(self):
-        offsets = [(0,1), (1,0), (-1,0), (0,-1)]
-        for offset in offsets:
-            check_pos = (self.character.board_position[0] + offset[0], self.character.board_position[1] + offset[1])
-            if self.is_obstacle_char(check_pos):
-                pass
-            else:
-                print('')
-                line = list(self.board[self.character.board_position[0]])
-                line[self.character.board_position[1]] = '-'
-                self.board[self.character.board_position[0]] = ''.join(line)
+class Character():
+    def __init__(self, sprite_name, pos):
+        self.sprite = arcade.Sprite(sprite_name)
+        self.board_position = pos
+        self.next_board_pos = None
+        sp_pos_x, sp_pos_y = self.get_sprite_position(pos[0], pos[1])
+        self.sprite.set_position(sp_pos_x, sp_pos_y)
+        self.sprite.width = 50
+        self.sprite.height = 50
+        self.next_direction = DIR_UP
 
-                self.character.board_position = check_pos
-               
-                line = list(self.board[check_pos[0]])
-                line[check_pos[1]] = 'X'
-                self.board[check_pos[0]] = ''.join(line)
-                
+    def auto_move(self):
+        pass
+
+    def check_in_place(self):
+        r, c = self.next_board_pos
+        next_x, next_y = self.get_sprite_position(r, c)
+        print(f'Next pos: {(next_x, next_y)}')
+        curr_x, curr_y = self.sprite.position
+        return (curr_x - next_x)*DIR_OFFSETS[self.next_direction][1] >= 0 and (curr_y - next_y)*DIR_OFFSETS[self.next_direction][0] >= 0
+
+
+
+    def get_sprite_position(self, r, c):
+        x = c * BLOCK_SIZE + (BLOCK_SIZE // 2)
+        y = r * BLOCK_SIZE + (BLOCK_SIZE + (BLOCK_SIZE // 2))
+        return x,y
+
+    def change_direction(self, direction):
+        print(self.next_direction)
+      
+        self.next_direction = direction
+
+    def move(self):
+        if self.check_in_place():
+            self.board_position = self.next_board_pos
+            reset_pos_x, reset_pos_y = self.get_sprite_position(self.board_position[0],self.board_position[1])
+            self.set_position(reset_pos_x, reset_pos_y)
+        else:
+            x, y = self.sprite.position[0], self.sprite.position[1]#self.get_sprite_position(self.board_position[0], self.board_position[1])
+            rand_velc = 2.5 #(random.randint(1,20)/20)
+            self.set_position(x + DIR_OFFSETS[self.next_direction][1]*rand_velc, y + DIR_OFFSETS[self.next_direction][0]*rand_velc)
+        #print(f'Curr pos: {self.sprite.position}')
+
+    def update(self):
+        self.move()
+        #self.draw()
+
+    def draw(self):
+        self.sprite.draw()
+
+    def set_position(self, x, y):
+        self.sprite.set_position(x, y)
 
 
 # class TestCharRouting():
@@ -145,31 +209,3 @@ class LevelDrawer(arcade.Sprite):
 #                 #print("Next pos:" + str(self.position))
                 
 #                 return
-        
-
-
-class Character():
-    def __init__(self, sprite_name, pos):
-        self.sprite = arcade.Sprite(sprite_name)
-        self.board_position = pos
-        self.sprite.set_position(50, 50)
-        self.sprite.width = 50
-        self.sprite.height = 50
-        self.next_direction = None
-
-    def auto_move(self):
-        pass
-
-    def check_in_place(self):
-        pass
-
-    def update(self):
-        x, y = self.get_sprite_position(r, c)
-        self.sprite.set_position(x, y)
-        self.draw()
-
-    def draw(self):
-        self.sprite.draw()
-
-    def set_position(self, x, y):
-        self.sprite.set_position(x, y)
