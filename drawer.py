@@ -48,8 +48,9 @@ class LevelDrawer():
         self.height = len(self.board)
 
     def initialize_enemies(self):
-        initial_pos = self.get_initial_player_position()
-        for _ in range(5):
+        x, y = self.get_initial_player_position()
+        for diff in range(2):
+            initial_pos = x + diff, y
             enemy = Character('assets/images/chars/placeholder.png', initial_pos)
             self.enemies.append(enemy)
 
@@ -83,10 +84,10 @@ class LevelDrawer():
 
     def update(self):
         for enemy in self.enemies:
-            rand = random.randint(1,35)
-            print(f"Rand: {rand}")
-            if rand == 15:
-                continue
+            # rand = random.randint(1,35)
+            # print(f"Rand: {rand}")
+            # if rand == 15:
+            #     continue
             self.check_collision_and_move(enemy)
             enemy.update()
         #self.character.update()
@@ -101,7 +102,9 @@ class LevelDrawer():
         for offset_key in offsets:
             offset = DIR_OFFSETS[offset_key]           
             check_pos = (agent.board_position[0] + offset[0], agent.board_position[1] + offset[1])
+            print(check_pos)
             if not self.is_obstacle_char(check_pos):
+                print("to")
                 line = list(self.board[agent.board_position[0]])
                 line[agent.board_position[1]] = '-'
                 self.board[agent.board_position[0]] = ''.join(line)
