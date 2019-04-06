@@ -7,10 +7,10 @@ SCREEN_WIDTH = 800#18*40
 SCREEN_HEIGHT = 600#12*40
 
 class InsomniaGame(arcade.Window):
-    def __init__(self, width, height, title, fullscreen=True):
+    def __init__(self, width, height, title, fullscreen=False):
         super().__init__(width, height, title, fullscreen)
         self.manager = GameManager(resolution=(width,height))
-        self.manager.load_sprites()
+        self.manager.load_sprites(width, height)
         self.manager.fullscreen = fullscreen
 
     def on_draw(self):
@@ -21,8 +21,7 @@ class InsomniaGame(arcade.Window):
     def on_resize(self, width: float, height: float):
         if width >= 1920 or width == 800:
             super().on_resize(width, height)
-            self.manager.reset_scaling(width, height)
-            self.manager.load_sprites()
+            # self.manager.reload_sprites(width, height)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.F11:

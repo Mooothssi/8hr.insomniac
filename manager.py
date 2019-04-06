@@ -2,6 +2,7 @@ import arcade
 import collections
 import time
 from drawer import LevelDrawer, Character
+from i18n.loc import Localization
 
 class FPSCounter:
     def __init__(self):
@@ -43,16 +44,25 @@ class GameManager():
         self.cursor.sprite.alpha = 0.5
         self.fps = FPSCounter()
         self.scaling = 1
+        self.updating = False
+        self.locale = Localization()
 
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2, self.screen_width + 500, self.screen_height + 500, self.background)
-        self.drawer.draw()
+        self.drawer.draw(self.scaling)
         self.cursor.draw()
-        arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {self.scaling:.2f}", 16, 8, arcade.color.BLACK)
+        arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {self.scaling:.2f} | {self.locale.get_translated_text('Intro/Instructions')}", 16, 8, arcade.color.BLACK )
 
-    def load_sprites(self):
-        self.reset_scaling(self.screen_width, self.screen_height)
+    def load_sprites(self, width, height):
+       # if not self.character_moving:
+        self.reset_scaling(width, height)
         self.drawer.load_sprites(self.scaling)
+       # self.drawer.get_all_switch_points(self.drawer.enemies[0])
+
+    def reload_sprites(self, width, height):
+       # if not self.character_moving:
+        self.reset_scaling(width, height)
+        self.drawer.reload_sprites(self.scaling)
         
     def reset_scaling(self, width, height):
         self.screen_width, self.screen_height = width, height
@@ -66,8 +76,10 @@ class GameManager():
         print(1/delta)
         print("--")
         #self.drawer.check_collision_and_move(self.drawer.character)
-        # self.drawer.update()
-        # self.cursor.set_position(self.cursor_pos[0],self.cursor_pos[1])
+        level_state = self.character_moving
+        self.drawer.update(level_state)
+        self.cursor.sprite.alpha = 0
+        self.cursor.set_position(self.cursor_pos[0],self.cursor_pos[1])
         self.fps.tick()
         # if self.character_moving:
         #     self.drawer.character.set_position(self.drawer.character.center_x + self.DIR_DELTA[self.activated_keys[0]][0], self.drawer.character.center_y + self.DIR_DELTA[self.activated_keys[0]][1])
@@ -76,10 +88,11 @@ class GameManager():
         self.activated_keys.append(key)
         print(key)
         print("down")
-        self.character_moving = True
+        if key == arcade.key.ENTER:
+            self.character_moving = not self.character_moving
 
     def on_key_release(self, key, modifiers):
-        self.character_moving = False
+        #self.character_moving = False
         self.activated_keys.remove(key)
         print(key)
         print("up")

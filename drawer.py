@@ -43,14 +43,18 @@ class LevelDrawer():
         self.width = len(self.board[0])
         self.height = len(self.board)
         self._is_wall_drawn = False
-
+        self.switch_points = []
 
     def load_sprites(self, scale):
-        self.enemies = []
+        self.enemies.clear()
         self.set_scaling(scale)
         self.wall_sprite = arcade.Sprite('assets/images/levels/wall.png', scale=scale)
         self.initialize_enemies()
 
+    def reload_sprites(self, scale):
+        self.enemies.clear()
+        self.set_scaling(scale)
+        self.wall_sprite = arcade.Sprite('assets/images/levels/wall.png', scale=scale)
 
     def set_scaling(self, scale=1):
         self.scaling = scale
@@ -58,10 +62,11 @@ class LevelDrawer():
 
     def initialize_enemies(self):
         x, y = self.get_initial_player_position()
-        for diff in range(2):
-            initial_pos = x + diff, y
-            enemy = Character('assets/images/chars/placeholder_neutral.png', initial_pos, scaling=self.scaling)
-            self.enemies.append(enemy)
+        diff = 0
+        initial_pos = x + diff, y
+        enemy = Character('assets/images/chars/placeholder_neutral.png', initial_pos, scaling=self.scaling)
+        self.enemies.append(enemy)
+        self.get_all_switch_points(enemy)
 
     def get_sprite_position(self, r, c):
         x = c * BLOCK_SIZE * self.scaling + ((BLOCK_SIZE * self.scaling) // 2)
@@ -81,7 +86,7 @@ class LevelDrawer():
         sprite._position = [x,y]
         sprite.draw()
 
-    def draw(self):
+    def draw(self, scaling):
         for enemy in self.enemies:
             enemy.draw()
        # self.character.draw()
@@ -93,13 +98,15 @@ class LevelDrawer():
      #   a, b = self.character.board_position
       #  self.draw_sprite(self.character, a, b)
 
-    def update(self):
+    def update(self, state):
         for enemy in self.enemies:
             # rand = random.randint(1,35)
             # print(f"Rand: {rand}")
             # if rand == 15:
             #     continue
-            self.check_collision_and_move(enemy)
+            
+            #self.check_collision_and_move(enemy)
+            self.move_along_switches(enemy)
             enemy.update()
         #self.character.update()
 
@@ -107,19 +114,54 @@ class LevelDrawer():
         for line in self.board:
             print(line)
 
+    def preview_board_specific(self, board):
+        for line in board:
+            print(line)
+
+    def get_all_switch_points(self, agent):
+        offsets = DIR_OFFSETS.keys()
+        x, y = agent.board_position
+        self.out_of_bounds = False
+        board = list(self.board)
+        direction = -1
+        count = 0
+        while not self.out_of_bounds:
+            print(count) 
+            count += 1
+            for offset_key in offsets:
+                offset = DIR_OFFSETS[offset_key]           
+                check_pos = (x + offset[0], y + offset[1])
+                status = self.is_obstacle_char(check_pos, board)
+                if status == 0:
+                    #if direction != offset_key:
+                    self.switch_points.append([check_pos, offset_key])
+                    line = list(board[x])
+                    line[y] = '-'
+                    board[x] = ''.join(line)
+
+                    x, y = check_pos
+                    direction = offset_key
+
+                    line = list(board[check_pos[0]])
+                    line[check_pos[1]] = 'X'
+                    board[check_pos[0]] = ''.join(line)
+                        #print("Next pos:" + str(self.position))
+                elif status == 2:
+                    self.out_of_bounds = True
+                    print(self.switch_points)
+        print(self.switch_points)
+
     def check_collision_and_move(self, agent):
         offsets = DIR_OFFSETS.keys()
-        
         for offset_key in offsets:
             offset = DIR_OFFSETS[offset_key]           
             check_pos = (agent.board_position[0] + offset[0], agent.board_position[1] + offset[1])
-            print(check_pos)
-            if not self.is_obstacle_char(check_pos):
+            if self.is_obstacle_char(check_pos, self.board) == 0:
                 print("to")
                 line = list(self.board[agent.board_position[0]])
                 line[agent.board_position[1]] = '-'
                 self.board[agent.board_position[0]] = ''.join(line)
-                # TODO: add sprite velocity
+
                 #self.character.board_position = check_pos
                 agent.next_board_pos = check_pos
               
@@ -131,6 +173,21 @@ class LevelDrawer():
                # self.preview_board()
 
                 agent.change_direction(offset_key)
+            elif self.is_obstacle_char(check_pos, self.board) == 2:
+                exit()
+
+    def move_along_switches(self, agent):
+        if len(self.switch_points) == 0:
+            exit()
+        check_pos, offset_key = self.switch_points[0][0], self.switch_points[0][1]
+        agent.next_board_pos = check_pos
+        agent.change_direction(offset_key)
+        if agent.check_in_place():
+            print("in-place")
+            print(agent.board_position)
+            print(offset_key)
+            self.switch_points.pop(0)
+            print(self.switch_points)
 
     def is_wall_at(self, pos):
         if self.board[pos[0]][pos[1]] == '#':
@@ -138,11 +195,15 @@ class LevelDrawer():
         else:
             return False
 
-    def is_obstacle_char(self, pos):
-        if self.board[pos[0]][pos[1]] != ' ':
-            return True
+    def is_obstacle_char(self, pos, board):
+        print((pos[0],pos[1]))
+        if -1 <= pos[0] <= len(board) - 1 and -1 <= pos[1] <= len(board[0]) - 1:
+            if board[pos[0]][pos[1]] != ' ':
+                return 1
+            else:
+                return 0    
         else:
-            return False
+            return 2
 
 class Character():
     def __init__(self, sprite_name, pos, scaling=1):
@@ -180,7 +241,7 @@ class Character():
         if self.check_in_place():
             self.board_position = self.next_board_pos
             reset_pos_x, reset_pos_y = self.get_sprite_position(self.board_position[0],self.board_position[1])
-            self.set_position(reset_pos_x, reset_pos_y)
+            #self.set_position(reset_pos_x, reset_pos_y)
         else:
             x, y = self.sprite.position[0], self.sprite.position[1]#self.get_sprite_position(self.board_position[0], self.board_position[1])
             rand_velc = 5 #(random.randint(1,20)/20)
