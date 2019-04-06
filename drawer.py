@@ -42,9 +42,11 @@ class LevelDrawer():
         self.scaling = 1     
         self.width = len(self.board[0])
         self.height = len(self.board)
+        self._is_wall_drawn = False
 
 
     def load_sprites(self, scale):
+        self.enemies = []
         self.set_scaling(scale)
         self.wall_sprite = arcade.Sprite('assets/images/levels/wall.png', scale=scale)
         self.initialize_enemies()
@@ -58,7 +60,7 @@ class LevelDrawer():
         x, y = self.get_initial_player_position()
         for diff in range(2):
             initial_pos = x + diff, y
-            enemy = Character('assets/images/chars/placeholder.png', initial_pos, scaling=self.scaling)
+            enemy = Character('assets/images/chars/placeholder_neutral.png', initial_pos, scaling=self.scaling)
             self.enemies.append(enemy)
 
     def get_sprite_position(self, r, c):
@@ -75,17 +77,19 @@ class LevelDrawer():
 
     def draw_sprite(self, sprite, r, c):
         x, y = self.get_sprite_position(r, c)
-        sprite.set_position(x, y)
+        #sprite._set_position((x, y))
+        sprite._position = [x,y]
         sprite.draw()
 
     def draw(self):
         for enemy in self.enemies:
             enemy.draw()
        # self.character.draw()
-        for r in range(0,self.height):
-            for c in range(self.width):
-                if self.is_wall_at((r,c)):
-                    self.draw_sprite(self.wall_sprite, r, c)
+        if not self._is_wall_drawn:
+            for r in range(0,self.height):
+                for c in range(self.width):
+                    if self.is_wall_at((r,c)):
+                        self.draw_sprite(self.wall_sprite, r, c)
      #   a, b = self.character.board_position
       #  self.draw_sprite(self.character, a, b)
 
@@ -147,7 +151,7 @@ class Character():
         self.next_board_pos = (0,0)
         self.scaling = scaling
         sp_pos_x, sp_pos_y = self.get_sprite_position(pos[0], pos[1])
-        self.sprite.set_position(sp_pos_x, sp_pos_y)
+        self.sprite._set_position((sp_pos_x, sp_pos_y))
         self.sprite.width = 50
         self.sprite.height = 50
         self.next_direction = DIR_UP
@@ -179,7 +183,7 @@ class Character():
             self.set_position(reset_pos_x, reset_pos_y)
         else:
             x, y = self.sprite.position[0], self.sprite.position[1]#self.get_sprite_position(self.board_position[0], self.board_position[1])
-            rand_velc = 2.5 #(random.randint(1,20)/20)
+            rand_velc = 5 #(random.randint(1,20)/20)
             self.set_position(x + DIR_OFFSETS[self.next_direction][1]*rand_velc, y + DIR_OFFSETS[self.next_direction][0]*rand_velc)
         #print(f'Curr pos: {self.sprite.position}')
 
@@ -191,7 +195,7 @@ class Character():
         self.sprite.draw()
 
     def set_position(self, x, y):
-        self.sprite.set_position(x, y)
+        self.sprite._position = [x,y]
 
 
 # class TestCharRouting():
