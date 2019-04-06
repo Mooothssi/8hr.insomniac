@@ -1,3 +1,3 @@
 # 8hr.insomniac
 
-A multi-level platform video game featuring quirky and crude humor things.
+A multi-level two-way defense video game featuring quirky and crude humor things.
