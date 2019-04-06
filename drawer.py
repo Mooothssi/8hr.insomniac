@@ -54,7 +54,7 @@ class LevelDrawer():
     def reload_sprites(self, scale):
         self.enemies.clear()
         self.set_scaling(scale)
-        self.wall_sprite = arcade.Sprite('assets/images/levels/wall.png', scale=scale)
+        self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scale)
 
     def set_scaling(self, scale=1):
         self.scaling = scale

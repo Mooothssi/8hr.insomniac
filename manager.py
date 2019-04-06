@@ -57,7 +57,7 @@ class GameManager():
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2, self.screen_width + 500, self.screen_height + 500, self.background)
         self.drawer.draw(self.scaling)
         self.unit_blueprint.sprite.draw()
-        arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {self.scaling:.2f} | {self.locale.get_translated_text('Intro/Instructions')}", 16, 8, arcade.color.BLACK )
+        arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {self.scaling:.2f} | Score: {0} | {self.locale.get_translated_text('Intro/Instructions')}", 16, 8, arcade.color.BLACK )
 
     def load_sprites(self, width, height):
        # if not self.character_moving:
@@ -113,7 +113,7 @@ class GameManager():
 
         print((c, r))
         print((abs( c - math.floor(c)), abs( r - math.floor(r))))
-        if ( 0 <=  abs( c - math.floor(c)) <= 0.048 or 0.953 <=  abs( c - math.floor(c)) < 1) and (0 <= abs( r - math.floor(r)) <= 0.048  or 0.953 <=  abs( r - math.floor(r)) < 1):
+        if ( 0 <=  abs( c - math.floor(c)) <= 0.1 or 0.92 <=  abs( c - math.floor(c)) < 1) and (0 <= abs( r - math.floor(r)) <= 0.1 or 0.92 <=  abs( r - math.floor(r)) < 1):
             self.unit_blueprint.change_state(1)
             self.unit_blueprint.alpha = 4
         else:
