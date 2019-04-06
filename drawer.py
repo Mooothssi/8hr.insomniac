@@ -48,7 +48,7 @@ class LevelDrawer():
     def load_sprites(self, scale):
         self.enemies.clear()
         self.set_scaling(scale)
-        self.wall_sprite = arcade.Sprite('assets/images/levels/wall.png', scale=scale)
+        self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scale)
         self.initialize_enemies()
 
     def reload_sprites(self, scale):
@@ -148,8 +148,6 @@ class LevelDrawer():
                         #print("Next pos:" + str(self.position))
                 elif status == 2:
                     self.out_of_bounds = True
-                    print(self.switch_points)
-        print(self.switch_points)
 
     def check_collision_and_move(self, agent):
         offsets = DIR_OFFSETS.keys()

@@ -2,6 +2,7 @@ import arcade
 import collections
 import time
 from drawer import LevelDrawer, Character
+from placement import UnitBlueprint
 from i18n.loc import Localization
 
 class FPSCounter:
@@ -47,10 +48,15 @@ class GameManager():
         self.updating = False
         self.locale = Localization()
 
+        self.unit_blueprint = UnitBlueprint(["assets/images/chars/placeholder_neutral.png", "assets/images/levels/wall.png"])
+        self.unit_blueprint.sprite.center_x = 0
+        self.unit_blueprint.sprite.center_y = 0
+        self.unit_blueprint.sprite.scale = 0.7
+
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2, self.screen_width + 500, self.screen_height + 500, self.background)
         self.drawer.draw(self.scaling)
-        self.cursor.draw()
+        self.unit_blueprint.sprite.draw()
         arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {self.scaling:.2f} | {self.locale.get_translated_text('Intro/Instructions')}", 16, 8, arcade.color.BLACK )
 
     def load_sprites(self, width, height):
@@ -73,13 +79,12 @@ class GameManager():
         self.scaling = 1 + diff
 
     def update(self, delta):
-        print(1/delta)
-        print("--")
+        #print(1/delta)
+        #print("--")
         #self.drawer.check_collision_and_move(self.drawer.character)
         level_state = self.character_moving
         self.drawer.update(level_state)
-        self.cursor.sprite.alpha = 0
-        self.cursor.set_position(self.cursor_pos[0],self.cursor_pos[1])
+        self.unit_blueprint.sprite.center_x,  self.unit_blueprint.sprite.center_y = self.cursor_pos[0],self.cursor_pos[1]
         self.fps.tick()
         # if self.character_moving:
         #     self.drawer.character.set_position(self.drawer.character.center_x + self.DIR_DELTA[self.activated_keys[0]][0], self.drawer.character.center_y + self.DIR_DELTA[self.activated_keys[0]][1])
@@ -100,6 +105,18 @@ class GameManager():
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
+        import math
         self.cursor_pos = x,y
+        c = (x - ((self.drawer.block_size * self.scaling) // 2)) / self.drawer.block_size / self.scaling
+      
+        r = (y - ((self.drawer.block_size * self.scaling) + ((self.drawer.block_size* self.scaling) // 2))) / self.drawer.block_size / self.scaling
+
+        print((c, r))
+        print((abs( c - math.floor(c)), abs( r - math.floor(r))))
+        if ( 0 <=  abs( c - math.floor(c)) <= 0.048 or 0.953 <=  abs( c - math.floor(c)) < 1) and (0 <= abs( r - math.floor(r)) <= 0.048  or 0.953 <=  abs( r - math.floor(r)) < 1):
+            self.unit_blueprint.change_state(1)
+            self.unit_blueprint.alpha = 4
+        else:
+            self.unit_blueprint.change_state(0)
         # Move the center of the player sprite to match the mouse x, y
       
