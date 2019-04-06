@@ -49,12 +49,13 @@ class LevelDrawer():
         self.enemies.clear()
         self.set_scaling(scale)
         self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scale)
-        self.initialize_enemies()
+       
 
     def reload_sprites(self, scale):
         self.enemies.clear()
         self.set_scaling(scale)
         self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scale)
+        self.initialize_enemies()
 
     def set_scaling(self, scale=1):
         self.scaling = scale
@@ -180,12 +181,9 @@ class LevelDrawer():
         check_pos, offset_key = self.switch_points[0][0], self.switch_points[0][1]
         agent.next_board_pos = check_pos
         agent.change_direction(offset_key)
-        if agent.check_in_place():
-            print("in-place")
-            print(agent.board_position)
-            print(offset_key)
+        if agent.check_if_overlapping():
+            print("overlapped")
             self.switch_points.pop(0)
-            print(self.switch_points)
 
     def is_wall_at(self, pos):
         if self.board[pos[0]][pos[1]] == '#':
@@ -216,7 +214,7 @@ class Character():
         self.next_direction = DIR_UP
         #print(pos)
 
-    def check_in_place(self):
+    def check_if_overlapping(self):
         r, c = self.next_board_pos
         next_x, next_y = self.get_sprite_position(r, c)
        # print(f'Next pos: {(next_x, next_y)}')
@@ -231,12 +229,12 @@ class Character():
         return x,y
 
     def change_direction(self, direction):
-        print(self.next_direction)
+        #print(self.next_direction)
       
         self.next_direction = direction
 
     def move(self):
-        if self.check_in_place():
+        if self.check_if_overlapping():
             self.board_position = self.next_board_pos
             reset_pos_x, reset_pos_y = self.get_sprite_position(self.board_position[0],self.board_position[1])
             #self.set_position(reset_pos_x, reset_pos_y)

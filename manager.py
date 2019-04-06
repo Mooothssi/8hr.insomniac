@@ -5,6 +5,8 @@ from drawer import LevelDrawer, Character
 from placement import UnitBlueprint
 from i18n.loc import Localization
 
+APP_VERSION = 0.1
+
 class FPSCounter:
     def __init__(self):
         self.time = time.perf_counter()
@@ -47,6 +49,7 @@ class GameManager():
         self.scaling = 1
         self.updating = False
         self.locale = Localization()
+        self.sprite_list = []
 
         self.unit_blueprint = UnitBlueprint(["assets/images/chars/placeholder_neutral.png", "assets/images/levels/wall.png"])
         self.unit_blueprint.sprite.center_x = 0
@@ -57,7 +60,7 @@ class GameManager():
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2, self.screen_width + 500, self.screen_height + 500, self.background)
         self.drawer.draw(self.scaling)
         self.unit_blueprint.sprite.draw()
-        arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {self.scaling:.2f} | Score: {0} | {self.locale.get_translated_text('Intro/Instructions')}", 16, 8, arcade.color.BLACK )
+        arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {self.scaling:.2f} | Score: {0} | {self.locale.get_translated_text('Intro/Instructions')} |-| {self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|", 16, 8, arcade.color.BLACK )
 
     def load_sprites(self, width, height):
        # if not self.character_moving:
@@ -102,6 +105,9 @@ class GameManager():
         print(key)
         print("up")
 
+    def register_sprite(self, sprite):
+        "For registering a sprite to the global sprite list across the App"
+        pass
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
