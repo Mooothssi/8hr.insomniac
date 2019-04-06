@@ -9,20 +9,31 @@ class GameManager():
         arcade.key.LEFT: (-1,0),
         arcade.key.RIGHT: (1, 0),
     }
-    def __init__(self):
+    def __init__(self, resolution):
         self.drawer = LevelDrawer()
+        width, height = resolution
+        self.screen_width = width
+        self.screen_height = height
         self.activated_keys = []
         self.character_moving = False
         self.cursor = Character('assets/images/chars/placeholder.png',(-5,-5))
         self.cursor_pos = (0,0)
         self.cursor.sprite.scale = 0.5
         self.fps = 0
+        self.scaling = 1
+
+    def load_sprites(self, width, height):
+        self.screen_width = width
+        self.screen_height = height
+        self.scaling = (width)/(self.drawer.width*self.drawer.block_size)
+        self.drawer.load_sprites(self.scaling)
 
     def update(self, delta):
         self.fps = 1/delta
         
         print("--")
         #self.drawer.check_collision_and_move(self.drawer.character)
+
         self.drawer.update()
         self.cursor.set_position(self.cursor_pos[0],self.cursor_pos[1])
         

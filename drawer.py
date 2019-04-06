@@ -37,26 +37,33 @@ class LevelDrawer():
     def __init__(self):
         self.board = BOARD
         self.enemies = []
+        self.block_size = BLOCK_SIZE
         #self.character = Character('assets/images/chars/placeholder.png', self.get_initial_player_position())
-
-        self.initialize_enemies()
-
-        self.wall_sprite = arcade.Sprite('assets/images/levels/wall.png')
-        self.__is_wall_drawn = False
-       
+        self.scaling = 1     
         self.width = len(self.board[0])
         self.height = len(self.board)
+
+
+    def load_sprites(self, scale):
+        self.set_scaling(scale)
+        self.wall_sprite = arcade.Sprite('assets/images/levels/wall.png', scale=scale)
+        self.initialize_enemies()
+
+
+    def set_scaling(self, scale=1):
+        self.scaling = scale
+    
 
     def initialize_enemies(self):
         x, y = self.get_initial_player_position()
         for diff in range(2):
             initial_pos = x + diff, y
-            enemy = Character('assets/images/chars/placeholder.png', initial_pos)
+            enemy = Character('assets/images/chars/placeholder.png', initial_pos, scaling=self.scaling)
             self.enemies.append(enemy)
 
     def get_sprite_position(self, r, c):
-        x = c * BLOCK_SIZE + (BLOCK_SIZE // 2)
-        y = r * BLOCK_SIZE + (BLOCK_SIZE + (BLOCK_SIZE // 2))
+        x = c * BLOCK_SIZE * self.scaling + ((BLOCK_SIZE * self.scaling) // 2)
+        y = r * BLOCK_SIZE * self.scaling + ((BLOCK_SIZE* self.scaling) + ((BLOCK_SIZE* self.scaling) // 2))
         return x,y
 
     def get_initial_player_position(self):
@@ -134,10 +141,11 @@ class LevelDrawer():
             return False
 
 class Character():
-    def __init__(self, sprite_name, pos):
+    def __init__(self, sprite_name, pos, scaling=1):
         self.sprite = arcade.Sprite(sprite_name)
         self.board_position = pos
         self.next_board_pos = (0,0)
+        self.scaling = scaling
         sp_pos_x, sp_pos_y = self.get_sprite_position(pos[0], pos[1])
         self.sprite.set_position(sp_pos_x, sp_pos_y)
         self.sprite.width = 50
@@ -155,8 +163,8 @@ class Character():
 
 
     def get_sprite_position(self, r, c):
-        x = c * BLOCK_SIZE + (BLOCK_SIZE // 2)
-        y = r * BLOCK_SIZE + (BLOCK_SIZE + (BLOCK_SIZE // 2))
+        x = c * BLOCK_SIZE * self.scaling + ((BLOCK_SIZE * self.scaling) // 2)
+        y = r * BLOCK_SIZE * self.scaling + ((BLOCK_SIZE* self.scaling) + ((BLOCK_SIZE* self.scaling) // 2))
         return x,y
 
     def change_direction(self, direction):
