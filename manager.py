@@ -23,9 +23,13 @@ class GameManager():
         self.scaling = 1
 
     def load_sprites(self, width, height):
+        import math
         self.screen_width = width
         self.screen_height = height
-        self.scaling = (width)/(self.drawer.width*self.drawer.block_size)
+        width_ratio = width / (self.drawer.width*self.drawer.block_size)
+        height_ratio = height  / (self.drawer.height*self.drawer.block_size)
+        diff = math.log((((width_ratio*9) + (height_ratio*1)) / 10), 10)*2.2
+        self.scaling = 1 + diff
         self.drawer.load_sprites(self.scaling)
 
     def update(self, delta):

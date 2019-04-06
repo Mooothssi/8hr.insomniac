@@ -17,8 +17,7 @@ class InsomniaGame(arcade.Window):
         self.background = arcade.load_texture("assets/images/bck.png")
         arcade.start_render()
         arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.width + 500, self.height + 500, self.background)
-        arcade.draw_text(f"FPS: {self.manager.fps:.2f}", 0, 0, arcade.color.BLACK)
-        arcade.draw_text(f"Scaling: {self.manager.scaling:.2f}", 0, 15, arcade.color.BLACK)
+        arcade.draw_text(f"FPS: {self.manager.fps:.2f} | Scaling: {self.manager.scaling:.2f}", 16, 8, arcade.color.BLACK)
         self.manager.drawer.draw()
         self.manager.cursor.draw()
 
