@@ -27,5 +27,6 @@ class UnitBlueprint():
 
 
 class UnitPlacement():
-    def check_availability():
+
+    def check_availability(self):
         pass

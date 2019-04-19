@@ -1,4 +1,5 @@
 import arcade
+from inac8hr.imports import *
 
 DIR_UP = 1
 DIR_DOWN = 2
@@ -16,12 +17,12 @@ BLOCK_SIZE = 40
 
 class Character():
     def __init__(self, sprite_name, pos, scaling=1):
-        self.sprite = arcade.Sprite(sprite_name)
+        self.sprite = PreferredSprite(sprite_name)
         self.board_position = pos
         self.next_board_pos = (0,0)
         self.scaling = scaling
         sp_pos_x, sp_pos_y = self.get_sprite_position(pos[0], pos[1])
-        self.sprite._set_position((sp_pos_x, sp_pos_y))
+        self.sprite.set_position(sp_pos_x, sp_pos_y)
         self.sprite.width = 50
         self.sprite.height = 50
         self.next_direction = DIR_UP

@@ -1,6 +1,7 @@
 import arcade
 import random
 from inac8hr.agents import Character
+from inac8hr.imports import *
 
 BOARD = [
         '#X################',
@@ -50,13 +51,13 @@ class LevelDrawer():
     def load_sprites(self, scale):
         self.enemies.clear()
         self.set_scaling(scale)
-        self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scale)
+        self.wall_sprite = PreferredSprite('assets/images/levels/wall - Copy.png', scale=scale)
        
 
     def reload_sprites(self, scale):
         self.enemies.clear()
         self.set_scaling(scale)
-        self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scale)
+        self.wall_sprite = PreferredSprite('assets/images/levels/wall - Copy.png', scale=scale)
         self.initialize_enemies()
 
     def set_scaling(self, scale=1):
@@ -86,7 +87,8 @@ class LevelDrawer():
     def draw_sprite(self, sprite, r, c):
         x, y = self.get_sprite_position(r, c)
         #sprite._set_position((x, y))
-        sprite._position = [x,y]
+        sprite.set_position(x, y)
+        #sprite._position = [x,y]
         sprite.draw()
 
     def draw(self, scaling):
@@ -184,7 +186,7 @@ class LevelDrawer():
         agent.next_board_pos = check_pos
         agent.change_direction(offset_key)
         if agent.check_if_overlapping():
-            print("overlapped")
+            #print("overlapped")
             self.switch_points.pop(0)
 
     def is_wall_at(self, pos):
