@@ -36,12 +36,12 @@ class PlacementAvailabilityTool(BaseTool):
     def eval_proximity(self, x, y):
         r, c = LocationUtil.get_plan_position(x, y)
         if ( 0 <=  abs( c - math.floor(c)) <= 0.1 or 0.92 <=  abs( c - math.floor(c)) < 1) and (0 <= abs( r - math.floor(r)) <= 0.1 or 0.92 <=  abs( r - math.floor(r)) < 1):
-            return True #self.unit_blueprint.change_state(1)
+            return True
         else:
-            return False #self.unit_blueprint.change_state(0)
+            return False
 
     def dispatch_mouse_motion(self, args: tuple):
-        x, y = args
+        x, y, dx, dy = args
         self.unit_blueprint.sprite.set_position(x, y)
         self.update_blueprint_state(x, y)
 
@@ -53,7 +53,7 @@ class PlacementAvailabilityTool(BaseTool):
             self.level.place_defender(r, c)
     
     def draw(self):
-        pass
+        self.unit_blueprint.sprite.draw()
 
 class UnitBlueprint():
     "Minimum of 2 texture files"

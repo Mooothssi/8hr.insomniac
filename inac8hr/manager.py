@@ -3,6 +3,7 @@ import collections
 import time
 from inac8hr.agents import Character
 from inac8hr.levels import Level
+from inac8hr.inputs import EventDispatcher
 from inac8hr.scenes import Scene, Viewport
 from inac8hr.layers import SceneLayer, PlayableSceneLayer
 from inac8hr.tools import PlacementAvailabilityTool, UnitBlueprint
@@ -59,12 +60,16 @@ class GameManager():
         self.locale = Localization()
         self.sprite_list = []
         self.state = STATE_READY
+        self.dispatcher = EventDispatcher()
 
         self.initialize_scene()
 
         #self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"])
         
         self.current_tool = PlacementAvailabilityTool(self.viewport.current_scene.get('canvas_layer').main_element)
+        self.dispatcher.add_dispatcher(self.current_tool)
+
+        self.dispatcher.register_tool_events()
 
     def initialize_scene(self):
         level_1 = Level()
@@ -137,13 +142,4 @@ class GameManager():
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
-        import math
-
-        self.cursor_pos = x,y
-        c = (x - ((self.drawer.block_size * GAME_PREFS.scaling) // 2)) / self.drawer.block_size / GAME_PREFS.scaling
-      
-        r = (y - ((self.drawer.block_size * GAME_PREFS.scaling) + ((self.drawer.block_size* GAME_PREFS.scaling) // 2))) / self.drawer.block_size / GAME_PREFS.scaling
-
-        self.current_tool.dispatch_mouse_motion((x, y))
-        # Move the center of the player sprite to match the mouse x, y
-      
+        self.dispatcher.on_mouse_motion(x, y, dx, dy)

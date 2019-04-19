@@ -7,7 +7,9 @@ MODE_PLAYING = 1
 MODE_PLACING = 2
 
 #
-# Indices of inputs available
+# Indices of input events available
 # 
 MOUSE_PRESS = 1
 MOUSE_MOTION = 2
+KEY_PRESS = 3
+KEY_RELEASE = 4
