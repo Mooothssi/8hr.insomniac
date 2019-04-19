@@ -1,5 +1,8 @@
 from inac8hr.layers import PlayableSceneLayer
-
+from inac8hr.utils import LocationUtil
+from inac8hr.globals import GAME_PREFS
+from arcade.sprite import Sprite
+from arcade import *
 BOARD = [
         '#X################',
         '# ###    #####   #',
@@ -33,13 +36,11 @@ LV_PAUSED = 0
 
 class Level(PlayableSceneLayer):
     def __init__(self):
-        self.board = BOARD
-        self.map_plan = None
+        self.map_plan = MapPlan(BOARD, 40)
         self.defenders = []
         self.enemies = []
         self.state = LV_PAUSED
         self.scaling = 1     
-        self.initialize_board()
         self.switch_points = []
 
     #
@@ -54,6 +55,7 @@ class Level(PlayableSceneLayer):
 
 
     def clocked_update(self):
+        self.map_plan.scale(GAME_PREFS.scaling)
         if self.state == LV_PAUSED:
             self.pause()
         elif self.state == LV_PLAYING:
@@ -61,10 +63,6 @@ class Level(PlayableSceneLayer):
     #
     #
     #
-
-    def initialize_board(self):
-        self.width = len(self.board[0])
-        self.height = len(self.board)
 
     def pause(self):
         for e in self.enemies:
@@ -81,12 +79,19 @@ class Level(PlayableSceneLayer):
     def set_state(self, state: int):
         self.state = state
 
+    def place_defender(self, x, y):
+        print(f"Defender placed at: {x}, {y}")
+
 
 class MapPlan():
     def __init__(self, plan_list, block_size):
         self.block_size = block_size
         self.plan_array = plan_list
+        self.wall_sprite = Sprite('assets/images/levels/wall - Copy.png', scale=1.11)
         self.determine_dimensions()
+
+    def scale(self, scaling):
+        self.wall_sprite = Sprite('assets/images/levels/wall - Copy.png', scale=scaling)
 
     def determine_dimensions(self):
         self.width = len(self.plan_array[0])
@@ -96,8 +101,13 @@ class MapPlan():
         for r in range(0, self.height):
             for c in range(self.width):
                 if self.is_wall_at((r,c)):
-                    pass
-                    #self.draw_sprite(self.wall_sprite, r, c)
+                    self.draw_sprite(self.wall_sprite, r, c)
+                    #exit(0)
+
+    def draw_sprite(self, sprite, r, c):
+        x, y = LocationUtil.get_sprite_position(r, c)
+        sprite.set_position(x, y)
+        sprite.draw()
 
     def is_wall_at(self, pos):
         if self.plan_array[pos[0]][pos[1]] == '#':

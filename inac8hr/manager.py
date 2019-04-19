@@ -2,10 +2,13 @@ import arcade
 import collections
 import time
 from inac8hr.agents import Character
+from inac8hr.levels import Level
 from inac8hr.scenes import Scene, Viewport
-from inac8hr.layers import SceneLayer
-from inac8hr.placement import UnitBlueprint
+from inac8hr.layers import SceneLayer, PlayableSceneLayer
+from inac8hr.tools import PlacementAvailabilityTool, UnitBlueprint
 from inac8hr.drawer import LevelDrawer#, Character
+from inac8hr.globals import GAME_PREFS
+from inac8hr.utils import *
 from i18n.loc import Localization
 
 APP_VERSION = 0.1
@@ -38,6 +41,7 @@ class GameManager():
         arcade.key.RIGHT: (1, 0),
     }
     def __init__(self, resolution):
+        GAME_PREFS.scaling = 1.11
         self.drawer = LevelDrawer()
         self.fullscreen = False
         width, height = resolution
@@ -51,7 +55,6 @@ class GameManager():
         self.cursor.sprite.scale = 0.5
         self.cursor.sprite.alpha = 0.5
         self.fps = FPSCounter()
-        self.scaling = 1
         self.updating = False
         self.locale = Localization()
         self.sprite_list = []
@@ -59,32 +62,34 @@ class GameManager():
 
         self.initialize_scene()
 
-        self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"])
-        self.unit_blueprint.sprite.center_x = 0
-        self.unit_blueprint.sprite.center_y = 0
-        self.unit_blueprint.sprite.scale = 0.7
+        #self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"])
+        
+        self.current_tool = PlacementAvailabilityTool(self.viewport.current_scene.get('canvas_layer').main_element)
 
     def initialize_scene(self):
-        initial_scene = Scene(SceneLayer(), SceneLayer())
+        level_1 = Level()
+        level_1_scene = PlayableSceneLayer("canvas_layer", level_1)
+        initial_scene = Scene(level_1_scene, SceneLayer("ui_layer"), SceneLayer("tool_layer"))
         self.viewport = Viewport(initial_scene)
 
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2, self.screen_width + 500, self.screen_height + 500, self.background)
-        self.drawer.draw(self.scaling)
-        self.unit_blueprint.sprite.draw()
+        self.drawer.draw(GAME_PREFS.scaling)
+        self.viewport.draw()
+        self.current_tool.unit_blueprint.sprite.draw()
         #arcade.draw_text("3",0,0,arcade.color.BLACK)
-        arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {self.scaling:.2f} | Score: {0} | {self.locale.get_translated_text('Intro/Instructions')} |-| {self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|", 16, 8, arcade.color.BLACK )
+        arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {GAME_PREFS.scaling:.2f} | Score: {0} | {self.locale.get_translated_text('Intro/Instructions')} |-| {self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|", 16, 8, arcade.color.BLACK )
 
     def load_sprites(self, width, height):
        # if not self.character_moving:
         self.reset_scaling(width, height)
-        self.drawer.load_sprites(self.scaling)
+        self.drawer.load_sprites(GAME_PREFS.scaling)
        # self.drawer.get_all_switch_points(self.drawer.enemies[0])
 
     def reload_sprites(self, width, height):
        # if not self.character_moving:
         self.reset_scaling(width, height)
-        self.drawer.reload_sprites(self.scaling)
+        self.drawer.reload_sprites(GAME_PREFS.scaling)
         
     def reset_scaling(self, width, height):
         self.screen_width, self.screen_height = width, height
@@ -92,15 +97,16 @@ class GameManager():
         width_ratio = width / (self.drawer.width*self.drawer.block_size)
         height_ratio = height  / (self.drawer.height*self.drawer.block_size)
         diff = math.log((((width_ratio*9) + (height_ratio*1)) / 10), 10)*2.2
-        self.scaling = 1 + diff
+        GAME_PREFS.scaling = 1 + diff
 
     def update(self, delta):
-        print(1/delta)
-        #print("--")
+        self.viewport.clocked_update()
+        #print(1/delta)
+
         #self.drawer.check_collision_and_move(self.drawer.character)
         level_state = self.character_moving
         self.drawer.update(level_state)
-        self.unit_blueprint.sprite.center_x,  self.unit_blueprint.sprite.center_y = self.cursor_pos[0],self.cursor_pos[1]
+        #self.unit_blueprint.sprite.center_x,  self.unit_blueprint.sprite.center_y = self.cursor_pos[0],self.cursor_pos[1]
         self.fps.tick()
         # if self.character_moving:
         #     self.drawer.character.set_position(self.drawer.character.center_x + self.DIR_DELTA[self.activated_keys[0]][0], self.drawer.character.center_y + self.DIR_DELTA[self.activated_keys[0]][1])
@@ -119,6 +125,7 @@ class GameManager():
         print("up")
 
     def on_mouse_press(self, x, y, button, modifiers):
+        self.current_tool.dispatch_mouse_press((x, y))
         if STATE_PLACEMENT:
             pass
         else:
@@ -131,17 +138,12 @@ class GameManager():
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
         import math
-        self.cursor_pos = x,y
-        c = (x - ((self.drawer.block_size * self.scaling) // 2)) / self.drawer.block_size / self.scaling
-      
-        r = (y - ((self.drawer.block_size * self.scaling) + ((self.drawer.block_size* self.scaling) // 2))) / self.drawer.block_size / self.scaling
 
-        print((c, r))
-        print((abs( c - math.floor(c)), abs( r - math.floor(r))))
-        if ( 0 <=  abs( c - math.floor(c)) <= 0.1 or 0.92 <=  abs( c - math.floor(c)) < 1) and (0 <= abs( r - math.floor(r)) <= 0.1 or 0.92 <=  abs( r - math.floor(r)) < 1):
-            self.unit_blueprint.change_state(1)
-            self.unit_blueprint.alpha = 4
-        else:
-            self.unit_blueprint.change_state(0)
+        self.cursor_pos = x,y
+        c = (x - ((self.drawer.block_size * GAME_PREFS.scaling) // 2)) / self.drawer.block_size / GAME_PREFS.scaling
+      
+        r = (y - ((self.drawer.block_size * GAME_PREFS.scaling) + ((self.drawer.block_size* GAME_PREFS.scaling) // 2))) / self.drawer.block_size / GAME_PREFS.scaling
+
+        self.current_tool.dispatch_mouse_motion((x, y))
         # Move the center of the player sprite to match the mouse x, y
       

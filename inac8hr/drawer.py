@@ -2,6 +2,7 @@ import arcade
 import random
 from inac8hr.agents import Character
 from inac8hr.imports import *
+from inac8hr.utils import LocationUtil
 
 BOARD = [
         '#X################',
@@ -85,7 +86,7 @@ class LevelDrawer():
         return (-1, -1)
 
     def draw_sprite(self, sprite, r, c):
-        x, y = self.get_sprite_position(r, c)
+        x, y = LocationUtil.get_sprite_position(r, c)#self.get_sprite_position(r, c)
         #sprite._set_position((x, y))
         sprite.set_position(x, y)
         #sprite._position = [x,y]
@@ -94,12 +95,14 @@ class LevelDrawer():
     def draw(self, scaling):
         for enemy in self.enemies:
             enemy.draw()
-       # self.character.draw()
-        if not self._is_wall_drawn:
-            for r in range(0,self.height):
-                for c in range(self.width):
-                    if self.is_wall_at((r,c)):
-                        self.draw_sprite(self.wall_sprite, r, c)
+
+
+        # if not self._is_wall_drawn:
+        #     for r in range(0,self.height):
+        #         for c in range(self.width):
+        #             if self.is_wall_at((r,c)):
+        #                 self.draw_sprite(self.wall_sprite, r, c)
+
      #   a, b = self.character.board_position
       #  self.draw_sprite(self.character, a, b)
 
@@ -131,7 +134,7 @@ class LevelDrawer():
         direction = -1
         count = 0
         while not self.out_of_bounds:
-            print(count) 
+            #print(count) 
             count += 1
             for offset_key in offsets:
                 offset = DIR_OFFSETS[offset_key]           
@@ -196,7 +199,7 @@ class LevelDrawer():
             return False
 
     def is_obstacle_char(self, pos, board):
-        print((pos[0],pos[1]))
+      #  print((pos[0],pos[1]))
         if -1 <= pos[0] <= len(board) - 1 and -1 <= pos[1] <= len(board[0]) - 1:
             if board[pos[0]][pos[1]] != ' ':
                 return 1

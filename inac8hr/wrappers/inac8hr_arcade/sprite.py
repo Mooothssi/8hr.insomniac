@@ -6,4 +6,5 @@ class PreferredSprite(Sprite):
         if ArcadeLegacy.is_arcade_legacy():
             super().set_position(x, y)
         else:
-            self._position = [x,y]
+            super().set_position(x, y)
+            #self._position = [x,y]
