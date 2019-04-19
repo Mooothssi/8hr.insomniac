@@ -240,7 +240,7 @@ class Character():
             #self.set_position(reset_pos_x, reset_pos_y)
         else:
             x, y = self.sprite.position[0], self.sprite.position[1]#self.get_sprite_position(self.board_position[0], self.board_position[1])
-            rand_velc = 5 #(random.randint(1,20)/20)
+            rand_velc = 2 #(random.randint(1,20)/20)
             self.set_position(x + DIR_OFFSETS[self.next_direction][1]*rand_velc, y + DIR_OFFSETS[self.next_direction][0]*rand_velc)
         #print(f'Curr pos: {self.sprite.position}')
 

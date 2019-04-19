@@ -14,8 +14,7 @@ class InsomniaGame(arcade.Window):
         self.manager.fullscreen = fullscreen
 
     def on_draw(self):
-        #arcade.set_background_color(arcade.color.WHEAT)    
-        arcade.start_render()
+        #arcade.set_background_color(arcade.color.WHEAT)   
         self.manager.draw()
 
     def on_resize(self, width: float, height: float):
@@ -40,5 +39,6 @@ class InsomniaGame(arcade.Window):
 
 if __name__ == '__main__':
     game = InsomniaGame(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE)
+    arcade.start_render()
     arcade.run()
 
