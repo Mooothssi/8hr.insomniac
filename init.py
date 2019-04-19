@@ -18,9 +18,10 @@ class InsomniaGame(arcade.Window):
         self.manager.draw()
 
     def on_resize(self, width: float, height: float):
-        if width >= 1920 or width == 800:
-            super().on_resize(width, height)
-            self.manager.reload_sprites(width, height)
+        # if width >= 1920 or width == 800:
+        super().on_resize(width, height)
+        self.manager.reload_sprites(width, height)
+        self.manager.on_resize(width, height)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.F11:

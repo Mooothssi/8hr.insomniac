@@ -1,6 +1,6 @@
 from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
-from inac8hr.globals import GAME_PREFS
+from inac8hr.globals import GAME_PREFS, WINDOW_RESIZE
 from inac8hr.units import DefenderUnit
 from arcade.sprite import Sprite
 from arcade import *
@@ -37,6 +37,7 @@ LV_PLAYING = 1
 LV_PAUSED = 0
 
 class Level(PlayableSceneLayer):
+    registered_inputs = [WINDOW_RESIZE]
     def __init__(self):
         self.map_plan = MapPlan(BOARD, 40)
         self.defenders = {}
@@ -57,7 +58,7 @@ class Level(PlayableSceneLayer):
 
 
     def clocked_update(self):
-        self.map_plan.scale(GAME_PREFS.scaling)
+        self.on_resize()
         if self.state == LV_PAUSED:
             self.pause()
         elif self.state == LV_PLAYING:
@@ -84,12 +85,21 @@ class Level(PlayableSceneLayer):
     def place_defender(self, x, y):
         self.defenders[(x,y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)
 
+    def is_defender_at(self, x, y):
+        return (x,y) in self.defenders
+
+    def on_resize(self):
+        self.scaling = GAME_PREFS.scaling
+        self.map_plan.scale(GAME_PREFS.scaling)
+        for defender in self.defenders.values():
+            defender.scale(GAME_PREFS.scaling)
+
 
 class MapPlan():
     def __init__(self, plan_list, block_size):
         self.block_size = block_size
         self.plan_array = plan_list
-        self.wall_sprite = Sprite('assets/images/levels/wall - Copy.png', scale=1.11)
+        self.scale(1)
         self.determine_dimensions()
 
     def scale(self, scaling):

@@ -12,7 +12,7 @@ from inac8hr.globals import GAME_PREFS
 from inac8hr.utils import *
 from i18n.loc import Localization
 
-APP_VERSION = 0.1
+APP_VERSION = "0.1.2"
 STATE_READY = 0
 STATE_PLACEMENT = 1
 
@@ -68,6 +68,7 @@ class GameManager():
         
         self.current_tool = PlacementAvailabilityTool(self.viewport.current_scene.get('canvas_layer').main_element)
         self.dispatcher.add_dispatcher(self.current_tool)
+        self.dispatcher.add_dispatcher(self.viewport.current_scene.get('canvas_layer').main_element)
 
         self.dispatcher.register_tool_events()
 
@@ -81,7 +82,7 @@ class GameManager():
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2, self.screen_width + 500, self.screen_height + 500, self.background)
         self.drawer.draw(GAME_PREFS.scaling)
         self.viewport.draw()
-        self.current_tool.unit_blueprint.sprite.draw()
+        self.current_tool.draw()
         #arcade.draw_text("3",0,0,arcade.color.BLACK)
         arcade.draw_text(f"FPS: {self.fps.get_fps():.2f} | Scaling: {GAME_PREFS.scaling:.2f} | Score: {0} | {self.locale.get_translated_text('Intro/Instructions')} |-| {self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|", 16, 8, arcade.color.BLACK )
 
@@ -139,3 +140,7 @@ class GameManager():
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
         self.dispatcher.on_mouse_motion(x, y, dx, dy)
+
+    def on_resize(self, width, height):
+        self.reset_scaling(width, height)
+        self.dispatcher.on_resize(width, height)

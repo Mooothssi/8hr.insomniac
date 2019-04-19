@@ -4,7 +4,8 @@ EVENT_MAP_TEMP = {
     MOUSE_MOTION: [],
     MOUSE_PRESS: [],
     KEY_PRESS: [],
-    KEY_RELEASE: []
+    KEY_RELEASE: [],
+    WINDOW_RESIZE: []
 }
 
 class EventDispatcher():
@@ -22,8 +23,12 @@ class EventDispatcher():
 
     def on_mouse_motion(self, *kwargs):
         for t in self.event_map[MOUSE_MOTION]:
-            t.dispatch_mouse_motion(kwargs)
+            t.on_mouse_motion(kwargs)
 
     def on_mouse_press(self, *kwargs):
-        for t in self.event_map[MOUSE_MOTION]:
-            t.dispatch_mouse_press(kwargs)
+        for t in self.event_map[MOUSE_PRESS]:
+            t.on_mouse_press(kwargs)
+
+    def on_resize(self, *kwargs):
+        for t in self.event_map[WINDOW_RESIZE]:
+            t.on_resize()
