@@ -1,4 +1,5 @@
-from arcade import *
+import arcade
+
 VALID_PLACEMENT = 1
 INVALID_PLACEMENT = 0
 class PlacementAvailabilityHandler():

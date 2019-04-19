@@ -1,8 +1,8 @@
-from layers import Layer
+from inac8hr.layers import SceneLayer
 
 class Scene():
 
-    def __init__(self, ui_layer: Layer, canvas_layer: Layer):
+    def __init__(self, ui_layer: SceneLayer, canvas_layer: SceneLayer):
         self.ui_layer = ui_layer
         self.canvas_layer = canvas_layer
 

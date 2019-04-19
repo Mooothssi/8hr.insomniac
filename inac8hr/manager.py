@@ -1,8 +1,11 @@
 import arcade
 import collections
 import time
-from drawer import LevelDrawer, Character
-from placement import UnitBlueprint
+from inac8hr.agents import Character
+from inac8hr.scenes import Scene, Viewport
+from inac8hr.layers import SceneLayer
+from inac8hr.placement import UnitBlueprint
+from inac8hr.drawer import LevelDrawer#, Character
 from i18n.loc import Localization
 
 APP_VERSION = 0.1
@@ -54,10 +57,16 @@ class GameManager():
         self.sprite_list = []
         self.state = STATE_READY
 
+        self.initialize_scene()
+
         self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"])
         self.unit_blueprint.sprite.center_x = 0
         self.unit_blueprint.sprite.center_y = 0
         self.unit_blueprint.sprite.scale = 0.7
+
+    def initialize_scene(self):
+        initial_scene = Scene(SceneLayer(), SceneLayer())
+        self.viewport = Viewport(initial_scene)
 
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2, self.screen_width + 500, self.screen_height + 500, self.background)

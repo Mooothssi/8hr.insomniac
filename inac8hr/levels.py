@@ -1,4 +1,4 @@
-from layers import PlayableSceneLayer
+from inac8hr.layers import PlayableSceneLayer
 
 LV_PLAYING = 1
 LV_PAUSED = 0
