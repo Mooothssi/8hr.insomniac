@@ -8,7 +8,7 @@ class Language:
         self.dictionary = dictionary
 
 class Localization():
-    "Allow players to customize to their language."
+    "Allow players to customize into their own language."
     def __init__(self, default = "en_US"):
         self.languages = {}
         self.default_lang = default

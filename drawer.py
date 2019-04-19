@@ -44,6 +44,7 @@ class LevelDrawer():
         self.height = len(self.board)
         self._is_wall_drawn = False
         self.switch_points = []
+        self.defenders = []
 
     def load_sprites(self, scale):
         self.enemies.clear()

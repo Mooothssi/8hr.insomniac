@@ -6,6 +6,8 @@ from placement import UnitBlueprint
 from i18n.loc import Localization
 
 APP_VERSION = 0.1
+STATE_READY = 0
+STATE_PLACEMENT = 1
 
 class FPSCounter:
     def __init__(self):
@@ -50,6 +52,7 @@ class GameManager():
         self.updating = False
         self.locale = Localization()
         self.sprite_list = []
+        self.state = STATE_READY
 
         self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"])
         self.unit_blueprint.sprite.center_x = 0
@@ -105,6 +108,12 @@ class GameManager():
         self.activated_keys.remove(key)
         print(key)
         print("up")
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if STATE_PLACEMENT:
+            pass
+        else:
+            pass
 
     def register_sprite(self, sprite):
         "For registering a sprite to the global sprite list across the App"
