@@ -110,8 +110,12 @@ class MapPlan():
         sprite.draw()
 
     def is_wall_at(self, pos):
-        if self.plan_array[pos[0]][pos[1]] == '#':
-            return True
+        board = self.plan_array
+        if -1 <= pos[0] <= len(board) - 1 and -1 <= pos[1] <= len(board[0]) - 1:
+            if board[pos[0]][pos[1]] == '#':
+                return True
+            else:
+                return False
         else:
             return False
 

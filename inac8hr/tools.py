@@ -44,7 +44,6 @@ class PlacementAvailabilityTool(BaseTool):
         x, y = args
         self.unit_blueprint.sprite.set_position(x, y)
         self.update_blueprint_state(x, y)
-        #self.eval_proximity(x, y)
 
     def dispatch_mouse_press(self, args: tuple):
         x, y = args
