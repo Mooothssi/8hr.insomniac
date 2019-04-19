@@ -50,7 +50,6 @@ class Viewport():
         self.current_scene = initial_scene
 
     def draw(self):
-       
         self.current_scene.draw()
 
     def clocked_update(self):

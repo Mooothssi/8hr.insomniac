@@ -23,3 +23,7 @@ class EventDispatcher():
     def on_mouse_motion(self, *kwargs):
         for t in self.event_map[MOUSE_MOTION]:
             t.dispatch_mouse_motion(kwargs)
+
+    def on_mouse_press(self, *kwargs):
+        for t in self.event_map[MOUSE_MOTION]:
+            t.dispatch_mouse_press(kwargs)

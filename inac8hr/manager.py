@@ -130,11 +130,7 @@ class GameManager():
         print("up")
 
     def on_mouse_press(self, x, y, button, modifiers):
-        self.current_tool.dispatch_mouse_press((x, y))
-        if STATE_PLACEMENT:
-            pass
-        else:
-            pass
+        self.dispatcher.on_mouse_press(x, y, button, modifiers)
 
     def register_sprite(self, sprite):
         "For registering a sprite to the global sprite list across the App"

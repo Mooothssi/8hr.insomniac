@@ -58,4 +58,5 @@ class Character():
         self.sprite.draw()
 
     def set_position(self, x, y):
-        self.sprite._position = [x,y]
+        self.sprite.set_position(x, y)
+        #self.sprite._position = [x,y]

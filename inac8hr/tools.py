@@ -46,7 +46,7 @@ class PlacementAvailabilityTool(BaseTool):
         self.update_blueprint_state(x, y)
 
     def dispatch_mouse_press(self, args: tuple):
-        x, y = args
+        x, y, button, modifiers = args
         if self.eval_availability(x, y):
             self.unit_blueprint.location = LocationUtil.get_plan_position(x,y, True)
             r, c = self.unit_blueprint.location

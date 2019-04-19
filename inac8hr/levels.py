@@ -1,8 +1,10 @@
 from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
 from inac8hr.globals import GAME_PREFS
+from inac8hr.units import DefenderUnit
 from arcade.sprite import Sprite
 from arcade import *
+
 BOARD = [
         '#X################',
         '# ###    #####   #',
@@ -37,7 +39,7 @@ LV_PAUSED = 0
 class Level(PlayableSceneLayer):
     def __init__(self):
         self.map_plan = MapPlan(BOARD, 40)
-        self.defenders = []
+        self.defenders = {}
         self.enemies = []
         self.state = LV_PAUSED
         self.scaling = 1     
@@ -50,7 +52,7 @@ class Level(PlayableSceneLayer):
         self.map_plan.draw()
         for enemy in self.enemies:
             enemy.draw()
-        for defender in self.defenders:
+        for defender in self.defenders.values():
             defender.draw()
 
 
@@ -67,7 +69,7 @@ class Level(PlayableSceneLayer):
     def pause(self):
         for e in self.enemies:
             e.pause()
-        for d in self.defenders:
+        for d in self.defenders.values():
             d.pause()
 
     def play(self):
@@ -80,7 +82,7 @@ class Level(PlayableSceneLayer):
         self.state = state
 
     def place_defender(self, x, y):
-        print(f"Defender placed at: {x}, {y}")
+        self.defenders[(x,y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)
 
 
 class MapPlan():
