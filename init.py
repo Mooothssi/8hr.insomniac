@@ -14,14 +14,15 @@ class InsomniaGame(arcade.Window):
         self.manager.fullscreen = fullscreen
 
     def on_draw(self):
-        #arcade.set_background_color(arcade.color.WHEAT)   
+        arcade.set_background_color(arcade.color.WHEAT)   
         self.manager.draw()
 
     def on_resize(self, width: float, height: float):
-        # if width >= 1920 or width == 800:
-        super().on_resize(width, height)
-        self.manager.reload_sprites(width, height)
-        self.manager.on_resize(width, height)
+        if 4/3 <= width/height <= 16/9:
+            super().on_resize(width, height)
+            self.manager.reload_sprites(width, height)
+            self.manager.on_resize(width, height)
+
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.F11:

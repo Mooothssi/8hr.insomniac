@@ -50,6 +50,7 @@ class PlacementAvailabilityTool(BaseTool):
             self.unit_blueprint.location = LocationUtil.get_plan_position(x,y, True)
             r, c = self.unit_blueprint.location
             self.level.place_defender(r, c)
+            self.unit_blueprint.change_state(INVALID_PLACEMENT)
 
     def on_resize(self):
         self.unit_blueprint.rescale()

@@ -62,17 +62,15 @@ class GameManager():
         self.state = STATE_READY
         self.dispatcher = EventDispatcher()
 
-        self.initialize_scene()
+        self.initialize_scenes()
 
-        #self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"])
-        
         self.current_tool = PlacementAvailabilityTool(self.viewport.current_scene.get('canvas_layer').main_element)
         self.dispatcher.add_dispatcher(self.current_tool)
         self.dispatcher.add_dispatcher(self.viewport.current_scene.get('canvas_layer').main_element)
 
         self.dispatcher.register_tool_events()
 
-    def initialize_scene(self):
+    def initialize_scenes(self):
         level_1 = Level()
         level_1_scene = PlayableSceneLayer("canvas_layer", level_1)
         initial_scene = Scene(level_1_scene, SceneLayer("ui_layer"), SceneLayer("tool_layer"))
@@ -80,7 +78,6 @@ class GameManager():
 
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2, self.screen_width + 500, self.screen_height + 500, self.background)
-        self.drawer.draw(GAME_PREFS.scaling)
         self.viewport.draw()
         self.current_tool.draw()
         #arcade.draw_text("3",0,0,arcade.color.BLACK)

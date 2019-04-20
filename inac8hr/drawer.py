@@ -66,12 +66,13 @@ class LevelDrawer():
     
 
     def initialize_enemies(self):
-        x, y = self.get_initial_player_position()
-        diff = 0
-        initial_pos = x + diff, y
-        enemy = Character('assets/images/chars/placeholder_neutral.png', initial_pos, scaling=self.scaling)
-        self.enemies.append(enemy)
-        self.get_all_switch_points(enemy)
+        pass
+        # x, y = self.get_initial_player_position()
+        # diff = 0
+        # initial_pos = x + diff, y
+        # enemy = Character('assets/images/chars/placeholder_neutral.png', initial_pos, scaling=self.scaling)
+        # self.enemies.append(enemy)
+        # self.get_all_switch_points(enemy)
 
     def get_sprite_position(self, r, c):
         x = c * BLOCK_SIZE * self.scaling + ((BLOCK_SIZE * self.scaling) // 2)
@@ -129,11 +130,11 @@ class LevelDrawer():
     def get_all_switch_points(self, agent):
         offsets = DIR_OFFSETS.keys()
         x, y = agent.board_position
-        self.out_of_bounds = False
+        out_of_bounds = False
         board = list(self.board)
         direction = -1
         count = 0
-        while not self.out_of_bounds:
+        while not out_of_bounds:
             #print(count) 
             count += 1
             for offset_key in offsets:
@@ -155,7 +156,7 @@ class LevelDrawer():
                     board[check_pos[0]] = ''.join(line)
                         #print("Next pos:" + str(self.position))
                 elif status == 2:
-                    self.out_of_bounds = True
+                    out_of_bounds = True
 
     def check_collision_and_move(self, agent):
         offsets = DIR_OFFSETS.keys()
