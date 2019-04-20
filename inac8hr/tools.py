@@ -54,7 +54,7 @@ class PlacementAvailabilityTool(BaseTool):
 
     def on_resize(self):
         self.unit_blueprint.rescale()
-    
+   
     def draw(self):
         self.unit_blueprint.sprite.draw()
 

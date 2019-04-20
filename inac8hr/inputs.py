@@ -8,6 +8,7 @@ EVENT_MAP_TEMP = {
     WINDOW_RESIZE: []
 }
 
+
 class EventDispatcher():
     def __init__(self):
         self.dispatchers = []

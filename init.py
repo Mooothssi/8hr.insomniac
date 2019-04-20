@@ -1,4 +1,3 @@
-from inac8hr.drawer import LevelDrawer
 from inac8hr.manager import GameManager
 import arcade
 

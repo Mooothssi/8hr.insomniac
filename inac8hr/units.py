@@ -4,6 +4,7 @@ from inac8hr.utils import LocationUtil
 
 class Unit():
     def __init__(self, sprite_name, initial_pos, scaling=1):
+        #TODO: Absolute and Relative position
         self.sprite_name = sprite_name
         self.sprite = Sprite(sprite_name)
         self.board_position = 0,0 
@@ -31,6 +32,10 @@ class Unit():
     def set_position(self, x, y):
         self.sprite.set_position(x, y)
 
+    def displace_position(self, x, y):
+        self.sprite.set_position(self.sprite.center_x + x,
+                                 self.sprite.center_y + y)
+
     def clocked_update(self):
         pass
 
@@ -44,14 +49,16 @@ class Unit():
     def on_animated(self):
         pass
 
+
 class DefenderUnit(Unit):
     pass
+
 
 class AgentUnit(Unit):
     def __init__(self, sprite_name, pos, scaling=1, switches=[]):
         super().__init__(sprite_name, pos, scaling)
         self.next_direction = DIR_STILL
-        self.switches = switches
+        self.switches = list(switches)
 
     def change_direction(self, direction):
         self.next_direction = direction
@@ -65,7 +72,8 @@ class AgentUnit(Unit):
             reset_pos_x, reset_pos_y = LocationUtil.get_sprite_position(self.board_position[0],self.board_position[1])
         else:
             x, y = self.sprite.position[0], self.sprite.position[1]
-            rand_velc = 2 #(random.randint(1,20)/20)
+            import random
+            rand_velc = 2#(random.randint(1,50)/20)
             self.set_position(x + DIR_OFFSETS[self.next_direction][1]*rand_velc, y + DIR_OFFSETS[self.next_direction][0]*rand_velc)
 
     def move_along_switches(self, switch_points):

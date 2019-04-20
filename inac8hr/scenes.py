@@ -3,12 +3,12 @@ import arcade
 
 class Scene():
 
-    def __init__(self, ui_layer: SceneLayer, canvas_layer: SceneLayer, tool_layer: SceneLayer):
+    def __init__(self, ui_layer: SceneLayer, canvas_layer: SceneLayer,
+                 tool_layer: SceneLayer):
         self.layers = {}
         self.layers_coll = []
         self.append_layer(canvas_layer)
         self.append_layer(ui_layer)
-
 
     def draw(self):
         for layer in self.layers_coll:

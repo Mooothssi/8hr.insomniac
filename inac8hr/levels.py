@@ -1,6 +1,6 @@
 from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
-from inac8hr.globals import GAME_PREFS, WINDOW_RESIZE
+from inac8hr.globals import *
 from inac8hr.units import DefenderUnit, AgentUnit
 from arcade.sprite import Sprite
 from arcade import *
@@ -19,22 +19,7 @@ BOARD = [
         '##########     # #',
         '################ #',]
 
-DIR_UP = 1
-DIR_DOWN = 2
-DIR_LEFT = 3
-DIR_RIGHT = 4
-
-DIR_OFFSETS = {
-    DIR_UP: (0,1),
-    DIR_DOWN: (0,-1),
-    DIR_LEFT: (-1,0),
-    DIR_RIGHT: (1,0)
-}
-
 BLOCK_SIZE = 40
-
-LV_PLAYING = 1
-LV_PAUSED = 0
 
 class Level(PlayableSceneLayer):
     registered_inputs = [WINDOW_RESIZE]
@@ -42,7 +27,7 @@ class Level(PlayableSceneLayer):
         self.map_plan = MapPlan(BOARD, 40)
         self.defenders = {}
         self.enemies = []
-        self.state = LV_PLAYING
+        self.state = LevelState.PLAYING
         self.scaling = 1     
         self.generate_enemies()
 
@@ -56,14 +41,12 @@ class Level(PlayableSceneLayer):
         for defender in self.defenders.values():
             defender.draw()
         
-        
-
 
     def clocked_update(self):
         self.on_resize()
-        if self.state == LV_PAUSED:
+        if self.state == LevelState.PAUSED:
             self.pause()
-        elif self.state == LV_PLAYING:
+        elif self.state == LevelState.PLAYING:
             self.play()
     #
     #
@@ -86,16 +69,22 @@ class Level(PlayableSceneLayer):
 
     def generate_enemies(self):
         x, y = self.map_plan.get_initial_agent_position()
+        initial_pos = x, y
         diff = 0
-        initial_pos = x + diff, y
-        enemy = AgentUnit('assets/images/chars/placeholder_neutral.png', initial_pos, self.scaling, self.map_plan.switch_points)
-        self.enemies.append(enemy)
+        for _ in range(4):
+            enemy = AgentUnit('assets/images/chars/placeholder_neutral.png', initial_pos, self.scaling, self.map_plan.switch_points)
+            enemy.displace_position(0, diff)
+            diff += 40
+            self.enemies.append(enemy)
 
     def place_defender(self, x, y):
         self.defenders[(x,y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)
 
     def is_defender_at(self, x, y):
         return (x,y) in self.defenders
+
+    def is_playing(self):
+        return self.state == LevelState.PLAYING
 
     def on_resize(self):
         self.scaling = GAME_PREFS.scaling

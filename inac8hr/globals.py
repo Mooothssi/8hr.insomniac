@@ -1,10 +1,20 @@
 from inac8hr.settings import Preferences
+from i18n.loc import *
 
 GAME_PREFS = Preferences()
 GAME_PREFS.block_size = 40
 
+STATE_READY = 0
+STATE_PLACEMENT = 1
 MODE_PLAYING = 1
 MODE_PLACING = 2
+
+LOC_SOURCE = Localization()
+
+
+class LevelState:
+    PLAYING = 1
+    PAUSED = 0
 
 UNIT_FROZEN = 0
 UNIT_ANIMATED = 1
@@ -16,11 +26,11 @@ DIR_LEFT = 3
 DIR_RIGHT = 4
 
 DIR_OFFSETS = {
-    DIR_UP: (0,1),
-    DIR_DOWN: (0,-1),
-    DIR_LEFT: (-1,0),
-    DIR_RIGHT: (1,0),
-    DIR_STILL: (0,0)
+    DIR_UP: (0, 1),
+    DIR_DOWN: (0, -1),
+    DIR_LEFT: (-1, 0),
+    DIR_RIGHT: (1, 0),
+    DIR_STILL: (0, 0)
 }
 
 #
