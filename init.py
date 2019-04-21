@@ -11,7 +11,7 @@ SCREEN_HEIGHT = 600  # 12*40
 
 class InsomniaGame(arcade.Window):
     def __init__(self, width, height, title, fullscreen=False):
-        super().__init__(width, height, title, fullscreen)
+        super().__init__(width, height, title, fullscreen, resizable=True)
         self.manager = GameManager(resolution=(width, height))
         self.manager.load_sprites(width, height)
         self.manager.fullscreen = fullscreen

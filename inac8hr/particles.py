@@ -45,7 +45,7 @@ class Particle(CirclePhysicsEntity):
 
 class Bullet(Particle):
     PROXIMITY_THRESHOLD = 3
-    
+    NORMAL_DAMAGE = 10
     def __init__(self, sprite_name, initial_pos=(0, 0)):
         super().__init__(sprite_name, initial_pos)
         r, c = initial_pos
@@ -54,14 +54,18 @@ class Bullet(Particle):
         self.sprite.set_position(x, y)
         self.fired = False
         self.disarmed = False
+        self.damage = Bullet.NORMAL_DAMAGE
         self.velocity = 2
         self.target_pos = (0, 0)
 
     def to(self, pos):
         self.target_pos = pos
         change_x = pos[0] - self.x1
-        change_x /= abs(change_x)
         change_y = pos[1] - self.y1
+        if change_x == 0 or change_y == 0:
+            self.sprite.change_x, self.sprite.change_y = 0, 0
+            return
+        change_x /= abs(change_x)
         change_y /= abs(change_y)
         self.sprite.change_x = self.velocity*change_x
         self.sprite.change_y = self.velocity*change_y

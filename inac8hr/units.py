@@ -78,10 +78,12 @@ class Unit(CirclePhysicsEntity):
 class DefenderUnit(Unit):
     STATE_IDLE = 0
     STATE_SHOOTING = 1
+    NORMAL_RADIUS = 0.8
 
     def __init__(self, sprite_name, initial_pos, scaling=1):
         super().__init__(sprite_name, initial_pos, scaling)
         self.bullets = []
+        self.coverage_radius = DefenderUnit.NORMAL_RADIUS
         self.initial_pos = initial_pos
         self.defender_state = self.STATE_IDLE
         self.target_pos = (-1, -1)
@@ -119,14 +121,15 @@ class DefenderUnit(Unit):
 
 
 class AgentUnit(Unit):
-    DEFAULT_HEALTH = 50
-    def __init__(self, sprite_name, pos, scaling=1, switches=[]):
+    TEXTURE_CONST = 0.65
+
+    def __init__(self, sprite_name, pos, full_hp=50, scaling=1, switches=[]):
         super().__init__(sprite_name, pos, scaling)
         self.next_direction = DIR_STILL
         self.switches = list(switches)
         self.survived = False
         self.targeted = False
-        self.health = self.DEFAULT_HEALTH
+        self.reset_hp(full_hp)
 
     @property
     def position(self):
@@ -135,13 +138,18 @@ class AgentUnit(Unit):
     def change_direction(self, direction):
         self.next_direction = direction
 
+    def reset_hp(self, hp):
+        self.full_health = hp
+        self.health = self.full_health
+
     def on_animated(self, *kwargs):
         self.move_along_switches(self.switches)
-        if self.health <= 0:
-            self.dead = True
+        self.sprite.scale = (self.health/self.full_health)*self.TEXTURE_CONST
 
     def take_damage(self, hp):
         self.health -= hp
+        if self.health <= 0:
+            self.dead = True
     
     def won(self):
         self.dead = True

@@ -26,6 +26,7 @@ class Level(PlayableSceneLayer):
     registered_inputs = [UserEvent.WINDOW_RESIZE]
 
     def __init__(self):
+        self.full_health = 50
         self.map_plan = MapPlan(BOARD, 40)
         self.defenders = {}
         self.enemies = []
@@ -33,7 +34,7 @@ class Level(PlayableSceneLayer):
         self.state = LevelState.PLAYING
         self.scaling = 1
         self.score = 0
-        self.generate_enemies()
+        self.generate_enemies()    
 
     #
     # Arcade base overload functions
@@ -74,7 +75,7 @@ class Level(PlayableSceneLayer):
                 remove_list = []
                 for p in self.particles:
                     if p.collides(e):
-                        e.take_damage(10)    
+                        e.take_damage(p.damage)    
                         playing = False
                         p.dispose()
                         remove_list.append(p)
@@ -87,7 +88,7 @@ class Level(PlayableSceneLayer):
                     e.play()
         for d in self.defenders.values():
             selected_enemy = None
-            dist = [[d.closest_rad(e), e] for e in self.enemies if 0 <= d.closest_rad(e) <= 0.3]
+            dist = [[d.closest_rad(e), e] for e in self.enemies if 0 <= d.closest_rad(e) <= d.coverage_radius]
             dist.sort()
             if len(dist) > 0:
                 selected_enemy = dist[0][1]
@@ -108,10 +109,11 @@ class Level(PlayableSceneLayer):
         initial_pos = x, y
         diff = 0
         for _ in range(4):
-            enemy = AgentUnit('assets/images/chars/placeholder_neutral.png', initial_pos, self.scaling, self.map_plan.switch_points)
+            enemy = AgentUnit('assets/images/chars/placeholder_neutral.png', initial_pos, self.full_health, self.scaling, self.map_plan.switch_points)
             enemy.displace_position(0, diff)
             diff += 40
             self.enemies.append(enemy)
+        self.full_health += 10
 
     def place_defender(self, x, y, category=None):
         self.defenders[(x, y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)
