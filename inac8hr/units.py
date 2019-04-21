@@ -119,12 +119,14 @@ class DefenderUnit(Unit):
 
 
 class AgentUnit(Unit):
+    DEFAULT_HEALTH = 50
     def __init__(self, sprite_name, pos, scaling=1, switches=[]):
         super().__init__(sprite_name, pos, scaling)
         self.next_direction = DIR_STILL
         self.switches = list(switches)
         self.survived = False
         self.targeted = False
+        self.health = self.DEFAULT_HEALTH
 
     @property
     def position(self):
@@ -135,6 +137,11 @@ class AgentUnit(Unit):
 
     def on_animated(self, *kwargs):
         self.move_along_switches(self.switches)
+        if self.health <= 0:
+            self.dead = True
+
+    def take_damage(self, hp):
+        self.health -= hp
     
     def won(self):
         self.dead = True

@@ -74,7 +74,7 @@ class Level(PlayableSceneLayer):
                 remove_list = []
                 for p in self.particles:
                     if p.collides(e):
-                        e.die()     
+                        e.take_damage(10)    
                         playing = False
                         p.dispose()
                         remove_list.append(p)
