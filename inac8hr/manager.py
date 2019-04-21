@@ -3,6 +3,7 @@ import collections
 import math
 import time
 from inac8hr.hud.level1 import Level1HUD
+from inac8hr.commands import CommandHandler
 from inac8hr.levels import Level
 from inac8hr.globals import *
 from inac8hr.inputs import EventDispatcher
@@ -61,7 +62,9 @@ class GameManager():
         self.fps_text = self.viewport.current_scene.get('ui_layer').main_element
         self.current_level = self.viewport.current_scene.get('canvas_layer').main_element
         self.tool_handler = ToolHandler(self.dispatcher)
+        self.cmd_handler = CommandHandler(self)
         self.dispatcher.add_dispatcher(self.current_level)
+        self.dispatcher.add_dispatcher(self.cmd_handler)
         self.cursor_loc = 0, 0
 
         self.dispatcher.register_tool_events()
@@ -103,27 +106,21 @@ class GameManager():
             self.current_level.set_state(LevelState.PLAYING)
 
     def on_key_press(self, key, modifiers):
-        self.activated_keys.append(key)
-        print(key)
-        print("down")
+        self.dispatcher.on('key_press', key, modifiers)
+      #  self.activated_keys.append(key)
         if key == arcade.key.ENTER:
             if self.current_level.is_playing():
                 self.current_level.set_state(LevelState.PAUSED)
             else:
                 self.current_level.set_state(LevelState.PLAYING)
 
-        if modifiers and arcade.key.MOD_CTRL:
-            if key == arcade.key.P:
-                self.tool_handler.current_tool = PlacementAvailabilityTool(self.current_level, self.cursor_loc)
-
         if key == arcade.key.ESCAPE:
             self.tool_handler.clear_current_tool()
             print('clear')
 
     def on_key_release(self, key, modifiers):
-        self.activated_keys.remove(key)
-        print(key)
-        print("up")
+        #self.activated_keys.remove(key)
+        pass
 
     def on_mouse_press(self, x, y, button, modifiers):
         self.dispatcher.on('mouse_press', x, y, button, modifiers)

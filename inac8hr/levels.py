@@ -21,8 +21,10 @@ BOARD = [
 
 BLOCK_SIZE = 40
 
+
 class Level(PlayableSceneLayer):
-    registered_inputs = [WINDOW_RESIZE]
+    registered_inputs = [UserEvent.WINDOW_RESIZE]
+    
     def __init__(self):
         self.map_plan = MapPlan(BOARD, 40)
         self.defenders = {}
@@ -77,7 +79,7 @@ class Level(PlayableSceneLayer):
             diff += 40
             self.enemies.append(enemy)
 
-    def place_defender(self, x, y):
+    def place_defender(self, x, y, category=None):
         self.defenders[(x,y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)
 
     def is_defender_at(self, x, y):

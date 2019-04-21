@@ -34,15 +34,16 @@ DIR_OFFSETS = {
     DIR_STILL: (0, 0)
 }
 
-#
-# Indices of input events available
-#
 
-MOUSE_PRESS = 1
-MOUSE_MOTION = 2
-KEY_PRESS = 3
-KEY_RELEASE = 4
-WINDOW_RESIZE = 5
+class UserEvent:
+    """
+        Indices of input events available
+    """
+    MOUSE_PRESS = 1
+    MOUSE_MOTION = 2
+    KEY_PRESS = 3
+    KEY_RELEASE = 4
+    WINDOW_RESIZE = 5
 
 #
 # Keymaps for each combination of pressed keys

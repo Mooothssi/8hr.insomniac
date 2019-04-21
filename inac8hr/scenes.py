@@ -8,7 +8,8 @@ class Scene():
                  tool_layer: SceneLayer):
         self.layers = {}
         self.layers_coll = []
-        # TODO: Animation sequences for each scene (Loading, Popup backdrop, etc.)
+        # TODO: Animation sequences for each scene
+        # (Loading, Popup backdrop, etc.)
         self.sequences = []
         self.append_layer(canvas_layer)
         self.append_layer(ui_layer)
@@ -40,7 +41,7 @@ class Scene():
     def replace_layer(self, layer: SceneLayer):
         index = self.layers[layer.name]
         self.layers_coll.pop(index)
-        self.layers_coll.insert(index, layer) 
+        self.layers_coll.insert(index, layer)
 
     def delete_layer(self, layer_name: str):
         index = self.layers[layer_name]
