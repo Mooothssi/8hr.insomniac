@@ -1,8 +1,9 @@
 from inac8hr.settings import Preferences
-from i18n.loc import *
+from i18n.loc import Localization
 
 GAME_PREFS = Preferences()
 GAME_PREFS.block_size = 40
+GAME_PREFS.scaling = 1
 
 STATE_READY = 0
 STATE_PLACEMENT = 1
@@ -35,9 +36,18 @@ DIR_OFFSETS = {
 
 #
 # Indices of input events available
-# 
+#
+
 MOUSE_PRESS = 1
 MOUSE_MOTION = 2
 KEY_PRESS = 3
 KEY_RELEASE = 4
 WINDOW_RESIZE = 5
+
+#
+# Keymaps for each combination of pressed keys
+#
+
+KEYMAPS = {
+
+}

@@ -1,20 +1,23 @@
 import arcade, math
 from inac8hr.utils import LocationUtil
+from inac8hr.inputs import EventDispatcher
 from inac8hr.levels import Level
 from inac8hr.globals import *
 
 VALID_PLACEMENT = 1
 INVALID_PLACEMENT = 0
 
+
 class BaseTool():
-    pass
+    def draw(self):
+        pass
+
 
 class PlacementAvailabilityTool(BaseTool):
     registered_inputs = [MOUSE_PRESS, MOUSE_MOTION, WINDOW_RESIZE]
-    def __init__(self, level: Level):
-        self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"], scaling=GAME_PREFS.scaling)
-        self.unit_blueprint.sprite.center_x = 0
-        self.unit_blueprint.sprite.center_y = 0
+
+    def __init__(self, level: Level, initial_loc=(0, 0)):
+        self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png","assets/images/chars/avail.png"], scaling=GAME_PREFS.scaling, initial_loc=initial_loc)
         self.unit_blueprint.sprite.scale = GAME_PREFS.scaling
         self.level = level
 
@@ -58,17 +61,26 @@ class PlacementAvailabilityTool(BaseTool):
     def draw(self):
         self.unit_blueprint.sprite.draw()
 
+
 class UnitBlueprint():
     "Minimum of 2 texture files"
-    def __init__(self, texture_files: list, scaling=1):
+    def __init__(self, texture_files: list, scaling=1, initial_loc=(0,0)):
         self.defender = None
-        self.location = 0, 0
         self.sprite = arcade.Sprite()
         self.texture_files = texture_files
         for file_name in texture_files:
             self.sprite.append_texture(arcade.load_texture(file_name))
         self.state = INVALID_PLACEMENT
         self.configure_texture()
+        self.position = initial_loc
+
+    def set_position(self, value):
+        self.sprite.set_position(*value)
+    
+    def get_position(self):
+        return self.sprite.position
+    
+    position = property(get_position, set_position)
 
     def rescale(self):
         self.configure_texture()
@@ -86,3 +98,33 @@ class UnitPlacement():
 
     def check_availability(self):
         pass
+
+
+class ToolHandler():
+    registered_inputs = [MOUSE_MOTION]
+    def __init__(self, event_dispatcher: EventDispatcher):
+        self.tools = []
+        self.dispatcher = event_dispatcher
+        self.__current_tool__ = None
+
+    def get_current_tool(self):
+        return self.__current_tool__
+
+    def set_current_tool(self, tool: BaseTool):
+        if self.__current_tool__ is not None:
+            self.dispatcher.deregister_dispatcher(self.__current_tool__)
+        self.__current_tool__ = tool
+        if self.__current_tool__ is not None:
+            self.dispatcher.register_dispatcher(self.__current_tool__)
+
+    def add_tool(self, tool: BaseTool):
+        self.tools.append(tool)
+   
+    def clear_current_tool(self):
+        self.current_tool = None
+
+    def draw(self):
+        if self.__current_tool__ is not None:
+            self.current_tool.draw()
+
+    current_tool = property(get_current_tool, set_current_tool)

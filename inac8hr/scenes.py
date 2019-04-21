@@ -1,12 +1,15 @@
 from inac8hr.layers import SceneLayer
 import arcade
 
+
 class Scene():
 
     def __init__(self, ui_layer: SceneLayer, canvas_layer: SceneLayer,
                  tool_layer: SceneLayer):
         self.layers = {}
         self.layers_coll = []
+        # TODO: Animation sequences for each scene (Loading, Popup backdrop, etc.)
+        self.sequences = []
         self.append_layer(canvas_layer)
         self.append_layer(ui_layer)
 

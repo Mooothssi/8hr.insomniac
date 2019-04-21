@@ -8,7 +8,7 @@ from inac8hr.globals import *
 from inac8hr.inputs import EventDispatcher
 from inac8hr.scenes import Scene, Viewport
 from inac8hr.layers import SceneLayer, UILayer, PlayableSceneLayer
-from inac8hr.tools import PlacementAvailabilityTool, UnitBlueprint
+from inac8hr.tools import ToolHandler, PlacementAvailabilityTool, UnitBlueprint
 from inac8hr.globals import GAME_PREFS
 from inac8hr.utils import LocationUtil
 from i18n.loc import Localization
@@ -36,12 +36,6 @@ class FPSCounter:
 
 
 class GameManager():
-    DIR_DELTA = {
-        arcade.key.UP: (0,1),
-        arcade.key.DOWN: (0,-1),
-        arcade.key.LEFT: (-1,0),
-        arcade.key.RIGHT: (1, 0),
-    }
     def __init__(self, resolution):
         GAME_PREFS.scaling = 1.11
         self.fullscreen = False
@@ -66,16 +60,17 @@ class GameManager():
 
         self.fps_text = self.viewport.current_scene.get('ui_layer').main_element
         self.current_level = self.viewport.current_scene.get('canvas_layer').main_element
-        self.current_tool = PlacementAvailabilityTool(self.viewport.current_scene.get('canvas_layer').main_element)
-        self.dispatcher.add_dispatcher(self.current_tool)
+        self.tool_handler = ToolHandler(self.dispatcher)
         self.dispatcher.add_dispatcher(self.current_level)
+        self.cursor_loc = 0, 0
 
         self.dispatcher.register_tool_events()
 
     def initialize_scenes(self):
         level_1 = Level()
         level_1_scene = PlayableSceneLayer("canvas_layer", level_1)
-        initial_scene = Scene(level_1_scene, Level1HUD(), SceneLayer("tool_layer"))
+        initial_scene = Scene(level_1_scene, Level1HUD(),
+                              SceneLayer("tool_layer"))
         self.viewport = Viewport(initial_scene)
         print('[Logger] Scene initialized...')
 
@@ -83,7 +78,7 @@ class GameManager():
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2,
                                       self.screen_width + 500, self.screen_height + 500, self.background)
         self.viewport.draw()
-        self.current_tool.draw()
+        self.tool_handler.draw()
         self.fps_text.text = f"FPS: {self.fps.get_fps():.2f} | Scaling: {GAME_PREFS.scaling:.2f} | Score: {0} | {self.locale.get_translated_text('Intro/Instructions')} |-| {self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
 
     def load_sprites(self, width, height):
@@ -117,14 +112,21 @@ class GameManager():
             else:
                 self.current_level.set_state(LevelState.PLAYING)
 
+        if modifiers and arcade.key.MOD_CTRL:
+            if key == arcade.key.P:
+                self.tool_handler.current_tool = PlacementAvailabilityTool(self.current_level, self.cursor_loc)
+
+        if key == arcade.key.ESCAPE:
+            self.tool_handler.clear_current_tool()
+            print('clear')
+
     def on_key_release(self, key, modifiers):
-        #self.character_moving = False
         self.activated_keys.remove(key)
         print(key)
         print("up")
 
     def on_mouse_press(self, x, y, button, modifiers):
-        self.dispatcher.on_mouse_press(x, y, button, modifiers)
+        self.dispatcher.on('mouse_press', x, y, button, modifiers)
 
     def register_sprite(self, sprite):
         "For registering a sprite to the global sprite list across the App"
@@ -132,7 +134,8 @@ class GameManager():
 
     def on_mouse_motion(self, x, y, dx, dy):
         """ Handle Mouse Motion """
-        self.dispatcher.on_mouse_motion(x, y, dx, dy)
+        self.cursor_loc = x, y
+        self.dispatcher.on('mouse_motion', x, y, dx, dy)
 
     def on_resize(self, width, height):
         self.reset_scaling(width, height)

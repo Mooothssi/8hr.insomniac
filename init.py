@@ -1,9 +1,12 @@
 from inac8hr.manager import GameManager
+from i18n.loc import LocalizedText
+from pyglet.gl import *
 import arcade
 
-GAME_TITLE = 'Insom8ia'
-SCREEN_WIDTH = 800#18*40
-SCREEN_HEIGHT = 600#12*40
+GAME_TITLE = str(LocalizedText('Game/Title'))
+SCREEN_WIDTH = 800  # 18*40
+SCREEN_HEIGHT = 600  # 12*40
+
 
 class InsomniaGame(arcade.Window):
     def __init__(self, width, height, title, fullscreen=False):
@@ -13,6 +16,8 @@ class InsomniaGame(arcade.Window):
         self.manager.fullscreen = fullscreen
 
     def on_draw(self):
+        # self.clear()
+        # glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         arcade.set_background_color(arcade.color.WHEAT)   
         self.manager.draw()
 
@@ -45,4 +50,5 @@ if __name__ == '__main__':
     game = InsomniaGame(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE)
     arcade.start_render()
     arcade.run()
+
 
