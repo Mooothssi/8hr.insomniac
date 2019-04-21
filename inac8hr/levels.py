@@ -1,9 +1,9 @@
+import arcade
 from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
 from inac8hr.globals import *
 from inac8hr.units import DefenderUnit, AgentUnit
-from arcade.sprite import Sprite
-from arcade import *
+from inac8hr.particles import Bullet
 
 BOARD = [
         '#X################',
@@ -24,13 +24,15 @@ BLOCK_SIZE = 40
 
 class Level(PlayableSceneLayer):
     registered_inputs = [UserEvent.WINDOW_RESIZE]
-    
+
     def __init__(self):
         self.map_plan = MapPlan(BOARD, 40)
         self.defenders = {}
         self.enemies = []
+        self.particles = []
         self.state = LevelState.PLAYING
-        self.scaling = 1     
+        self.scaling = 1
+        self.score = 0
         self.generate_enemies()
 
     #
@@ -42,7 +44,8 @@ class Level(PlayableSceneLayer):
         self.map_plan.draw()
         for defender in self.defenders.values():
             defender.draw()
-        
+        for p in self.particles:
+            p.draw()
 
     def clocked_update(self):
         self.on_resize()
@@ -61,10 +64,41 @@ class Level(PlayableSceneLayer):
             d.pause()
 
     def play(self):
+        for p in self.particles:
+            p.play()
         for e in self.enemies:
-            e.play()
+            if e.dead:
+                self.calculate_the_dead(e)
+            else:
+                playing = True
+                remove_list = []
+                for p in self.particles:
+                    if p.collides(e):
+                        e.die()     
+                        playing = False
+                        p.dispose()
+                        remove_list.append(p)
+                    elif p.disarmed:
+                        p.dispose()
+                        remove_list.append(p)
+                for i in remove_list:
+                    self.particles.remove(i)
+                if playing:
+                    e.play()
         for d in self.defenders.values():
+            selected_enemy = None
+            dist = [[d.closest_rad(e), e] for e in self.enemies if 0 <= d.closest_rad(e) <= 0.3]
+            dist.sort()
+            if len(dist) > 0:
+                selected_enemy = dist[0][1]
+            if selected_enemy is not None and not selected_enemy.targeted:
+                d.target_pos = selected_enemy.position
+                bullet = d.get_ready()
+                d.shoot()
+                self.particles.append(bullet)
             d.play()
+        if len(self.enemies) == 0:
+            self.generate_enemies()
 
     def set_state(self, state: int):
         self.state = state
@@ -80,10 +114,10 @@ class Level(PlayableSceneLayer):
             self.enemies.append(enemy)
 
     def place_defender(self, x, y, category=None):
-        self.defenders[(x,y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)
+        self.defenders[(x, y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)
 
     def is_defender_at(self, x, y):
-        return (x,y) in self.defenders
+        return (x, y) in self.defenders
 
     def is_playing(self):
         return self.state == LevelState.PLAYING
@@ -93,6 +127,13 @@ class Level(PlayableSceneLayer):
         self.map_plan.scale(GAME_PREFS.scaling)
         for defender in self.defenders.values():
             defender.scale(GAME_PREFS.scaling)
+
+    def calculate_the_dead(self, enemy):
+        if enemy.survived:
+            self.score -= 1
+        else:
+            self.score += 1
+        self.enemies.remove(enemy)
 
 
 class MapPlan():
@@ -105,7 +146,7 @@ class MapPlan():
         self.calculate_all_switch_points()
 
     def scale(self, scaling):
-        self.wall_sprite = Sprite('assets/images/levels/wall - Copy.png', scale=scaling)
+        self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scaling)
 
     def determine_dimensions(self):
         self.width = len(self.plan_array[0])

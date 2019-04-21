@@ -41,7 +41,7 @@ class PlacementCommand(ToolCommand):
 
     def execute(self):
         if self.triggered:
-            self.handler.current_tool = None
+            self.handler.clear_current_tool()
             self.triggered = False
         else:
             self.handler.current_tool = PlacementAvailabilityTool(self.level, self.manager.cursor_loc)

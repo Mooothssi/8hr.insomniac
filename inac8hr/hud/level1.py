@@ -1,6 +1,10 @@
 from inac8hr.gui import *
 from inac8hr.layers import *
 
+#
+# Ballot the Skipper
+#
+
 
 class Level1HUD(UILayer):
 

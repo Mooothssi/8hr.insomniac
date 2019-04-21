@@ -82,14 +82,15 @@ class GameManager():
                                       self.screen_width + 500, self.screen_height + 500, self.background)
         self.viewport.draw()
         self.tool_handler.draw()
-        self.fps_text.text = f"FPS: {self.fps.get_fps():.2f} | Scaling: {GAME_PREFS.scaling:.2f} | Score: {0} | {self.locale.get_translated_text('Intro/Instructions')} |-| {self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
+        self.fps_text.text = f"FPS: {self.fps.get_fps():.2f} | Scaling: {GAME_PREFS.scaling:.2f} | Score: {self.current_level.score} " \
+        f"| {self.locale.get_translated_text('Intro/Instructions')} |-| {self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
 
     def load_sprites(self, width, height):
         self.reset_scaling(width, height)
 
     def reload_sprites(self, width, height):
         self.reset_scaling(width, height)
-        
+
     def reset_scaling(self, width, height):
         self.screen_width, self.screen_height = width, height
         width_ratio = width / (self.current_level.map_plan.width*GAME_PREFS.block_size)
@@ -103,7 +104,7 @@ class GameManager():
         if self.fps.get_fps() < 10:
             self.current_level.set_state(LevelState.PAUSED)
         else:
-            self.current_level.set_state(LevelState.PLAYING)
+            self.current_level.set_state(self.current_level.state)
 
     def on_key_press(self, key, modifiers):
         self.dispatcher.on('key_press', key, modifiers)
@@ -113,10 +114,6 @@ class GameManager():
                 self.current_level.set_state(LevelState.PAUSED)
             else:
                 self.current_level.set_state(LevelState.PLAYING)
-
-        if key == arcade.key.ESCAPE:
-            self.tool_handler.clear_current_tool()
-            print('clear')
 
     def on_key_release(self, key, modifiers):
         #self.activated_keys.remove(key)

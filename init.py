@@ -2,6 +2,7 @@ from inac8hr.manager import GameManager
 from i18n.loc import LocalizedText
 from pyglet.gl import *
 import arcade
+import time
 
 GAME_TITLE = str(LocalizedText('Game/Title'))
 SCREEN_WIDTH = 800  # 18*40
@@ -11,15 +12,19 @@ SCREEN_HEIGHT = 600  # 12*40
 class InsomniaGame(arcade.Window):
     def __init__(self, width, height, title, fullscreen=False):
         super().__init__(width, height, title, fullscreen)
-        self.manager = GameManager(resolution=(width,height))
+        self.manager = GameManager(resolution=(width, height))
         self.manager.load_sprites(width, height)
         self.manager.fullscreen = fullscreen
+        arcade.PhysicsEngineSimple 
 
     def on_draw(self):
         # self.clear()
         # glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        t1 = time.time()
         arcade.set_background_color(arcade.color.WHEAT)   
         self.manager.draw()
+        t2 = time.time()
+        # print(t2-t1)
 
     def on_resize(self, width: float, height: float):
         if 4/3 <= width/height <= 16/9:
