@@ -4,15 +4,14 @@ import arcade
 
 class Scene():
 
-    def __init__(self, ui_layer: SceneLayer, canvas_layer: SceneLayer,
-                 tool_layer: SceneLayer):
+    def __init__(self, *args: SceneLayer):
         self.layers = {}
         self.layers_coll = []
         # TODO: Animation sequences for each scene
         # (Loading, Popup backdrop, etc.)
         self.sequences = []
-        self.append_layer(canvas_layer)
-        self.append_layer(ui_layer)
+        for i in args:
+            self.append_layer(i)
 
     def draw(self):
         for layer in self.layers_coll:

@@ -1,4 +1,5 @@
 import arcade
+import random
 from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
 from inac8hr.globals import *
@@ -109,11 +110,13 @@ class Level(PlayableSceneLayer):
         initial_pos = x, y
         diff = 0
         for _ in range(4):
-            enemy = AgentUnit('assets/images/chars/placeholder_neutral.png', initial_pos, self.full_health, self.scaling, self.map_plan.switch_points)
+            files = ['Ballot_pink.png', 'Ballot_orange.png', 'Ballot_red.png']
+            r = random.randint(0, len(files)-1)
+            enemy = AgentUnit(f'assets/images/chars/{files[r]}', initial_pos, self.full_health, self.scaling, self.map_plan.switch_points)
             enemy.displace_position(0, diff)
             diff += 40
             self.enemies.append(enemy)
-        self.full_health += 10
+        self.full_health += 80
 
     def place_defender(self, x, y, category=None):
         self.defenders[(x, y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)

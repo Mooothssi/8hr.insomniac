@@ -121,7 +121,8 @@ class DefenderUnit(Unit):
 
 
 class AgentUnit(Unit):
-    TEXTURE_CONST = 0.65
+    TEXTURE_CONST = 0.25
+    DECAY_VARIANTS = 3
 
     def __init__(self, sprite_name, pos, full_hp=50, scaling=1, switches=[]):
         super().__init__(sprite_name, pos, scaling)
@@ -144,7 +145,12 @@ class AgentUnit(Unit):
 
     def on_animated(self, *kwargs):
         self.move_along_switches(self.switches)
-        self.sprite.scale = (self.health/self.full_health)*self.TEXTURE_CONST
+        result = (self.health/self.full_health)*self.DECAY_VARIANTS
+        if result < 1:
+            result = 1
+        else:
+            result = round(result,0)
+        self.sprite.scale = (result)*self.TEXTURE_CONST
 
     def take_damage(self, hp):
         self.health -= hp

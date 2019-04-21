@@ -75,7 +75,8 @@ class Bullet(Particle):
         x1, y1 = self.target_pos
         x2, y2 = self.x1, self.y1
         dx, dy = abs(x2 - x1), abs(y2 - y1)
-        if 0 <= dx <= self.PROXIMITY_THRESHOLD and 0 <= dy <= self.PROXIMITY_THRESHOLD:
+        if 0 <= dx <= self.PROXIMITY_THRESHOLD \
+        and 0 <= dy <= self.PROXIMITY_THRESHOLD:
             self.dispose()
 
     def dispose(self):

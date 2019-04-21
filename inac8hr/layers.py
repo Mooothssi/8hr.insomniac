@@ -7,6 +7,9 @@ class SceneLayer():
         self.name = scene_name
         self.main_elements = []
 
+    def get(self, key: int):
+        return self.main_elements[key]
+
     @property
     def main_element(self):
         return self.main_elements[0]

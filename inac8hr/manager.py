@@ -60,6 +60,7 @@ class GameManager():
         self.initialize_scenes()
 
         self.fps_text = self.viewport.current_scene.get('ui_layer').main_element
+        self.normal_text = self.viewport.current_scene.get('ui_layer').get(1)
         self.current_level = self.viewport.current_scene.get('canvas_layer').main_element
         self.tool_handler = ToolHandler(self.dispatcher)
         self.cmd_handler = CommandHandler(self)
@@ -82,8 +83,6 @@ class GameManager():
                                       self.screen_width + 500, self.screen_height + 500, self.background)
         self.viewport.draw()
         self.tool_handler.draw()
-        self.fps_text.text = f"FPS: {self.fps.get_fps():.2f} | Scaling: {GAME_PREFS.scaling:.2f} | Score: {self.current_level.score} " \
-        f"| {self.locale.get_translated_text('Intro/Instructions')} |-| {self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
 
     def load_sprites(self, width, height):
         self.reset_scaling(width, height)
@@ -101,6 +100,11 @@ class GameManager():
     def update(self, delta):
         self.viewport.clocked_update()
         self.fps.tick()
+        self.fps_text.text = f"FPS: {self.fps.get_fps():.2f}"
+        #f"Scaling: {GAME_PREFS.scaling:.2f} |
+        self.normal_text.text = f"Score: {self.current_level.score} " \
+        f"| {self.locale.get_translated_text('Intro/Instructions')} |-|"\
+        f"{self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
         if self.fps.get_fps() < 10:
             self.current_level.set_state(LevelState.PAUSED)
         else:
