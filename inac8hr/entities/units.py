@@ -35,6 +35,7 @@ class Unit(CirclePhysicsEntity):
         self.sprite.height = 50
         self.curr_texture = None
         self.state = Unit.S_ANIMATED
+        self.set_sprite_texture(Unit.T_DEFAULT)
         self.dead = False
         super().__init__([x, y], 25)
 
@@ -55,7 +56,7 @@ class Unit(CirclePhysicsEntity):
 
     def set_state(self, value):
         self.__state__ = value
-        self.set_sprite_texture(value)  
+        # self.set_texture_from_state(value)  
 
     def get_sprite(self):
         return self._sprite
@@ -75,13 +76,6 @@ class Unit(CirclePhysicsEntity):
         self.sprite = Sprite()
         for file_name in self.texture_files:
             self.sprite.append_texture(arcade.load_texture(file_name))
-
-    def scale(self, scaling):
-        self.scaling = GAME_PREFS.scaling
-        self.init_sprites()
-        self.set_sprite_texture(self.state)
-        r, c = self.board_position
-        self.set_board_position(r, c)
 
     def set_board_position(self, r, c):
         self.board_position = r, c
@@ -103,7 +97,7 @@ class Unit(CirclePhysicsEntity):
 
     def pause(self):
         self.state = Unit.S_IDLE
-
+    
     def play(self):
         self.state = Unit.S_ANIMATED
         self.on_animated()
@@ -111,10 +105,18 @@ class Unit(CirclePhysicsEntity):
     def on_animated(self):
         pass
 
+    def scale(self, scaling):
+        # self.init_sprites()
+        # self.set_sprite_texture(0)#self.state)
+        r, c = self.board_position
+        self.set_board_position(r, c)
+
+    def set_texture_from_state(self, state_no):
+        self.set_sprite_texture(Unit.TEXTURE_STATEMAP[state_no])
+
     def set_sprite_texture(self, texture_no):
-        tex = Unit.TEXTURE_STATEMAP[texture_no]
         self.sprite.scale = GAME_PREFS.scaling
-        self.sprite.set_texture(tex)
+        self.sprite.set_texture(texture_no)
 
 
 class SelectableUnit(Unit):
@@ -122,5 +124,6 @@ class SelectableUnit(Unit):
         super().__init__(sprite_name, initial_pos, scaling=1)
         self.selected = False
 
-    def on_selection(self):
-        self.selected = True
+    def on_selection(self, selected):
+        self.selected = selected
+

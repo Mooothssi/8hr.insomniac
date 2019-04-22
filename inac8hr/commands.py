@@ -52,9 +52,11 @@ class PlacementCommand(ToolCommand):
 class SelectCommand(ToolCommand):
     def __init__(self, manager, info=None):
         super().__init__(manager, info)
+        self.triggered = False
 
     def execute(self):
         self.handler.current_tool = SelectTool(self.level)
+        self.triggered = True
 
 
 class CommandHandler():

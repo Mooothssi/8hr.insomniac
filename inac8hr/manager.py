@@ -107,8 +107,8 @@ class GameManager():
         f"{self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
         if self.fps.get_fps() < 10:
             self.current_level.set_state(LevelState.PAUSED)
-        else:
-            self.current_level.set_state(self.current_level.state)
+        # else:
+        #     self.current_level.set_state(self.current_level.state)
 
     def on_key_press(self, key, modifiers):
         self.dispatcher.on('key_press', key, modifiers)

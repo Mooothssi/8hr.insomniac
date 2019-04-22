@@ -9,6 +9,7 @@ import random
 class DefenderUnit(SelectableUnit):
     STATE_SHOOTING = 1
     STATE_SELECTED = 2
+    T_SELECTED = 1
     NORMAL_RADIUS = 0.8
 
     def __init__(self, texture_list: list, initial_pos, scaling=1):
@@ -58,6 +59,13 @@ class DefenderUnit(SelectableUnit):
                     remove_list.append(bullet)
             for i in remove_list:
                 self.bullets.remove(i)
+
+    def on_selection(self, selected):
+        super().on_selection(selected)
+        if selected:
+            self.set_sprite_texture(self.T_SELECTED)
+        else:
+            self.set_sprite_texture(Unit.T_DEFAULT)
 
 
 class PaperShredder(DefenderUnit):

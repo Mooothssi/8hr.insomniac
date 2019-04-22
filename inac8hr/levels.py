@@ -62,7 +62,7 @@ class Level(PlayableSceneLayer):
 
     def set_state(self, value):
         self.__state__ = value
-        
+
     def get_state(self):
         return self.__state__
 
@@ -125,7 +125,7 @@ class Level(PlayableSceneLayer):
         self.full_health += 80
 
     def place_defender(self, x, y, category=None):
-        self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/avail.png"], (x, y), GAME_PREFS.scaling)
+        self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/avail.png", "assets/images/chars/unavail.png"], (x, y), GAME_PREFS.scaling)
 
     def is_defender_at(self, x, y):
         return (x, y) in self.defenders

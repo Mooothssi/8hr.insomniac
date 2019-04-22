@@ -17,10 +17,11 @@ class BaseTool():
 
 
 class PositionTool(BaseTool):
+    PRX = 0.1, 0.92
     def eval_proximity(self, x, y):
         r, c = LocationUtil.get_plan_position(x, y)
         dr, dc = abs(r - math.floor(r)), abs(c - math.floor(c))
-        if (0 <= dc <= 0.1 or 0.92 <= dc < 1) and (0 <= dr <= 0.1 or 0.92 <= dr < 1):
+        if (0 <= dc <= self.PRX[0] or self.PRX[1] <= dc < 1) and (0 <= dr <= self.PRX[0] or self.PRX[1] <= dr < 1):
             return True
         else:
             return False
@@ -112,6 +113,7 @@ class SelectTool(PositionTool):
     def __init__(self, level: Level):
         super().__init__(level)
         self.selection = None
+        self.PRX = 0.3, 0.7
 
     def eval_availability(self, x, y):
         if self.eval_proximity(x, y):
@@ -124,9 +126,13 @@ class SelectTool(PositionTool):
         x, y, button, modifiers = args
         if self.eval_availability(x, y):
             r, c = LocationUtil.get_plan_position(x, y, True)
-            self.selection = self.level.get_defender_at(r, c)
-            self.selection.on_selection()
-            print(self.level.get_defender_at(r, c))
+            selection = self.level.get_defender_at(r, c)
+            if selection != self.selection:
+                if self.selection != None:
+                    self.selection.on_selection(False)
+                self.selection = selection
+            self.selection.on_selection(button == arcade.MOUSE_BUTTON_LEFT)
+            # print(self.level.get_defender_at(r, c))
 
 
 class ToolHandler():
