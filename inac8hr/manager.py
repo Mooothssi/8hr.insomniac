@@ -123,9 +123,6 @@ class GameManager():
         #self.activated_keys.remove(key)
         pass
 
-    def on_mouse_press(self, x, y, button, modifiers):
-        self.dispatcher.on('mouse_press', x, y, button, modifiers)
-
     def register_sprite(self, sprite):
         "For registering a sprite to the global sprite list across the App"
         pass

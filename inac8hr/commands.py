@@ -1,5 +1,5 @@
 import arcade
-from inac8hr.tools import BaseTool, PlacementAvailabilityTool
+from inac8hr.tools import BaseTool, SelectTool, PlacementAvailabilityTool
 from inac8hr.inputs import Hotkey
 from inac8hr.globals import UserEvent
 
@@ -46,7 +46,15 @@ class PlacementCommand(ToolCommand):
         else:
             self.handler.current_tool = PlacementAvailabilityTool(self.level, self.manager.cursor_loc)
             self.triggered = True
-        #self.level.place_defender(self.info.x, self.info.y, self.info.defender)
+        # self.level.place_defender(self.info.x, self.info.y, self.info.defender)
+
+
+class SelectCommand(ToolCommand):
+    def __init__(self, manager, info=None):
+        super().__init__(manager, info)
+
+    def execute(self):
+        self.handler.current_tool = SelectTool(self.level)
 
 
 class CommandHandler():
@@ -54,8 +62,10 @@ class CommandHandler():
 
     def __init__(self, manager):
         placement = PlacementCommand(manager)
+        select = SelectCommand(manager)
         self.hotkey_maps = {
-            Hotkey(arcade.key.P, True): placement
+            Hotkey(arcade.key.P, True): placement,
+            Hotkey(arcade.key.S, True): select
         }
 
     def on_key_press(self, key, modifiers):

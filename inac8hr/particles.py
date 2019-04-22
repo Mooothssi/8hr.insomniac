@@ -1,6 +1,7 @@
 import arcade
 from inac8hr.physics import CirclePhysicsEntity
 from inac8hr.utils import LocationUtil
+from inac8hr.globals import SFX
 
 
 class Particle(CirclePhysicsEntity):
@@ -82,3 +83,4 @@ class Bullet(Particle):
     def dispose(self):
         self.disarmed = True
         self.x1, self.y1 = self.initial_pos
+        SFX.ROCK.play()

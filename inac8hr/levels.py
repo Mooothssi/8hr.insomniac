@@ -3,8 +3,8 @@ import random
 from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
 from inac8hr.globals import *
-from inac8hr.units import DefenderUnit, AgentUnit
 from inac8hr.particles import Bullet
+from inac8hr.entities import DefenderUnit, AgentUnit
 
 BOARD = [
         '#X################',
@@ -32,7 +32,7 @@ class Level(PlayableSceneLayer):
         self.defenders = {}
         self.enemies = []
         self.particles = []
-        self.state = LevelState.PLAYING
+        self.__state__ = LevelState.PLAYING
         self.scaling = 1
         self.score = 0
         self.generate_enemies()    
@@ -55,9 +55,18 @@ class Level(PlayableSceneLayer):
             self.pause()
         elif self.state == LevelState.PLAYING:
             self.play()
+
     #
     #
     #
+
+    def set_state(self, value):
+        self.__state__ = value
+        
+    def get_state(self):
+        return self.__state__
+
+    state = property(get_state, set_state)
 
     def pause(self):
         for e in self.enemies:
@@ -93,17 +102,14 @@ class Level(PlayableSceneLayer):
             dist.sort()
             if len(dist) > 0:
                 selected_enemy = dist[0][1]
-            if selected_enemy is not None and not selected_enemy.targeted:
+            if selected_enemy is not None:# and not selected_enemy.targeted:
                 d.target_pos = selected_enemy.position
-                bullet = d.get_ready()
-                d.shoot()
-                self.particles.append(bullet)
+                bullet = d.shoot()
+                if bullet is not None:
+                    self.particles.append(bullet)
             d.play()
         if len(self.enemies) == 0:
             self.generate_enemies()
-
-    def set_state(self, state: int):
-        self.state = state
 
     def generate_enemies(self):
         x, y = self.map_plan.get_initial_agent_position()
@@ -112,17 +118,23 @@ class Level(PlayableSceneLayer):
         for _ in range(4):
             files = ['Ballot_pink.png', 'Ballot_orange.png', 'Ballot_red.png']
             r = random.randint(0, len(files)-1)
-            enemy = AgentUnit(f'assets/images/chars/{files[r]}', initial_pos, self.full_health, self.scaling, self.map_plan.switch_points)
+            enemy = AgentUnit([f'assets/images/chars/{files[r]}'], initial_pos, self.full_health, self.scaling, self.map_plan.switch_points)
             enemy.displace_position(0, diff)
             diff += 40
             self.enemies.append(enemy)
         self.full_health += 80
 
     def place_defender(self, x, y, category=None):
-        self.defenders[(x, y)] = DefenderUnit("assets/images/chars/avail.png", (x,y), GAME_PREFS.scaling)
+        self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/avail.png"], (x, y), GAME_PREFS.scaling)
 
     def is_defender_at(self, x, y):
         return (x, y) in self.defenders
+
+    def get_defender_at(self, x, y):
+        if self.is_defender_at(x, y):
+            return self.defenders[(x, y)]
+        else:
+            return False
 
     def is_playing(self):
         return self.state == LevelState.PLAYING

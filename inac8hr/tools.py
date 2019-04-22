@@ -9,38 +9,44 @@ INVALID_PLACEMENT = 0
 
 
 class BaseTool():
+    def __init__(self, level: Level):
+        self.level = level
+
     def draw(self):
         pass
 
 
-class PlacementAvailabilityTool(BaseTool):
-    registered_inputs = [UserEvent.MOUSE_PRESS, UserEvent.MOUSE_MOTION, UserEvent.WINDOW_RESIZE]
+class PositionTool(BaseTool):
+    def eval_proximity(self, x, y):
+        r, c = LocationUtil.get_plan_position(x, y)
+        dr, dc = abs(r - math.floor(r)), abs(c - math.floor(c))
+        if (0 <= dc <= 0.1 or 0.92 <= dc < 1) and (0 <= dr <= 0.1 or 0.92 <= dr < 1):
+            return True
+        else:
+            return False
+
+
+class PlacementAvailabilityTool(PositionTool):
+    registered_inputs = [UserEvent.MOUSE_PRESS, UserEvent.MOUSE_MOTION,
+                         UserEvent.WINDOW_RESIZE]
 
     def __init__(self, level: Level, initial_loc=(0, 0)):
+        super().__init__(level)
         self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"], scaling=GAME_PREFS.scaling, initial_loc=initial_loc)
         self.unit_blueprint.sprite.scale = GAME_PREFS.scaling
-        self.level = level
+
+    def eval_availability(self, x, y):
+        if self.eval_proximity(x, y):
+            r, c = LocationUtil.get_plan_position(x, y, True)
+            return self.level.map_plan.is_wall_at((r, c)) and not self.level.is_defender_at(r, c)
+        else:
+            return False
 
     def update_blueprint_state(self, x, y):
         if self.eval_availability(x, y):
             self.unit_blueprint.change_state(1)
         else:
             self.unit_blueprint.change_state(0)
-    
-    def eval_availability(self, x, y):
-        if self.eval_proximity(x, y):
-            r, c = LocationUtil.get_plan_position(x, y)
-            r, c = int(round(abs(r), 0)), int(round(abs(c), 0))
-            return self.level.map_plan.is_wall_at((r, c)) and not self.level.is_defender_at(r, c)
-        else:
-            return False
-
-    def eval_proximity(self, x, y):
-        r, c = LocationUtil.get_plan_position(x, y)
-        if (0 <= abs(c - math.floor(c)) <= 0.1 or 0.92 <= abs(c - math.floor(c)) < 1) and (0 <= abs(r - math.floor(r)) <= 0.1 or 0.92 <= abs(r - math.floor(r)) < 1):
-            return True
-        else:
-            return False
 
     def on_mouse_motion(self, *args):
         x, y, dx, dy = args
@@ -57,7 +63,7 @@ class PlacementAvailabilityTool(BaseTool):
 
     def on_resize(self):
         self.unit_blueprint.rescale()
-   
+
     def draw(self):
         self.unit_blueprint.sprite.draw()
 
@@ -100,6 +106,29 @@ class UnitPlacement():
         pass
 
 
+class SelectTool(PositionTool):
+    registered_inputs = [UserEvent.MOUSE_PRESS]
+
+    def __init__(self, level: Level):
+        super().__init__(level)
+        self.selection = None
+
+    def eval_availability(self, x, y):
+        if self.eval_proximity(x, y):
+            r, c = LocationUtil.get_plan_position(x, y, True)
+            return self.level.is_defender_at(r, c)
+        else:
+            return False
+
+    def on_mouse_press(self, *args):
+        x, y, button, modifiers = args
+        if self.eval_availability(x, y):
+            r, c = LocationUtil.get_plan_position(x, y, True)
+            self.selection = self.level.get_defender_at(r, c)
+            self.selection.on_selection()
+            print(self.level.get_defender_at(r, c))
+
+
 class ToolHandler():
     registered_inputs = [UserEvent.MOUSE_MOTION]
 
@@ -120,7 +149,7 @@ class ToolHandler():
 
     def add_tool(self, tool: BaseTool):
         self.tools.append(tool)
-   
+
     def clear_current_tool(self):
         self.current_tool = None
 

@@ -1,3 +1,4 @@
+import arcade
 from inac8hr.settings import Preferences
 from i18n.loc import Localization
 
@@ -17,8 +18,6 @@ class LevelState:
     PLAYING = 1
     PAUSED = 0
 
-UNIT_FROZEN = 0
-UNIT_ANIMATED = 1
 
 DIR_STILL = 0
 DIR_UP = 1
@@ -52,3 +51,7 @@ class UserEvent:
 KEYMAPS = {
 
 }
+
+
+class SFX:
+    ROCK = arcade.load_sound("assets/audio/rockHit2.wav")

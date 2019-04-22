@@ -29,7 +29,7 @@ class EventDispatcher():
               UserEvent.KEY_PRESS, UserEvent.KEY_RELEASE,
               UserEvent.WINDOW_RESIZE]
 
-    def __init__(self):
+    def __init__(self, manager=None):
         self.__dispatchers__ = []
         self.event_map = {}
         self.__create_event_map__(self.EVENTS)
@@ -65,6 +65,7 @@ class EventDispatcher():
                 self.invoke(t, "on_" + event_name, *kwargs)
         else:
             print('Event has not been registered yet!')
+            print(event_name)
 
     def on_resize(self, *kwargs):
         for t in self.event_map[UserEvent.WINDOW_RESIZE]:
