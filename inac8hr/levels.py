@@ -4,7 +4,8 @@ from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
 from inac8hr.globals import *
 from inac8hr.particles import Bullet
-from inac8hr.entities import DefenderUnit, AgentUnit
+from inac8hr.entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList
+from inac8hr.imports import *
 
 BOARD = [
         '#X################',
@@ -29,32 +30,38 @@ class Level(PlayableSceneLayer):
     def __init__(self):
         self.full_health = 50
         self.map_plan = MapPlan(BOARD, 40)
-        self.defenders = {}
-        self.enemies = []
-        self.particles = []
+        self.defenders = UnitKeyedList()
+        self.enemies = UnitList()
+        self.particles = UnitList()
         self.__state__ = LevelState.PLAYING
         self.scaling = 1
         self.score = 0
-        self.generate_enemies()    
+        self.sprite_list = None
+        self.generate_enemies()
 
     #
     # Arcade base overload functions
     #
     def draw(self):
-        for enemy in self.enemies:
-            enemy.draw()
-        self.map_plan.draw()
-        for defender in self.defenders.values():
-            defender.draw()
+        self.sprite_list.draw()
+        self.enemies.draw()
+        self.defenders.draw()
+        self.particles.draw()
+        # for enemy in self.enemies:
+        #     enemy.draw()
+        # self.map_plan.draw()
+        # for defender in self.defenders.values():
+        #     defender.draw()
         for p in self.particles:
             p.draw()
 
     def clocked_update(self):
-        self.on_resize()
+        # self.on_resize()
         if self.state == LevelState.PAUSED:
             self.pause()
         elif self.state == LevelState.PLAYING:
             self.play()
+            # self.register_sprites()
 
     #
     #
@@ -67,6 +74,14 @@ class Level(PlayableSceneLayer):
         return self.__state__
 
     state = property(get_state, set_state)
+
+    def register_sprites(self):
+        print('registered')
+        self.sprite_list = ExtendedSpriteList()
+        spr_list = []
+        spr_list.extend(self.map_plan.sprites)
+        for spr in spr_list:
+            self.sprite_list.insert(spr)
 
     def pause(self):
         for e in self.enemies:
@@ -123,6 +138,7 @@ class Level(PlayableSceneLayer):
             diff += 40
             self.enemies.append(enemy)
         self.full_health += 80
+        self.register_sprites()
 
     def place_defender(self, x, y, category=None):
         self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/avail.png", "assets/images/chars/unavail.png"], (x, y), GAME_PREFS.scaling)
@@ -144,6 +160,7 @@ class Level(PlayableSceneLayer):
         self.map_plan.scale(GAME_PREFS.scaling)
         for defender in self.defenders.values():
             defender.scale(GAME_PREFS.scaling)
+        self.register_sprites()
 
     def calculate_the_dead(self, enemy):
         if enemy.survived:
@@ -158,12 +175,16 @@ class MapPlan():
         self.block_size = block_size
         self.plan_array = plan_list
         self.switch_points = []
-        self.scale(1)
         self.determine_dimensions()
         self.calculate_all_switch_points()
+        self.sprites = ExtendedSpriteList()  
+        self.init_sprites()
+        self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png')
 
     def scale(self, scaling):
         self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scaling)
+        self.sprites = ExtendedSpriteList() 
+        self.init_sprites(scaling)
 
     def determine_dimensions(self):
         self.width = len(self.plan_array[0])
@@ -192,6 +213,18 @@ class MapPlan():
 
                 elif status == 2:
                     out_of_bounds = True
+    
+    def init_sprites(self, scaling=1):
+        for s in self.get_all_sprites(scaling):
+            self.sprites.append(s)
+
+    def get_all_sprites(self, scaling=1):
+        sprites = []
+        for r in range(0, self.height):
+            for c in range(self.width):
+                if self.is_wall_at((r,c)):
+                    sprites.append(self.get_sprite_from_pos(arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scaling), r, c))
+        return sprites
 
     def get_initial_agent_position(self):
         for i in range(len(self.plan_array)):
@@ -201,15 +234,18 @@ class MapPlan():
         return (-1, -1)
 
     def draw(self):
-        for r in range(0, self.height):
-            for c in range(self.width):
-                if self.is_wall_at((r,c)):
-                    self.draw_sprite(self.wall_sprite, r, c)
+        self.sprites.draw()
 
     def draw_sprite(self, sprite, r, c):
         x, y = LocationUtil.get_sprite_position(r, c)
         sprite.set_position(x, y)
         sprite.draw()
+        return sprite
+
+    def get_sprite_from_pos(self, sprite, r, c):
+        x, y = LocationUtil.get_sprite_position(r, c)
+        sprite.set_position(x, y)
+        return sprite
 
     def is_wall_at(self, pos):
         board = self.plan_array

@@ -49,6 +49,10 @@ class UILayer(SceneLayer):
     def deregister_control(self, control: Control):
         self.controls.remove(control)
 
+    def draw(self):
+        for ele in self.main_elements:
+            ele.on_draw()
+
 
 class ToolLayer(SceneLayer):
 

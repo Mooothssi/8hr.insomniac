@@ -2,6 +2,7 @@ import arcade
 import collections
 import math
 import time
+import pyglet
 from inac8hr.hud.level1 import Level1HUD
 from inac8hr.commands import CommandHandler
 from inac8hr.levels import Level
@@ -12,6 +13,8 @@ from inac8hr.layers import SceneLayer, UILayer, PlayableSceneLayer
 from inac8hr.tools import ToolHandler, PlacementAvailabilityTool, UnitBlueprint
 from inac8hr.globals import GAME_PREFS
 from inac8hr.utils import LocationUtil
+from inac8hr.anim import *
+from inac8hr.imports import *
 from i18n.loc import Localization
 
 APP_VERSION = "0.1.3"
@@ -68,6 +71,11 @@ class GameManager():
         self.dispatcher.add_dispatcher(self.cmd_handler)
         self.cursor_loc = 0, 0
 
+        self.test_sprite = PreferredSprite("assets/images/chars/avail.png", center_x=500, center_y=0)
+
+        self.test_sprite.alpha = 50
+        self.test_animator = SpriteAnimator(self.test_sprite, 1, animation=ExponentialEaseOut)
+
         self.dispatcher.register_tool_events()
 
     def initialize_scenes(self):
@@ -80,9 +88,10 @@ class GameManager():
 
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2,
-                                      self.screen_width + 500, self.screen_height + 500, self.background)
+                                      self.screen_width + 500, self.screen_height + 500, self.background, alpha=255)
         self.viewport.draw()
         self.tool_handler.draw()
+        self.test_sprite.draw()
 
     def load_sprites(self, width, height):
         self.reset_scaling(width, height)
@@ -99,6 +108,7 @@ class GameManager():
 
     def update(self, delta):
         self.viewport.clocked_update()
+        self.test_animator.update()
         self.fps.tick()
         self.fps_text.text = f"FPS: {self.fps.get_fps():.2f}"
         #f"Scaling: {GAME_PREFS.scaling:.2f} |
@@ -118,6 +128,8 @@ class GameManager():
                 self.current_level.set_state(LevelState.PAUSED)
             else:
                 self.current_level.set_state(LevelState.PLAYING)
+        elif key == arcade.key.A:
+            self.test_animator.tween_to(500, 500)
 
     def on_key_release(self, key, modifiers):
         #self.activated_keys.remove(key)

@@ -1,0 +1,2 @@
+class SceneSequence():
+    pass

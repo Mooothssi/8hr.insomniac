@@ -3,6 +3,7 @@ from inac8hr.globals import *
 from inac8hr.utils import LocationUtil
 from inac8hr.particles import Bullet
 from inac8hr.physics import CirclePhysicsEntity
+from inac8hr.imports import ExtendedSpriteList
 import time
 import random
 
@@ -29,8 +30,7 @@ class Unit(CirclePhysicsEntity):
         self.board_position = 0, 0 
         r, c = initial_pos
         self.set_board_position(r, c)
-        self.next_board_pos = (0, 0)
-        
+        self.next_board_pos = (0, 0)     
         self.sprite.width = 50
         self.sprite.height = 50
         self.curr_texture = None
@@ -74,6 +74,7 @@ class Unit(CirclePhysicsEntity):
 
     def init_sprites(self):
         self.sprite = Sprite()
+        self.sprite.scale = GAME_PREFS.scaling
         for file_name in self.texture_files:
             self.sprite.append_texture(arcade.load_texture(file_name))
 
@@ -112,18 +113,86 @@ class Unit(CirclePhysicsEntity):
         self.set_board_position(r, c)
 
     def set_texture_from_state(self, state_no):
+        self.sprite.scale = GAME_PREFS.scaling
         self.set_sprite_texture(Unit.TEXTURE_STATEMAP[state_no])
 
     def set_sprite_texture(self, texture_no):
+        print(GAME_PREFS.scaling)
         self.sprite.scale = GAME_PREFS.scaling
         self.sprite.set_texture(texture_no)
 
 
 class SelectableUnit(Unit):
     def __init__(self, sprite_name, initial_pos, scaling=1):
-        super().__init__(sprite_name, initial_pos, scaling=1)
+        super().__init__(sprite_name, initial_pos, scaling)
         self.selected = False
 
     def on_selection(self, selected):
         self.selected = selected
+
+
+class UnitListBase():
+    def __init__(self):
+        self.sprites = ExtendedSpriteList()
+
+    def __iter__(self):
+        self.n = 0
+        return self
+       
+    def __len__(self):
+        return len(self.units)
+    
+    def draw(self):
+        self.sprites.draw()
+
+
+class UnitList(UnitListBase):
+    def __init__(self):
+        super().__init__()
+        self.units = []
+
+    def append(self, item: Unit):
+        self.units.append(item)
+        self.sprites.append(item.sprite)
+
+    def remove(self, item: Unit):
+        self.units.remove(item)
+        self.sprites.remove(item.sprite)
+
+    def __next__(self):
+        if self.n <= len(self.units)-1 and len(self.units) > 0:
+            result = self.units[self.n]
+            self.n += 1
+            return result
+        else:
+            raise StopIteration
+
+
+class UnitKeyedList(UnitListBase):
+    def __init__(self):
+        super().__init__()
+        self.units = {}
+
+    def __getitem__(self, key):
+        return self.units[key]
+
+    def __setitem__(self, key, value):
+        self.units[key] = value
+        self.sprites.append(value.sprite)
+
+    def remove(self, item: Unit):
+        self.units.remove(item)
+        self.sprites.remove(item.sprite)
+    
+    def values(self):
+        return self.units.values()
+
+    def __next__(self):
+        lst = list(self.units.values())
+        if self.n <= len(self.units)-1 and len(self.units) > 0:
+            result = lst[self.n]
+            self.n += 1
+            return result
+        else:
+            raise StopIteration
 
