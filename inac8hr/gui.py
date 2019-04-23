@@ -1,5 +1,6 @@
 import arcade
 from i18n.loc import LocalizedText
+from inac8hr.wrappers.inac8hr_arcade import DrawCommands
 
 
 class Point():
@@ -37,6 +38,10 @@ class Control():
 
     def show(self):
         self.visible = True
+        self.on_shown()
+
+    def on_shown(self):
+        pass
 
 class AnimatedControl(Control):
     pass
@@ -56,7 +61,7 @@ class Label(Control):
 
     def draw(self):
         if self.text != "":
-            arcade.draw_text(self.text, self.position.x, self.position.y,
+            arcade.draw_text(str(self.text), self.position.x, self.position.y,
                              self.fore_color, self.font_size)
 
 
@@ -74,6 +79,19 @@ class LocalizedLabel(Label):
 
     text = property(get_text, set_text)
 
+
+class AnimatedTexturedMessageBox(AnimatedControl):
+    def __init__(self, position: Point, texture_filename: str,
+                 width: int=12):
+        super().__init__(position)
+        self.texture = arcade.load_texture(texture_filename)
+        self.width = 500
+        self.height = 500
+        self.alpha = 0
+
+    def draw(self):
+        DrawCommands.draw_textured_rectangle(self.position.x, self.position.y,
+                                      self.width, self.height, self.texture, alpha=self.alpha)
 
 class ScrollablePaneView(Control):
 

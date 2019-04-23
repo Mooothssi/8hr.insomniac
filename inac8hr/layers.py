@@ -1,4 +1,5 @@
 from inac8hr.gui import Control
+from inac8hr.anim import ControlAnimator
 
 
 class SceneLayer():
@@ -42,6 +43,7 @@ class UILayer(SceneLayer):
         super().__init__(scene_name)
         self.controls = self.main_elements
         self.controls.extend(controls)
+        self.animator = ControlAnimator()
 
     def register_control(self, control: Control):
         self.controls.append(control)
@@ -50,8 +52,13 @@ class UILayer(SceneLayer):
         self.controls.remove(control)
 
     def draw(self):
-        for ele in self.main_elements:
+        for ele in self.controls:
             ele.on_draw()
+
+    def clocked_update(self):
+        for ele in self.controls:
+            ele.clocked_update()
+        self.animator.update()
 
 
 class ToolLayer(SceneLayer):

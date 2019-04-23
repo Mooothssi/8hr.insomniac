@@ -43,13 +43,13 @@ class Level(PlayableSceneLayer):
     # Arcade base overload functions
     #
     def draw(self):
-        self.sprite_list.draw()
+        self.map_plan.draw()
         self.enemies.draw()
         self.defenders.draw()
         self.particles.draw()
         # for enemy in self.enemies:
         #     enemy.draw()
-        # self.map_plan.draw()
+      
         # for defender in self.defenders.values():
         #     defender.draw()
         for p in self.particles:
@@ -75,13 +75,12 @@ class Level(PlayableSceneLayer):
 
     state = property(get_state, set_state)
 
-    def register_sprites(self):
-        print('registered')
-        self.sprite_list = ExtendedSpriteList()
-        spr_list = []
-        spr_list.extend(self.map_plan.sprites)
-        for spr in spr_list:
-            self.sprite_list.insert(spr)
+    # def register_sprites(self):
+    #     self.sprite_list = ExtendedSpriteList()
+    #     spr_list = []
+    #     spr_list.extend(self.map_plan.sprites)
+    #     for spr in spr_list:
+    #         self.sprite_list.insert(spr)
 
     def pause(self):
         for e in self.enemies:
@@ -138,7 +137,6 @@ class Level(PlayableSceneLayer):
             diff += 40
             self.enemies.append(enemy)
         self.full_health += 80
-        self.register_sprites()
 
     def place_defender(self, x, y, category=None):
         self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/avail.png", "assets/images/chars/unavail.png"], (x, y), GAME_PREFS.scaling)
@@ -160,7 +158,6 @@ class Level(PlayableSceneLayer):
         self.map_plan.scale(GAME_PREFS.scaling)
         for defender in self.defenders.values():
             defender.scale(GAME_PREFS.scaling)
-        self.register_sprites()
 
     def calculate_the_dead(self, enemy):
         if enemy.survived:

@@ -109,6 +109,7 @@ class Unit(CirclePhysicsEntity):
     def scale(self, scaling):
         # self.init_sprites()
         # self.set_sprite_texture(0)#self.state)
+        self.sprite.scale = GAME_PREFS.scaling
         r, c = self.board_position
         self.set_board_position(r, c)
 
@@ -117,7 +118,6 @@ class Unit(CirclePhysicsEntity):
         self.set_sprite_texture(Unit.TEXTURE_STATEMAP[state_no])
 
     def set_sprite_texture(self, texture_no):
-        print(GAME_PREFS.scaling)
         self.sprite.scale = GAME_PREFS.scaling
         self.sprite.set_texture(texture_no)
 
