@@ -1,4 +1,5 @@
 import arcade
+import pyglet
 from i18n.loc import LocalizedText
 from inac8hr.wrappers.inac8hr_arcade import DrawCommands
 from inac8hr.gui.controls.base import Control, AnimatedControl
@@ -9,15 +10,26 @@ class Label(Control):
     def __init__(self, position: Point=Point(0, 0), text: str="",
                  size: int=12, color: tuple=arcade.color.BLACK, align="left", font_name=('calibri','arial')):
         super().__init__(position)
+        self.__label__ = pyglet.text.Label(text, font_size=size, x=position.x,
+                                           y=position.y)
         self.text = text
         self.fore_color = color
         self.align = align
         self.font_name = font_name
         self.__font_size__ = size
+        
 
     @property
     def font_size(self):
         return self.__font_size__
+
+    # def set_text(self, value):
+    #     self.__label__.text = value
+
+    # def get_text(self):
+    #     return self.__label__.text
+    
+    # text = property(get_text, set_text)
 
     def draw(self):
         if self.text != "" and self.visible:

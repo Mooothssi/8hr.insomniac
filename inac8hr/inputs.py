@@ -1,4 +1,18 @@
 from inac8hr.globals import UserEvent
+import types
+
+
+class Event():
+    def __init__(self):
+        self.handlers = []
+
+    def __call__(self, *args, **kwargs):
+        for handler in self.handlers:
+            handler(*args, **kwargs)
+
+    def __iadd__(self, another: types.MethodType):
+        self.handlers.append(another)
+        return self
 
 
 class DataClass():

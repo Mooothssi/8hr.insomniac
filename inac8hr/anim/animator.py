@@ -1,4 +1,5 @@
 import time
+import types
 from arcade.sprite import Sprite
 from inac8hr.gui import Point
 from inac8hr.anim.sequences import SceneSequence
@@ -58,6 +59,7 @@ class SpriteAnimator(AnimatorBase):
             else:
                 self.__animating__ = False
 
+
 class ControlAnimator(AnimatorBase):
     def __init__(self, duration=1, sequences=[]):
         super().__init__()
@@ -68,6 +70,10 @@ class ControlAnimator(AnimatorBase):
 
     def add_sequence(self, seq):
         self.sequences.append(seq)
+    
+    def subscribe_to_sequence(self, sequence, fname: str,
+                              handlerfn: types.MethodType):
+        setattr(sequence, fname, handlerfn)
 
     def start(self):
         if len(self.sequences) > 0:

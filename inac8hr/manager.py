@@ -75,13 +75,13 @@ class GameManager():
 
         self.test_sprite.alpha = 50
         self.test_animator = SpriteAnimator(self.test_sprite, 1, animation=ExponentialEaseOut)
-
+        self.frozen = True
         self.dispatcher.register_tool_events()
 
     def initialize_scenes(self):
         level_1 = Level()
         level_1_scene = PlayableSceneLayer("canvas_layer", level_1)
-        initial_scene = Scene(level_1_scene, Level1HUD(),
+        initial_scene = Scene(level_1_scene, Level1HUD(self),
                               SceneLayer("tool_layer"))
         self.viewport = Viewport(initial_scene)
         print('[Logger] Scene initialized...')
@@ -106,6 +106,14 @@ class GameManager():
         diff = math.log((((width_ratio*9) + (height_ratio*1)) / 10), 10)*2.2
         GAME_PREFS.scaling = 1 + diff
 
+    def freeze_canvas(self):
+        self.frozen = True
+        self.current_level.set_state(LevelState.PAUSED)
+
+    def continue_canvas(self):
+        self.frozen = False
+        self.current_level.set_state(LevelState.PLAYING)
+
     def update(self, delta):
         self.viewport.clocked_update()
         self.test_animator.update()
@@ -123,7 +131,7 @@ class GameManager():
     def on_key_press(self, key, modifiers):
         self.dispatcher.on('key_press', key, modifiers)
       #  self.activated_keys.append(key)
-        if key == arcade.key.ENTER:
+        if key == arcade.key.ENTER and not self.frozen:
             if self.current_level.is_playing():
                 self.current_level.set_state(LevelState.PAUSED)
             else:
