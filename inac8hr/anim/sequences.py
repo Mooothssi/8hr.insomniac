@@ -37,4 +37,12 @@ class SceneSequence():
 
     def animate(self, time):
         for prop in self.props:
+            if prop.start is None:
+                prop.start = getattr(self.control, prop.prop_name)
             setattr(self.control, prop.prop_name, prop.animation.ease(time))
+
+    def end(self):
+        for prop in self.props:
+            setattr(self.control, prop.prop_name, prop.end)
+
+

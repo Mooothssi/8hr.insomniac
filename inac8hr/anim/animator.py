@@ -89,8 +89,11 @@ class ControlAnimator(AnimatorBase):
             if not self.ended():
                 self.current_sequence.animate(alpha_time)
             else:
+                self.current_sequence.end()
+                self.__animating__ = False
                 if self.current_sequence.start_behaviour == SceneSequence.TIME_CONTROLLED and self.__current_sequence__ != len(self.sequences) - 1:
+                    self.__animating__ = True
                     self.start_time = time.time()
                     self.next()
-                else:
-                    self.__animating__ = False
+
+                    

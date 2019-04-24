@@ -17,13 +17,22 @@ class EasingBase:
         self.start = start
         self.end = end
         self.duration = duration
+        self.reverse = False
+        if start > end:
+            self.start = end
+            self.end = start
+            self.reverse = True
 
     @classmethod
     def func(cls, t):
         pass
 
     def ease(self, alpha):
-        t = self.limit[0] * (1 - alpha) + self.limit[1] * alpha
+        curr_t  = self.limit[0] * (1 - alpha) + self.limit[1] * alpha
+        if self.reverse:
+            t = self.duration - curr_t
+        else:
+            t = curr_t
         t /= self.duration
         r = self.func(t)
         return self.end * r + self.start * (1 - r)  # reduced from c*p(t) + b
