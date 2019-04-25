@@ -139,7 +139,7 @@ class Level(PlayableSceneLayer):
         self.full_health += 80
 
     def place_defender(self, x, y, category=None):
-        self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/avail.png", "assets/images/chars/unavail.png"], (x, y), GAME_PREFS.scaling)
+        self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/shredder_40px.png", "assets/images/chars/unavail.png"], (x, y), GAME_PREFS.scaling)
 
     def is_defender_at(self, x, y):
         return (x, y) in self.defenders
