@@ -19,7 +19,7 @@ BOARD = [
         '##    #### ##  # #',
         '########## ### # #',
         '##########     # #',
-        '################ #']
+        '################O#']
 
 BLOCK_SIZE = 40
 
@@ -177,6 +177,9 @@ class MapPlan():
         self.sprites = ExtendedSpriteList()  
         self.init_sprites()
         self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png')
+        self.exit = arcade.Sprite('assets/images/chars/ballot_box.png')
+        self.exit_position = self.get_initial_exit_position()
+        self.init_exit_sprite()
 
     def scale(self, scaling):
         self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scaling)
@@ -186,6 +189,11 @@ class MapPlan():
     def determine_dimensions(self):
         self.width = len(self.plan_array[0])
         self.height = len(self.plan_array)
+
+    def init_exit_sprite(self):
+        r, c = self.exit_position
+        x, y = LocationUtil.get_sprite_position(r, c)
+        self.exit.set_position(x, y)
 
     def calculate_all_switch_points(self):
         x, y = self.get_initial_agent_position()
@@ -230,8 +238,16 @@ class MapPlan():
                     return (i, j)
         return (-1, -1)
 
+    def get_initial_exit_position(self):
+        for i in range(len(self.plan_array)):
+            for j in range(len(self.plan_array[i])):
+                if self.plan_array[i][j] == 'O':
+                    return (i, j)
+        return (-1, -1)
+
     def draw(self):
         self.sprites.draw()
+        self.exit.draw()
 
     def draw_sprite(self, sprite, r, c):
         x, y = LocationUtil.get_sprite_position(r, c)
@@ -253,9 +269,11 @@ class MapPlan():
 
     def is_obstacle_char(self, pos, board):
         if -1 <= pos[0] <= len(board) - 1 and -1 <= pos[1] <= len(board[0]) - 1:
-            if board[pos[0]][pos[1]] != ' ':
-                return 1
+            if board[pos[0]][pos[1]] == ' ':
+                return 0
+            elif board[pos[0]][pos[1]] == 'O':
+                return 2
             else:
-                return 0    
+                return 1
         else:
             return 2
