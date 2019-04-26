@@ -2,6 +2,8 @@ import arcade
 from inac8hr.settings import Preferences
 from i18n.loc import Localization
 
+DEFAULT_LIFECYCLE_TIME = 8
+
 GAME_PREFS = Preferences()
 GAME_PREFS.block_size = 40
 GAME_PREFS.scaling = 1

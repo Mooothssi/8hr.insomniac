@@ -17,7 +17,7 @@ class BaseTool():
 
 
 class PositionTool(BaseTool):
-    PRX = 0.1, 0.92
+    PRX = 0.12, 0.9
     def eval_proximity(self, x, y):
         r, c = LocationUtil.get_plan_position(x, y)
         dr, dc = abs(r - math.floor(r)), abs(c - math.floor(c))

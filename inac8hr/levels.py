@@ -47,11 +47,6 @@ class Level(PlayableSceneLayer):
         self.enemies.draw()
         self.defenders.draw()
         self.particles.draw()
-        # for enemy in self.enemies:
-        #     enemy.draw()
-      
-        # for defender in self.defenders.values():
-        #     defender.draw()
         for p in self.particles:
             p.draw()
 
@@ -74,13 +69,6 @@ class Level(PlayableSceneLayer):
         return self.__state__
 
     state = property(get_state, set_state)
-
-    # def register_sprites(self):
-    #     self.sprite_list = ExtendedSpriteList()
-    #     spr_list = []
-    #     spr_list.extend(self.map_plan.sprites)
-    #     for spr in spr_list:
-    #         self.sprite_list.insert(spr)
 
     def pause(self):
         for e in self.enemies:

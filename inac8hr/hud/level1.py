@@ -26,10 +26,21 @@ class Level1HUD(UILayer):
         self.testMsg2.add_control(self.lblTest2)
         self.manager = manager
 
+        self.container1 = ScrollablePaneView(Point(100, 0), 640, 65)
+        for _ in range(3):
+            tile = Container(Point(0, 0), width=75, color=arcade.color.AMARANTH_PURPLE)
+            self.container1.add_tile(tile)
+            tile.click_event += self.test
+
+        for _ in range(7):
+            self.container1.add_tile(Container(Point(0, 0), width=75, color=arcade.color.AMAZON))
+
         self.register_control(self.lblFPS)
+        self.register_control(self.container1)
         self.register_control(self.lblStatus)
         self.register_control(self.lblTest)
         self.register_control(self.testMsg2)
+        
         seq1 = SceneSequence(self.testMsg2, [SequenceInfo("alpha", 255)], 5, ExponentialEaseOut)
         seq2 = SceneSequence(self.testMsg2, [SequenceInfo("alpha", initial_val=255, end_val=0)], 5, QuadEaseIn)
         seq_delay = TemporalSequence(5)
@@ -50,3 +61,8 @@ class Level1HUD(UILayer):
         self.lblStatus.visible = True
         self.manager.continue_canvas()
 
+    def test(self, *args):
+        print('sender')
+
+    def test2(self, *args):
+        print('sender2')

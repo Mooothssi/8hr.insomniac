@@ -27,10 +27,10 @@ class InsomniaGame(arcade.Window):
         self.fps_display.draw()
 
     def on_resize(self, width: float, height: float):
-        if 4/3 <= width/height <= 16/9:
-            super().on_resize(width, height)
-            self.manager.reload_sprites(width, height)
-            self.manager.on_resize(width, height)
+        # if 4/3 <= width/height <= 16/9:
+        super().on_resize(width, height)
+        self.manager.reload_sprites(width, height)
+        self.manager.on_resize(width, height)
 
 
     def on_key_press(self, key, modifiers):

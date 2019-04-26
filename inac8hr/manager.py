@@ -17,7 +17,7 @@ from inac8hr.anim import *
 from inac8hr.imports import *
 from i18n.loc import Localization
 
-APP_VERSION = "0.1.3"
+APP_VERSION = "0.2.0"
 
 
 class FPSCounter:
@@ -65,10 +65,13 @@ class GameManager():
         self.fps_text = self.viewport.current_scene.get('ui_layer').main_element
         self.normal_text = self.viewport.current_scene.get('ui_layer').get(1)
         self.current_level = self.viewport.current_scene.get('canvas_layer').main_element
+
         self.tool_handler = ToolHandler(self.dispatcher)
         self.cmd_handler = CommandHandler(self)
         self.dispatcher.add_dispatcher(self.current_level)
         self.dispatcher.add_dispatcher(self.cmd_handler)
+        for ctrl in self.viewport.current_scene.get('ui_layer').controls:
+            self.dispatcher.add_dispatcher(ctrl)
         self.cursor_loc = 0, 0
 
         self.test_sprite = PreferredSprite("assets/images/chars/avail.png", center_x=500, center_y=0)

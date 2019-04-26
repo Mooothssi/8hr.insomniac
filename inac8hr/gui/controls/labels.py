@@ -3,7 +3,7 @@ import pyglet
 from i18n.loc import LocalizedText
 from inac8hr.wrappers.inac8hr_arcade import DrawCommands
 from inac8hr.gui.controls.base import Control, AnimatedControl
-from inac8hr.gui.primitives import Point
+from inac8hr.gui.basics import Point
 
 
 class Label(Control):

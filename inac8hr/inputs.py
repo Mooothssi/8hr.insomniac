@@ -3,6 +3,7 @@ import types
 
 
 class Event():
+    # TODO: Add its sender
     def __init__(self):
         self.handlers = []
 
