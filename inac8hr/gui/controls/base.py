@@ -1,21 +1,25 @@
 from inac8hr.gui.basics import Point, RectangularRegion
-from inac8hr.inputs import Event, UserEvent
+from inac8hr.events import Event, UserEvent
 
 
 class Control():
     registered_inputs = [UserEvent.MOUSE_PRESS]
+    ALIGN_LEFT = 0
+    ALIGN_CENTER = 2
 
     def __init__(self, position: Point, width=0, height=0):
         self._position = position
+        self.alignment = Control.ALIGN_LEFT
         self.visible = True
         self.parent = None
         self.activated = False
+        self.centeredly_drawn = False
         self._width = width
         self._height = height
         self.region = RectangularRegion(position, position + Point(width, 0),
                                         position + Point(width, height),
                                         position + Point(0, height))
-        self.click_event = Event()
+        self.click_event = Event(self)
 
     def on_draw(self):
         if self.visible:
@@ -37,12 +41,17 @@ class Control():
         if value != self.position.x:
             self.reset_region()
 
+    def align_center(self):
+        if self.parent is not None:
+            if self.alignment != Control.ALIGN_CENTER:
+                self.position.x += self.parent.width // 2
+                self.position.y += self.parent.height // 2
+                self.alignment = Control.ALIGN_CENTER
+
     def get_position(self):
         return self._position
 
     def set_position(self, value):
-        # if value - self._position != Point(0, 0):
-            
         self._position = value
         self.reset_region()
 
@@ -72,11 +81,15 @@ class Control():
         pass
 
     def on_mouse_press(self, *args):
-        x, y, btn, modifiers = args
-        self.activated = False
+        if len(args) == 4:
+            x, y, btn, modifiers = args
+        elif len(args) == 5:
+            sender, x, y, btn, modifiers = args
         if self.region.is_point_inside(Point(x, y)) and self.visible:
             self.activated = True
             self.click_event(*args)
+        else:
+            self.activated = False
 
     def reset_region(self):
         self.region = RectangularRegion(self.position,

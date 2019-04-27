@@ -68,5 +68,5 @@ class DefenderUnit(SelectableUnit):
             self.set_sprite_texture(Unit.T_DEFAULT)
 
 
-class PaperShredder(DefenderUnit):
+class CalculatorUnit(DefenderUnit):
     pass

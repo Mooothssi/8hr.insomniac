@@ -24,13 +24,20 @@ class Container(Control):
         if len(self.children) > 0:
             self.draw_children()   
 
-    def add_control(self, control: Control):
+    def add_control(self, control: Control, relative: bool=False):
         self.children.append(control)
         self.add_event_handler_from_control(control)
-    
+        control.parent = self
+        if relative:
+            self.translate_relative()
+        self.reset_region()
+
+    def add_child(self, control: Control):
+        self.add_control(control)
+
     def add_event_handler_from_control(self, control: Control):
         self.click_event += control.on_mouse_press
-    
+
     def get_position(self):
         return super().get_position()
 
@@ -39,12 +46,20 @@ class Container(Control):
             self.translate_controls(value.x, value.y)
         super().set_position(value)
 
+    def translate_relative(self):
+        offset = 0, 0
+        if self.centeredly_drawn:
+            offset = self.width // 2, self.height // 2
+        for c in self.children:
+            c.position.x += self.position.x - offset[0]
+            c.position.y += self.position.y - offset[1]
+
     def translate_controls(self, x, y):
         dx, dy = x - self.position.x, y - self.position.y
         for c in self.children:
             c.position.x += dx
             c.position.y += dy
-    
+
     position = property(get_position, set_position)
 
 

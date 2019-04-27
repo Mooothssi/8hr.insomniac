@@ -4,15 +4,16 @@ import types
 
 class Event():
     # TODO: Add its sender
-    def __init__(self):
+    def __init__(self, sender):
+        self.sender = sender
         self.handlers = []
 
     def __call__(self, *args, **kwargs):
         for handler in self.handlers:
-            handler(*args, **kwargs)
+            handler(self.sender, *args, **kwargs)
 
     def __iadd__(self, another: types.MethodType):
-        self.handlers.append(another)
+        self.handlers.insert(0, another)
         return self
 
 

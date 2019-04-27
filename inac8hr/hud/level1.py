@@ -5,7 +5,7 @@ from inac8hr.globals import SCR_HEIGHT, SCR_WIDTH
 
 
 #
-# Ballot the Skipper
+# the Jumping Ballot
 #
 
 
@@ -20,7 +20,18 @@ class Level1HUD(UILayer):
         self.lblStatus = Label(Point(16+disp, 8), font_name=noto)
 
         self.lblTest2 = Label(Point((SCR_WIDTH//2)-120,SCR_HEIGHT//2),size=20, align="center")
-        self.lblTest2.text = "Ballot the Skipper\n\nGet ready in 10 seconds!"
+        self.lblTest2.text = "Jumping Ballot\n\nGet ready in 10 seconds!"
+
+        self.lblScore = Label(Point(0,0),size=20, align="center")
+        self.lblScore.text = "10"
+
+        self.testMsg3 = AnimatedTexturedMessageBox(Point(SCR_WIDTH, SCR_HEIGHT), "assets/images/ui/pnl_Stats.png", width=424, height=288)
+        self.testMsg3.alpha = 255
+        self.testMsg3.centeredly_drawn = True
+        self.testMsg3.add_control(self.lblScore, True)
+        self.lblScore.align_center()
+        self.testMsg3.position = Point(SCR_WIDTH, SCR_HEIGHT)
+
         self.testMsg = AnimatedTexturedMessageBox(Point(SCR_WIDTH//2,SCR_HEIGHT//2), "assets/images/chars/Ballot_pink.png")
         self.testMsg2 = AnimatedTexturedMessageBox(Point(SCR_WIDTH//2,SCR_HEIGHT//2), "assets/images/titles/lv1.png", width=507, height=315)
         self.testMsg2.add_control(self.lblTest2)
@@ -40,7 +51,9 @@ class Level1HUD(UILayer):
         self.register_control(self.lblStatus)
         self.register_control(self.lblTest)
         self.register_control(self.testMsg2)
-        
+        self.register_control(self.testMsg3)
+
+
         seq1 = SceneSequence(self.testMsg2, [SequenceInfo("alpha", 255)], 5, ExponentialEaseOut)
         seq2 = SceneSequence(self.testMsg2, [SequenceInfo("alpha", initial_val=255, end_val=0)], 5, QuadEaseIn)
         seq_delay = TemporalSequence(5)
@@ -53,11 +66,11 @@ class Level1HUD(UILayer):
         self.animator.start()
         #self.testMsg2.position = Point(500,500)
 
-    def freeze_canvas(self):
+    def freeze_canvas(self, *args):
         self.lblStatus.visible = False
         self.manager.freeze_canvas()
 
-    def continue_canvas(self):
+    def continue_canvas(self, *args):
         self.lblStatus.visible = True
         self.manager.continue_canvas()
 

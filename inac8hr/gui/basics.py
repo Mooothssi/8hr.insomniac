@@ -3,7 +3,7 @@ import arcade
 
 class Point():
     """
-        A Cartesian coordinates in a window
+        A Cartesian coordinate in a window
     """
     def __init__(self, x, y):
         self.x = x
@@ -59,7 +59,7 @@ class RectangularRegion():
             raise Exception("Maximum vertex point count exceeded")
         for vertex in vertices:
             self.vertex_loop.append(vertex)
-    
+
     def __str__(self):
         return f"RectangularRegion [{self.vertex_loop[0]},"\
         f" {self.vertex_loop[1]}, {self.vertex_loop[2]},"\
@@ -75,6 +75,5 @@ class RectangularRegion():
         return 0 <= np.dot(p1p2, p1p) <= np.dot(p1p2, p1p2) and 0 <= np.dot(p1p3, p1p) <= np.dot(p1p3, p1p3)
 
     def draw(self):
-        if self.vertex_loop[0].y < 50 and self.vertex_loop[2].y < 100:
-            arcade.draw_lrtb_rectangle_outline(left=self.vertex_loop[0].x, right=self.vertex_loop[1].x,
-                                                bottom=self.vertex_loop[0].y, top=self.vertex_loop[2].y, color=arcade.color.RED)
+        arcade.draw_lrtb_rectangle_outline(left=self.vertex_loop[0].x, right=self.vertex_loop[1].x,
+                                            bottom=self.vertex_loop[0].y, top=self.vertex_loop[2].y, color=arcade.color.RED)

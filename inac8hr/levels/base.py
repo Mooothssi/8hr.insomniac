@@ -1,11 +1,16 @@
 import arcade
 import random
+from inac8hr.events import Event
+# from inac8hr.levels.lv1_ballot import LV1Scoring
 from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
 from inac8hr.globals import *
 from inac8hr.particles import Bullet
 from inac8hr.entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList
 from inac8hr.imports import *
+from inac8hr.cycles import CycleClock
+from inac8hr.scoring import ScoringEngine
+from inac8hr.tuning import ScoringFactor
 
 BOARD = [
         '#X################',
@@ -24,10 +29,29 @@ BOARD = [
 BLOCK_SIZE = 40
 
 
+class LV1Scoring(ScoringEngine):
+    def __init__(self):
+        super().__init__()
+        self.voter_count = ScoringFactor.LV1_DEFAULT_BALLOT
+        self.turnout = ScoringFactor.LV1_DEFAULT_BALLOT
+        self.jumping_limit = 580
+
+    def increment_score(self):
+        if self.turnout > self.voter_count:
+            super().increment_score()
+            self.turnout -= 1
+
+    def decrement_score(self):
+        super().decrement_score()
+        self.turnout += 1
+
+
 class Level(PlayableSceneLayer):
     registered_inputs = [UserEvent.WINDOW_RESIZE]
 
     def __init__(self):
+        self.scoring = LV1Scoring()
+        self.cycle = CycleClock()
         self.full_health = 50
         self.map_plan = MapPlan(BOARD, 40)
         self.defenders = UnitKeyedList()
@@ -47,17 +71,17 @@ class Level(PlayableSceneLayer):
         self.enemies.draw()
         self.defenders.draw()
         self.particles.draw()
-        for p in self.particles:
-            p.draw()
 
     def clocked_update(self):
-        # self.on_resize()
+        self.cycle.update()
         if self.state == LevelState.PAUSED:
             self.pause()
+            self.cycle.pause()
         elif self.state == LevelState.PLAYING:
             self.play()
-            # self.register_sprites()
-
+            self.cycle.resume()
+            if not self.cycle.started:
+                self.cycle.start()
     #
     #
     #
@@ -70,10 +94,10 @@ class Level(PlayableSceneLayer):
 
     state = property(get_state, set_state)
 
+
     def pause(self):
-        for e in self.enemies:
+        for e, d in zip(self.enemies, self.defenders.values()):
             e.pause()
-        for d in self.defenders.values():
             d.pause()
 
     def play(self):
@@ -215,7 +239,7 @@ class MapPlan():
         sprites = []
         for r in range(0, self.height):
             for c in range(self.width):
-                if self.is_wall_at((r,c)):
+                if self.is_wall_at((r, c)):
                     sprites.append(self.get_sprite_from_pos(arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scaling), r, c))
         return sprites
 

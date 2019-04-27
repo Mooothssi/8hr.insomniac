@@ -28,7 +28,7 @@ class EasingBase:
         pass
 
     def ease(self, alpha):
-        curr_t  = self.limit[0] * (1 - alpha) + self.limit[1] * alpha
+        curr_t = self.limit[0] * (1 - alpha) + self.limit[1] * alpha
         if self.reverse:
             t = self.duration - curr_t
         else:

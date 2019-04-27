@@ -1,5 +1,5 @@
 from inac8hr.anim.easing import LinearEase
-from inac8hr.inputs import Event
+from inac8hr.events import Event
 
 
 class SequenceInfo():
@@ -16,8 +16,8 @@ class TemporalSequence():
     def __init__(self, duration):
         self.start_behaviour = SceneSequence.TIME_CONTROLLED
         self.duration = duration
-        self.started_event = Event()
-        self.finished_event = Event()
+        self.started_event = Event(self)
+        self.finished_event = Event(self)
 
     def animate(self, time):
         pass

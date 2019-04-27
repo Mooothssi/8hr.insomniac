@@ -1,6 +1,6 @@
 import arcade
 from inac8hr.tools import BaseTool, SelectTool, PlacementAvailabilityTool
-from inac8hr.inputs import Hotkey
+from inac8hr.events import Hotkey
 from inac8hr.globals import UserEvent
 
 

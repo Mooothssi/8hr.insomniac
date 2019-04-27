@@ -1,6 +1,6 @@
 import arcade, math
 from inac8hr.utils import LocationUtil
-from inac8hr.inputs import EventDispatcher
+from inac8hr.events import EventDispatcher
 from inac8hr.levels import Level
 from inac8hr.globals import *
 

@@ -1,0 +1,7 @@
+class ScoringFactor:
+    EASY_FACTOR = 1
+    MEDIUM_FACTOR = 2
+    HARD_FACTOR = 4
+    SLOW_FACTOR = 1
+    FAST_FACTOR = 2
+    LV1_DEFAULT_BALLOT = 450
