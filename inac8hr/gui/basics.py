@@ -1,6 +1,7 @@
 import numpy as np
 import arcade
 
+
 class Point():
     """
         A Cartesian coordinate in a window
@@ -23,6 +24,23 @@ class Point():
 
     def to_list(self):
         return [self.x, self.y]
+
+
+class Margin():
+    """
+        Defines outer space of a control
+        (Typically used with an anchor)
+    """
+    __slots__ = ['left', 'right', 'bottom', 'top']
+
+    def __init__(self, left=0, bottom=0, top=0, right=0):
+        self.left = left
+        self.right = right
+        self.bottom = bottom
+        self.top = top
+
+    def __str__(self):
+        return f"Margin(top: {self.top}, left: {self.left}, bottom: {self.bottom}, right: {self.right})"
 
 
 class Region():

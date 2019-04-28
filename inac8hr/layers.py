@@ -1,4 +1,4 @@
-from inac8hr.gui import Control
+from inac8hr.gui import Point, Control, Container
 from inac8hr.anim import ControlAnimator
 
 
@@ -7,6 +7,7 @@ class SceneLayer():
     def __init__(self, scene_name):
         self.name = scene_name
         self.elements = []
+        self.parent = None
 
     def get(self, key: int):
         return self.elements[key]
@@ -41,24 +42,28 @@ class UILayer(SceneLayer):
 
     def __init__(self, scene_name, controls: list=[]):
         super().__init__(scene_name)
-        self.controls = self.elements
-        self.controls.extend(controls)
+        self.container = Container(Point(0, 0), width=800, height=600)
+        self.elements = self.container.children
+        self.elements.extend(controls)
         self.animator = ControlAnimator()
 
     def register_control(self, control: Control):
-        self.controls.append(control)
+        self.container.add_control(control)
 
     def deregister_control(self, control: Control):
-        self.controls.remove(control)
+        self.container.children.remove(control)
 
     def draw(self):
-        for ele in self.controls:
+        for ele in self.elements:
             ele.on_draw()
 
     def clocked_update(self):
-        for ele in self.controls:
+        for ele in self.elements:
             ele.clocked_update()
         self.animator.update()
+
+    def on_window_resize(self, *args):
+        self.container.on_window_resize(*args)
 
 
 class ToolLayer(SceneLayer):

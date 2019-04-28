@@ -24,3 +24,4 @@ class LV1Scoring(ScoringEngine):
 class LV1Level(Level):
     def __init__(self):
         super().__init__()
+

@@ -1,9 +1,10 @@
+import math
+import arcade
 from inac8hr.gui.controls.base import Control, AnimatedControl
 from inac8hr.gui.controls.buttons import Button
 from inac8hr.gui.basics import Point
 from inac8hr.events import Event
 from inac8hr.gui.controls.containers import Container
-import math
 
 
 class CollectionView(Container):
@@ -13,8 +14,16 @@ class CollectionView(Container):
 
 
 class PaneTile(Container):
-    def __init__(self, model: object):
+    def __init__(self, position: Point, width: int=500,
+                 height: int=500, model: object=None,
+                 color: tuple=arcade.color.AMARANTH_PINK):
+        super().__init__(position, width, height, color)
         self.model = model
+
+    def draw(self):
+        super().draw()
+        if self.activated:
+            self.region.draw()
 
 
 class ScrollablePaneView(CollectionView):
@@ -66,7 +75,7 @@ class ScrollablePaneView(CollectionView):
     def on_prev(self, *args):
         self.scroll_right()
 
-    def add_tile(self, child: Container):
+    def add_tile(self, child: PaneTile):
         const = 1
         if len(self.items) > 0:
             const = len(self.items) + 1

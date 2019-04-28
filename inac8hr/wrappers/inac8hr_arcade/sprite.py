@@ -34,20 +34,8 @@ class PreferredSprite(Sprite):
             self.internal_draw()
 
     def internal_draw(self):
-        # self._sprite = Sprite()
-        # self._sprite._texture = self._texture
-        # self._sprite.textures = [self._texture]
-
         self._sprite_list = SpriteList()
         self._sprite_list.append(self)
-
-        # self._sprite.center_x = self.center_x
-        # self._sprite.center_y = self.center_y
-        # self._sprite.width = self.width
-        # self._sprite.height = self.height
-        # self._sprite.angle = self.angle
-        # self._sprite.alpha = self.alpha
-
         self._sprite_list.draw()
 
     def set_position(self, x, y):

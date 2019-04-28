@@ -1,9 +1,8 @@
 import arcade
-import collections
 import math
-import time
 import pyglet
 from inac8hr.hud.level1 import Level1HUD
+from inac8hr.scenes.lv1_scene import Level1Scene
 from inac8hr.commands import CommandHandler
 from inac8hr.levels import LV1Level
 from inac8hr.globals import *
@@ -15,28 +14,10 @@ from inac8hr.globals import GAME_PREFS
 from inac8hr.utils import LocationUtil
 from inac8hr.anim import *
 from inac8hr.imports import *
+from inac8hr.utils import FPSCounter
 from i18n.loc import Localization
 
 APP_VERSION = "0.2.1"
-
-
-class FPSCounter:
-    def __init__(self):
-        self.time = time.perf_counter()
-        self.frame_times = collections.deque(maxlen=60)
-
-    def tick(self):
-        t1 = time.perf_counter()
-        dt = t1 - self.time
-        self.time = t1
-        self.frame_times.append(dt)
-
-    def get_fps(self):
-        total_time = sum(self.frame_times)
-        if total_time == 0:
-            return 0
-        else:
-            return len(self.frame_times) / sum(self.frame_times)
 
 
 class GameManager():
@@ -47,7 +28,6 @@ class GameManager():
         self.screen_width = width
         self.screen_height = height
         self.activated_keys = []
-        self.character_moving = False
         self.background = arcade.load_texture("assets/images/bck.png")
         self.fps = FPSCounter()
         self.updating = False
@@ -66,7 +46,7 @@ class GameManager():
         self.cmd_handler = CommandHandler(self)
         self.dispatcher.add_dispatcher(self.current_level)
         self.dispatcher.add_dispatcher(self.cmd_handler)
-        for ctrl in self.viewport.current_scene.get('ui_layer').controls:
+        for ctrl in self.viewport.current_scene.get('ui_layer').elements:
             self.dispatcher.add_dispatcher(ctrl)
         self.cursor_loc = 0, 0
 
@@ -74,14 +54,10 @@ class GameManager():
         # self.test_sprite.alpha = 50
         # self.test_animator = SpriteAnimator(self.test_sprite, 1, animation=ExponentialEaseOut)
 
-        self.frozen = True
         self.dispatcher.register_tool_events()
 
     def initialize_scenes(self):
-        level_1 = LV1Level()
-        level_1_scene = PlayableSceneLayer("canvas_layer", level_1)
-        initial_scene = Scene(level_1_scene, Level1HUD(self),
-                              SceneLayer("tool_layer"))
+        initial_scene = Level1Scene()
         self.viewport = Viewport(initial_scene)
         print('[Logger] Scene initialized...')
 
@@ -105,14 +81,6 @@ class GameManager():
         diff = math.log((((width_ratio*9) + (height_ratio*1)) / 10), 10)*2.2
         GAME_PREFS.scaling = 1 + diff
 
-    def freeze_canvas(self):
-        self.frozen = True
-        self.current_level.set_state(LevelState.PAUSED)
-
-    def continue_canvas(self):
-        self.frozen = False
-        self.current_level.set_state(LevelState.PLAYING)
-
     def update(self, delta):
         self.viewport.clocked_update()
         # self.test_animator.update()
@@ -124,13 +92,11 @@ class GameManager():
         f"{self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
         if self.fps.get_fps() < 10:
             self.current_level.set_state(LevelState.PAUSED)
-        # else:
-        #     self.current_level.set_state(self.current_level.state)
 
     def on_key_press(self, key, modifiers):
         self.dispatcher.on('key_press', key, modifiers)
       #  self.activated_keys.append(key)
-        if key == arcade.key.ENTER and not self.frozen:
+        if key == arcade.key.ENTER:
             if self.current_level.is_playing():
                 self.current_level.set_state(LevelState.PAUSED)
             else:
@@ -143,7 +109,7 @@ class GameManager():
         pass
 
     def register_sprite(self, sprite):
-        "For registering a sprite to the global sprite list across the App"
+        "For registering a sprite to the global sprite list shared across the App"
         pass
 
     def on_mouse_motion(self, x, y, dx, dy):
@@ -152,5 +118,6 @@ class GameManager():
         self.dispatcher.on('mouse_motion', x, y, dx, dy)
 
     def on_resize(self, width, height):
+        self.viewport.on_window_resize(self, width, height)
         self.reset_scaling(width, height)
         self.dispatcher.on_resize(width, height)

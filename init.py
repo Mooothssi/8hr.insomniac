@@ -20,14 +20,11 @@ class InsomniaGame(arcade.Window):
         self.fps_display = FPSDisplay(self)
 
     def on_draw(self):
-        # self.clear()
-        # glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
         arcade.set_background_color(arcade.color.WHEAT)   
         self.manager.draw()
         self.fps_display.draw()
 
     def on_resize(self, width: float, height: float):
-        # if 4/3 <= width/height <= 16/9:
         super().on_resize(width, height)
         self.manager.reload_sprites(width, height)
         self.manager.on_resize(width, height)

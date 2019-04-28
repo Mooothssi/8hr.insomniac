@@ -1,4 +1,5 @@
 from inac8hr.layers import SceneLayer
+from inac8hr.events import Event
 import arcade
 
 
@@ -31,6 +32,7 @@ class Scene():
         self.get('canvas_layer').play()
 
     def append_layer(self, layer: SceneLayer):
+        layer.parent = self
         if layer.name in self.layers:
             self.replace_layer(layer)
         else:
@@ -47,13 +49,20 @@ class Scene():
         self.layers_coll.pop(index)
         self.layers_coll.insert(index, None)
 
+    def on_window_resize(self, *args):
+        self.get('ui_layer').on_window_resize(*args)
+
 
 class Viewport():
     def __init__(self, initial_scene: Scene):
         self.current_scene = initial_scene
+        self.resized = Event(self)
 
     def draw(self):
         self.current_scene.draw()
 
     def clocked_update(self):
         self.current_scene.clocked_update()
+
+    def on_window_resize(self, sender, *args):
+        self.current_scene.on_window_resize(*args)

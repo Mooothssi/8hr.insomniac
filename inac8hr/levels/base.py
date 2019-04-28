@@ -134,8 +134,8 @@ class Level(PlayableSceneLayer):
                 if bullet is not None:
                     self.particles.append(bullet)
             d.play()
-        if len(self.enemies) == 0:
-            self.generate_enemies()
+        # if len(self.enemies) == 0:
+        #     self.generate_enemies()
 
     def generate_enemies(self):
         x, y = self.map_plan.get_initial_agent_position()
