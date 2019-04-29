@@ -1,6 +1,7 @@
 from inac8hr.gui.basics import Point, Margin, RectangularRegion
 from inac8hr.gui.controls.styles import DockStyle, AlignStyle
 from inac8hr.events import Event, UserEvent
+from inac8hr.anim import ControlAnimator
 
 
 class Control():
@@ -160,9 +161,9 @@ class Control():
     anchors = property(get_anc, set_anc)
     dock = property(get_dock, set_dock)
 
-    #
-    #
-    #
+#
+#
+#
 
     def show(self):
         self.visible = True
@@ -196,5 +197,9 @@ class Control():
                                         position + Point(0, self.height))
 
 
-class AnimatedControl(Control):
-    pass
+class AnimatedControl():
+    def __init__(self):
+        self.animator = ControlAnimator()
+
+    def tick(self):
+        self.animator.update()

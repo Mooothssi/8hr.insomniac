@@ -25,10 +25,10 @@ class LevelState:
 
 
 DIR_STILL = 0
-DIR_UP = 1
+DIR_UP = 4
 DIR_DOWN = 2
 DIR_LEFT = 3
-DIR_RIGHT = 4
+DIR_RIGHT = 1
 
 DIR_OFFSETS = {
     DIR_UP: (0, 1),

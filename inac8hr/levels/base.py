@@ -1,7 +1,8 @@
 import arcade
 import random
 from inac8hr.events import Event
-# from inac8hr.levels.lv1_ballot import LV1Scoring
+from inac8hr.loaders import ImageLoader
+from inac8hr.levels.tilemaps import TILEMAP
 from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
 from inac8hr.globals import *
@@ -13,44 +14,27 @@ from inac8hr.scoring import ScoringEngine
 from inac8hr.tuning import ScoringFactor
 
 BOARD = [
-        '#X################',
-        '# ###    #####   #',
-        '# ### ## ####  # #',
-        '#     ## #### ## #',
-        '######## ####  # #',
-        '##       ##### # #',
+        '%X%###############',
+        '% %#% == ##### = #',
+        '% %%% %% ####  # #',
+        '%C=== %% #### ## #',
+        '%%%%%%%% ####  # #',
+        '## ===== ##### # #',
         '## ##########  # #',
-        '## ##      ## ## #',
-        '##    #### ##  # #',
-        '########## ### # #',
-        '##########     # #',
+        '## ## ==== ## ## #',
+        '##  T #### ##  # #',
+        '####E##### ### # #',
+        '####E##### === # #',
         '################O#']
 
 BLOCK_SIZE = 40
-
-
-class LV1Scoring(ScoringEngine):
-    def __init__(self):
-        super().__init__()
-        self.voter_count = ScoringFactor.LV1_DEFAULT_BALLOT
-        self.turnout = ScoringFactor.LV1_DEFAULT_BALLOT
-        self.jumping_limit = 580
-
-    def increment_score(self):
-        if self.turnout > self.voter_count:
-            super().increment_score()
-            self.turnout -= 1
-
-    def decrement_score(self):
-        super().decrement_score()
-        self.turnout += 1
 
 
 class Level(PlayableSceneLayer):
     registered_inputs = [UserEvent.WINDOW_RESIZE]
 
     def __init__(self):
-        self.scoring = LV1Scoring()
+        self.scoring = ScoringEngine()
         self.cycle = CycleClock()
         self.full_health = 50
         self.map_plan = MapPlan(BOARD, 40)
@@ -125,7 +109,7 @@ class Level(PlayableSceneLayer):
         for d in self.defenders.values():
             selected_enemy = None
             dist = [[d.closest_rad(e), e] for e in self.enemies if 0 <= d.closest_rad(e) <= d.coverage_radius]
-            dist.sort()
+            sorted(dist, key=lambda x: x[0])
             if len(dist) > 0:
                 selected_enemy = dist[0][1]
             if selected_enemy is not None:# and not selected_enemy.targeted:
@@ -173,9 +157,9 @@ class Level(PlayableSceneLayer):
 
     def calculate_the_dead(self, enemy):
         if enemy.survived:
-            self.score -= 1
+            self.scoring.decrement_score()
         else:
-            self.score += 1
+            self.scoring.increment_score()
         self.enemies.remove(enemy)
 
 
@@ -188,13 +172,13 @@ class MapPlan():
         self.calculate_all_switch_points()
         self.sprites = ExtendedSpriteList()  
         self.init_sprites()
-        self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png')
+        # self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png')
         self.exit = arcade.Sprite('assets/images/chars/ballot_box.png')
         self.exit_position = self.get_initial_exit_position()
         self.init_exit_sprite()
 
     def scale(self, scaling):
-        self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scaling)
+        # self.wall_sprite = arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scaling)
         self.sprites = ExtendedSpriteList() 
         self.init_sprites(scaling)
 
@@ -230,7 +214,7 @@ class MapPlan():
 
                 elif status == 2:
                     out_of_bounds = True
-    
+
     def init_sprites(self, scaling=1):
         for s in self.get_all_sprites(scaling):
             self.sprites.append(s)
@@ -239,8 +223,8 @@ class MapPlan():
         sprites = []
         for r in range(0, self.height):
             for c in range(self.width):
-                if self.is_wall_at((r, c)):
-                    sprites.append(self.get_sprite_from_pos(arcade.Sprite('assets/images/levels/wall - Copy.png', scale=scaling), r, c))
+                if self.is_available_in_tilemap((r, c)):
+                    sprites.append(self.get_sprite_from_pos(r, c, scaling))
         return sprites
 
     def get_initial_agent_position(self):
@@ -267,10 +251,23 @@ class MapPlan():
         sprite.draw()
         return sprite
 
-    def get_sprite_from_pos(self, sprite, r, c):
+    def get_sprite_from_pos(self, r, c, scaling):
+        idx = self.plan_array[r][c]
+        angle = 0
+        if idx == "=":
+            angle = 90
+        # elif idx in "01234":
+        #     angle = 90*int(idx)
+
+        sprite = arcade.Sprite(ImageLoader.get_texture_filename_from_index(idx),
+                               scale=scaling)
+        sprite.angle = angle
         x, y = LocationUtil.get_sprite_position(r, c)
         sprite.set_position(x, y)
         return sprite
+
+    def is_available_in_tilemap(self, pos):
+        return self.plan_array[pos[0]][pos[1]] in TILEMAP.keys()
 
     def is_wall_at(self, pos):
         board = self.plan_array
@@ -281,7 +278,7 @@ class MapPlan():
 
     def is_obstacle_char(self, pos, board):
         if -1 <= pos[0] <= len(board) - 1 and -1 <= pos[1] <= len(board[0]) - 1:
-            if board[pos[0]][pos[1]] == ' ':
+            if board[pos[0]][pos[1]] in ' |=CT':
                 return 0
             elif board[pos[0]][pos[1]] == 'O':
                 return 2

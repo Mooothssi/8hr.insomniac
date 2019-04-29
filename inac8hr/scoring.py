@@ -13,12 +13,18 @@ class ScoringEngine():
 
     def increment_score(self):
         self.total_score += self.increment*self.factor
+        self.on_score_change()
 
     def decrement_score(self):
-        self.total_score += self.increment*self.factor
+        self.total_score -= self.increment*self.factor
+        self.on_score_change()
 
     def deduct_score(self, score: int):
         self.total_score -= score*self.factor
+        self.on_score_change()
+
+    def on_score_change(self, *args):
+        self.score_changed()
 
     @property
     def total(self):

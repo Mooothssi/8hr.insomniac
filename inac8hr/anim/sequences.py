@@ -1,5 +1,54 @@
 from inac8hr.anim.easing import LinearEase
+from inac8hr.anim.base import AnimFX, AnimFXPrefabs, AnimProperty
 from inac8hr.events import Event
+
+
+class ControlSequenceGroup():
+    def __init__(self, duration):
+        self.duration = duration
+        self.sequences = []
+
+    def add_sequence(self, info):
+        self.sequences.append()
+
+    def animate(self, time):
+        for seq in self.sequences:
+            seq.animate(time)
+
+    @property
+    def last_sequence(self):
+        return self.sequences[-1]
+
+
+class ControlSequence():
+    AFTER_PREVIOUS = 0
+    WITH_PREVIOUS = 1
+
+    def __init__(self, control, duration, effect: AnimFX=AnimFXPrefabs.NONE):
+        self.duration = duration
+        self.sequences = []
+        self.effects = [effect]
+        self.timing_start = ControlSequence.AFTER_PREVIOUS
+        self.played = False
+        self.control = control
+        self.__init_anims__()
+
+    def __init_anims__(self):
+        for effect in self.effects:
+            self.__reset_easing__(effect)
+
+    def __reset_easing__(self, effect):
+        effect.easing_fn.start = AnimProperty.get_prop(self.control,
+                                                       effect.properties)
+        effect.easing_fn.duration = self.duration
+
+    def add_effect(self, effect):
+        self.sequences.append(effect)
+        self.__reset_easing__(effect)
+
+    def animate(self, time):
+        for effect in self.effects:
+            effect.animate()
 
 
 class SequenceInfo():

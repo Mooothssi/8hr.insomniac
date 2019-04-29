@@ -2,19 +2,22 @@ from arcade.sprite import Sprite
 from inac8hr.globals import *
 from inac8hr.utils import LocationUtil
 from inac8hr.particles import Bullet
-from inac8hr.entities import Unit
+from inac8hr.entities import Unit, AnimatedEntity
 
 
-class AgentUnit(Unit):
+class AgentUnit(Unit, AnimatedEntity):
+
     TEXTURE_CONST = 0.25
     DECAY_VARIANTS = 3
 
     def __init__(self, texture_list, pos, full_hp=50, scaling=1, switches=[]):
         super().__init__(texture_list, pos, scaling)
+        self.decay_textures = []
         self.next_direction = DIR_STILL
         self.switches = list(switches)
         self.survived = False
         self.targeted = False
+        self.time_lived = 0
         self.reset_hp(full_hp)
 
     @property
@@ -74,3 +77,11 @@ class AgentUnit(Unit):
         next_x, next_y = LocationUtil.get_sprite_position(r, c)
         curr_x, curr_y = self.sprite.position
         return (curr_x - next_x)*DIR_OFFSETS[self.next_direction][1] >= 0 and (curr_y - next_y)*DIR_OFFSETS[self.next_direction][0] >= 0
+
+
+class Ballot(AgentUnit):
+    pass
+
+
+class JumpedBallot(Ballot):
+    pass

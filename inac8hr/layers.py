@@ -1,5 +1,5 @@
 from inac8hr.gui import Point, Control, Container
-from inac8hr.anim import ControlAnimator
+from inac8hr.anim import SceneControlAnimator
 
 
 class SceneLayer():
@@ -45,7 +45,7 @@ class UILayer(SceneLayer):
         self.container = Container(Point(0, 0), width=800, height=600)
         self.elements = self.container.children
         self.elements.extend(controls)
-        self.animator = ControlAnimator()
+        self.animator = SceneControlAnimator()
 
     def register_control(self, control: Control):
         self.container.add_control(control)

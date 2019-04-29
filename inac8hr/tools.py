@@ -1,12 +1,9 @@
 import arcade, math
+from inac8hr.entities import UnitBlueprint, VALID_PLACEMENT, INVALID_PLACEMENT
 from inac8hr.utils import LocationUtil
 from inac8hr.events import EventDispatcher
 from inac8hr.levels import Level
 from inac8hr.globals import *
-
-VALID_PLACEMENT = 1
-INVALID_PLACEMENT = 0
-
 
 class BaseTool():
     def __init__(self, level: Level):
@@ -67,44 +64,6 @@ class PlacementAvailabilityTool(PositionTool):
 
     def draw(self):
         self.unit_blueprint.sprite.draw()
-
-
-class UnitBlueprint():
-    "Minimum of 2 texture files"
-    def __init__(self, texture_files: list, scaling=1, initial_loc=(0,0)):
-        self.defender = None
-        self.sprite = arcade.Sprite()
-        self.texture_files = texture_files
-        for file_name in texture_files:
-            self.sprite.append_texture(arcade.load_texture(file_name))
-        self.state = INVALID_PLACEMENT
-        self.configure_texture()
-        self.position = initial_loc
-
-    def set_position(self, value):
-        self.sprite.set_position(*value)
-
-    def get_position(self):
-        return self.sprite.position
-
-    position = property(get_position, set_position)
-
-    def rescale(self):
-        self.configure_texture()
-
-    def configure_texture(self):
-        self.sprite.scale = GAME_PREFS.scaling
-        self.sprite.set_texture(self.state)
-
-    def change_state(self, state):
-        self.state = state
-        self.configure_texture()
-
-
-class UnitPlacement():
-
-    def check_availability(self):
-        pass
 
 
 class SelectTool(PositionTool):

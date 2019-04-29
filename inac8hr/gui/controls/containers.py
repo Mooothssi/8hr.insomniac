@@ -77,8 +77,10 @@ class Container(Control):
     position = property(get_position, set_position)
 
 
-class AnimatedContainer(Container):
-    pass
+class AnimatedContainer(Container, AnimatedControl):
+    def tick(self):
+        self.clocked_update()
+        self.tick()
 
 
 class AnimatedTexturedMessageBox(AnimatedContainer):

@@ -7,19 +7,20 @@ import arcade
 import time
 
 GAME_TITLE = str(LocalizedText('Game/Title'))
-SCREEN_WIDTH = 800  # 18*40
-SCREEN_HEIGHT = 600  # 12*40
+SCREEN_WIDTH = 1920  # 18*40
+SCREEN_HEIGHT = 1000  # 12*40
 
 
 class InsomniaGame(arcade.Window):
     def __init__(self, width, height, title, fullscreen=False):
-        super().__init__(width, height, title, fullscreen, resizable=True)
+        super().__init__(width, height, title, fullscreen)
         self.manager = GameManager(resolution=(width, height))
         self.manager.load_sprites(width, height)
         self.manager.fullscreen = fullscreen
         self.fps_display = FPSDisplay(self)
 
     def on_draw(self):
+        arcade.start_render()
         arcade.set_background_color(arcade.color.WHEAT)   
         self.manager.draw()
         self.fps_display.draw()
@@ -51,6 +52,5 @@ class InsomniaGame(arcade.Window):
 
 if __name__ == '__main__':
     game = InsomniaGame(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE)
-    arcade.start_render()
     arcade.run()
 

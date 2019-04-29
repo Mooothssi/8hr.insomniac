@@ -1,6 +1,6 @@
 import math
 import arcade
-from inac8hr.gui.controls.base import Control, AnimatedControl
+from inac8hr.gui.controls import Label, Control, AnimatedControl
 from inac8hr.gui.controls.buttons import Button
 from inac8hr.gui.basics import Point
 from inac8hr.events import Event
@@ -11,14 +11,31 @@ class CollectionView(Container):
     def __init__(self, position, width, height):
         super().__init__(position, width, height)
         self.selected_index_changed_event = Event(self)
+        self.__items__ = []
+
+    @property
+    def items(self):
+        return self.__items__
+
+    def on_click(self, sender, *args):
+        children = zip(range(len(self.items)), self.items)
+        activated = list(filter(lambda x: x[1].activated is True, children))
+        if len(activated) == 1:
+            self._current_index = activated[0][0]
+            self.selected_index_changed_event()
 
 
 class PaneTile(Container):
-    def __init__(self, position: Point, width: int=500,
+    def __init__(self, position: Point=Point(0,0), width: int=75,
                  height: int=500, model: object=None,
-                 color: tuple=arcade.color.AMARANTH_PINK):
+                 color: tuple=arcade.color.AMARANTH_PURPLE):
         super().__init__(position, width, height, color)
         self.model = model
+        self.caption = Label
+
+    def _generate_from_model(self):
+        if self.model is not None:
+            pass
 
     def draw(self):
         super().draw()
@@ -34,7 +51,6 @@ class ScrollablePaneView(CollectionView):
 
     def __init__(self, position, width, height):
         super().__init__(position, width, height)
-        self.__items__ = []
         self.spacing = 10
         self.item_width = 50
         self.item_limit = 0
@@ -95,13 +111,6 @@ class ScrollablePaneView(CollectionView):
     def get_scrollable_area(self):
         return self._btn_next.width, self.height - (2*self.spacing)
 
-    def on_click(self, sender, *args):
-        children = zip(range(len(self.items)), self.items)
-        activated = list(filter(lambda x: x[1].activated is True, children))
-        if len(activated) == 1:
-            self._current_index = activated[0][0]
-            self.selected_index_changed_event()
-
     def scroll_left(self):
         self.scroll(self.DIR_LEFT)
         if self._current_group_number >= self._viewgroups:
@@ -137,10 +146,6 @@ class ScrollablePaneView(CollectionView):
 
     def on_scroll(self):
         pass
-
-    @property
-    def items(self):
-        return self.__items__
 
     @property
     def current_index(self) -> int:

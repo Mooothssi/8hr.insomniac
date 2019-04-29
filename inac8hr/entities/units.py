@@ -77,6 +77,7 @@ class Unit(CirclePhysicsEntity):
         self.sprite.scale = GAME_PREFS.scaling
         for file_name in self.texture_files:
             self.sprite.append_texture(arcade.load_texture(file_name))
+        self.sprite.scale = GAME_PREFS.scaling
 
     def set_board_position(self, r, c):
         self.board_position = r, c
@@ -129,6 +130,35 @@ class SelectableUnit(Unit):
 
     def on_selection(self, selected):
         self.selected = selected
+
+
+class AnimatedEntity():
+    def __init__(self, states, animations_tex, initial_pos, scaling=1):
+        self.frame_time = 1
+        self.curr_time = 0
+        self.passed_frames = 0
+        self.state_sprite = self.sprite
+        self.animated_sprite = Sprite()
+        self.animated_textures = animations_tex
+        self.texture_frames = len(self.animated_textures)
+        self.__animating__ = False
+
+    def start_animating(self):
+        self.curr_time = time.time()
+        self.__animating__ = True
+
+    def clocked_update(self):
+        elapsed = time.time() - self.curr_time
+        if elapsed >= self.frame_time:
+            r = self.passed_frames % self.texture_frames
+            self.animated_sprite.set_texture(r)
+            self.passed_frames += 1
+
+    def draw(self):
+        if self.__animating__:
+            self.animated_sprite.draw()
+        else:
+            self.sprite.draw()
 
 
 class UnitListBase():

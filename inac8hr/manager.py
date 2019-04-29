@@ -1,6 +1,7 @@
 import arcade
 import math
 import pyglet
+from inac8hr.engines import GameEngine
 from inac8hr.hud.level1 import Level1HUD
 from inac8hr.scenes.lv1_scene import Level1Scene
 from inac8hr.commands import CommandHandler
@@ -35,8 +36,10 @@ class GameManager():
         self.sprite_list = []
         self.state = STATE_READY
         self.dispatcher = EventDispatcher()
-
-        self.initialize_scenes()
+        self.engine = GameEngine()
+        
+        self.engine.load_all()
+        self.viewport = self.engine.viewport
 
         self.fps_text = self.viewport.current_scene.get('ui_layer').main_element
         self.normal_text = self.viewport.current_scene.get('ui_layer').get(2)
@@ -49,17 +52,12 @@ class GameManager():
         for ctrl in self.viewport.current_scene.get('ui_layer').elements:
             self.dispatcher.add_dispatcher(ctrl)
         self.cursor_loc = 0, 0
-
+        
         # self.test_sprite = PreferredSprite("assets/images/chars/avail.png", center_x=500, center_y=0)
         # self.test_sprite.alpha = 50
         # self.test_animator = SpriteAnimator(self.test_sprite, 1, animation=ExponentialEaseOut)
 
         self.dispatcher.register_tool_events()
-
-    def initialize_scenes(self):
-        initial_scene = Level1Scene()
-        self.viewport = Viewport(initial_scene)
-        print('[Logger] Scene initialized...')
 
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2,
@@ -82,13 +80,12 @@ class GameManager():
         GAME_PREFS.scaling = 1 + diff
 
     def update(self, delta):
-        self.viewport.clocked_update()
+        self.viewport.tick()
         # self.test_animator.update()
         self.fps.tick()
         self.fps_text.text = f"FPS: {self.fps.get_fps():.2f}"
         #f"Scaling: {GAME_PREFS.scaling:.2f} |
-        self.normal_text.text = f"Score: {self.current_level.score} " \
-        f"| {self.locale.get_translated_text('Intro/Instructions')} |-|"\
+        self.normal_text.text = f"| {self.locale.get_translated_text('Intro/Instructions')} |-|"\
         f"{self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
         if self.fps.get_fps() < 10:
             self.current_level.set_state(LevelState.PAUSED)

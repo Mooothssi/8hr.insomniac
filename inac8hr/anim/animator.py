@@ -2,9 +2,9 @@ import time
 import types
 from arcade.sprite import Sprite
 from inac8hr.gui import Point
-from inac8hr.anim.sequences import SceneSequence
+from inac8hr.anim.base import AnimProperty
+from inac8hr.anim.sequences import SceneSequence, ControlSequenceGroup, ControlSequence
 from inac8hr.anim.easing import EasingBase, LinearEase
-
 
 class AnimatorBase():
 
@@ -16,7 +16,7 @@ class AnimatorBase():
         self.start_time = time.time()
         self.elapsed = 0
         self.__animating__ = False
-    
+
     def get_elapsed(self):
         """
             in seconds
@@ -60,7 +60,7 @@ class SpriteAnimator(AnimatorBase):
                 self.__animating__ = False
 
 
-class ControlAnimator(AnimatorBase):
+class SceneControlAnimator(AnimatorBase):
     def __init__(self, duration=1, sequences=[]):
         super().__init__()
         self.start_time = time.time()
@@ -102,4 +102,53 @@ class ControlAnimator(AnimatorBase):
                     self.start_time = time.time()
                     self.next()
 
-                    
+
+class ControlAnimator(AnimatorBase):
+    def __init__(self, duration=1, sequences=[]):
+        super().__init__()
+        self.start_time = time.time()
+        self.sequence_groups = []
+        self.__current_group__ = 0
+
+    def add_sequence(self, seq: ControlSequence):
+        if len(self.sequence_groups) == 0:
+            seq_group = ControlSequenceGroup(seq.duration)
+            seq_group.add_sequence(seq)
+            self.sequence_groups.append(seq_group)
+        else:
+            if seq.timing_start == ControlSequence.WITH_PREVIOUS:
+                self.sequence_groups[-1].add_sequence(seq)
+            else:
+                seq_group = ControlSequenceGroup(seq.duration)
+                seq_group.add_sequence(seq)
+
+    def subscribe_to_sequence(self, sequence, fname: str,
+                              handlerfn: types.MethodType):
+        setattr(sequence, fname, handlerfn)
+
+    def start(self):
+        if len(self.sequence_groups) > 0:
+            self.__animating__ = True
+
+    @property
+    def current_group(self):
+        return self.sequence_groups[self.__current_group__]
+
+    def ended(self):
+        return self.get_elapsed() >= self.current_group.duration
+
+    def next(self):
+        self.__current_group__ += 1
+
+    def update(self):
+        if self.__animating__:
+            alpha_time = self.get_elapsed()
+            if not self.ended():
+                self.current_group.animate(alpha_time)
+            else:
+                self.current_group.end()
+                self.__animating__ = False
+                if self.__current_group__ != len(self.sequence_groups) - 1:
+                    self.__animating__ = True
+                    self.start_time = time.time()
+                    self.next()

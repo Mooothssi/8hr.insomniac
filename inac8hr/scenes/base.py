@@ -18,7 +18,7 @@ class Scene():
         for layer in self.layers_coll:
             layer.draw()
 
-    def clocked_update(self):
+    def tick(self):
         for layer in self.layers_coll:
             layer.clocked_update()
 
@@ -55,14 +55,22 @@ class Scene():
 
 class Viewport():
     def __init__(self, initial_scene: Scene):
-        self.current_scene = initial_scene
+        self.scenes = []
+        self.add_scene(initial_scene)
         self.resized = Event(self)
+
+    def add_scene(self, scene: Scene):
+        self.scenes.append(scene)
+
+    @property
+    def current_scene(self):
+        return self.scenes[0]
 
     def draw(self):
         self.current_scene.draw()
 
-    def clocked_update(self):
-        self.current_scene.clocked_update()
+    def tick(self):
+        self.current_scene.tick()
 
     def on_window_resize(self, sender, *args):
         self.current_scene.on_window_resize(*args)
