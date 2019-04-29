@@ -5,7 +5,7 @@ from inac8hr.anim import ControlAnimator
 
 
 class Control():
-    registered_inputs = [UserEvent.MOUSE_PRESS]
+    registered_inputs = [UserEvent.MOUSE_PRESS, UserEvent.MOUSE_RELEASE]
 
     ANCHOR_TOP = 1 << 0
     ANCHOR_LEFT = 1 << 1
@@ -14,7 +14,6 @@ class Control():
 
     def __init__(self, position: Point, width=0, height=0):
         self._position = position
-        self.alignment = 0 
         self.alignment = AlignStyle.NONE
         self._anchors = self.ANCHOR_LEFT
         self.visible = True
@@ -30,7 +29,10 @@ class Control():
                                         position + Point(width, height),
                                         position + Point(0, height))
         self.click_event = Event(self)
+        self.released = Event(self)
+        self.double_clicked = Event(self)
         self._dock = DockStyle.NONE
+        self._mouse_down = False
 
     def on_draw(self):
         if self.visible:
@@ -42,10 +44,15 @@ class Control():
     def clocked_update(self):
         pass
 
-    def _apply_behaviour(self):
+#
+# Anchor & Positioning subroutines
+#
+
+    def _apply_behaviours(self):
         self._redock()
         self._realign()
         self._calc_dist()
+        self._realign_to_padding()
         self._align_to_anchors()
 
     def _realign(self):
@@ -53,7 +60,7 @@ class Control():
             if self.alignment & AlignStyle.AlignXStyle.RIGHT:
                 self.position.x = self.parent.position.x + self.parent.width
             if self.alignment & AlignStyle.AlignYStyle.TOP:
-                self.position.y = self.parent.position.y + self.parent.height
+                self.position.y = self.parent.position.y + self.parent.height - self.height
 
     def _redock(self):
         if self.parent is not None:
@@ -65,6 +72,16 @@ class Control():
                 self.position.y = self.parent.position.y + self.parent.height
                 self.width = self.parent.width
 
+    def _realign_to_padding(self):
+        if self.parent is not None:
+            if self.height > self.parent.padding.top:
+                self.position.y -= self.parent.padding.top
+            if self.parent.height > self.height + self.parent.padding.bottom:
+                self.position.y += self.parent.padding.bottom
+            if self.width > self.parent.padding.right:
+                self.position.x -= self.parent.padding.right
+            if self.parent.width > self.width + self.parent.padding.left:
+                self.position.x += self.parent.padding.left
 
     def _calc_dist(self):
         denominator = 1
@@ -87,6 +104,10 @@ class Control():
             if self.anchors & self.ANCHOR_TOP:
                 # self.position = Point(self.position.x, (self.parent.height) - self._anc_dist.top)
                 self.position = Point(self.position.x, translated_y)
+
+#
+#
+#
 
     def move_left(self, value):
         self.position.x -= value
@@ -178,15 +199,22 @@ class Control():
         elif len(args) == 5:
             sender, x, y, btn, modifiers = args
         if self.region.is_point_inside(Point(x, y)) and self.visible:
+            self._mouse_down = True
             self.activated = True
             self.click_event(*args)
         else:
             self.activated = False
 
+    def on_mouse_release(self, *args):
+        if self._mouse_down:
+            self._mouse_down = False
+            self.released()
+
     def reset_region(self):
         self.region = RectangularRegion(self.position,
                                         self.position + Point(self.width, 0),
-                                        self.position + Point(self.width, self.height),
+                                        self.position + Point(self.width,
+                                                              self.height),
                                         self.position + Point(0, self.height))
 
     def set_region_from_center(self):

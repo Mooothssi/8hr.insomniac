@@ -43,6 +43,16 @@ class Margin():
         return f"Margin(top: {self.top}, left: {self.left}, bottom: {self.bottom}, right: {self.right})"
 
 
+class Padding(Margin):
+    """
+        Defines inner space of a control around its content.
+    """
+    __slots__ = ['left', 'right', 'bottom', 'top']
+
+    def __str__(self):
+        return f"Padding(top: {self.top}, left: {self.left}, bottom: {self.bottom}, right: {self.right})"
+
+
 class Region():
     """
         A polygonal boundary of a control

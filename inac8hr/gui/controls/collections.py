@@ -2,9 +2,10 @@ import math
 import arcade
 from inac8hr.gui.controls import Label, Control, AnimatedControl
 from inac8hr.gui.controls.buttons import Button
-from inac8hr.gui.basics import Point
+from inac8hr.gui.basics import Point, Padding
 from inac8hr.events import Event
 from inac8hr.gui.controls.containers import Container
+from inac8hr.wrappers.inac8hr_arcade import DrawCommands
 
 
 class CollectionView(Container):
@@ -65,16 +66,13 @@ class ScrollablePaneView(CollectionView):
         self.init_scrolling_button()
 
     def init_scrolling_button(self):
-        x, y = self.width + self.position.x - self.spacing, self.position.y \
-               + (self.height//2)
+        x, y = self.width - self.spacing, 0
         self._btn_next = Button(Point(x, y),
                                 "assets/images/ui/Next_button.png", height=75,
                                 width=20)
         self._btn_next.click_event += self.on_next
 
-        x, y = self.position.x + self.spacing, \
-               self.position.y + (self.height//2)
-        self._btn_prev = Button(Point(x, y),
+        self._btn_prev = Button(Point(0, 0),
                                 "assets/images/ui/Prev_button.png", height=75,
                                 width=20)
         self._btn_prev.click_event += self.on_prev
@@ -150,3 +148,20 @@ class ScrollablePaneView(CollectionView):
     @property
     def current_index(self) -> int:
         return self._current_index
+
+
+class MenuPane(Container):
+    def __init__(self, position: Point, texture_filename: str,
+                 width: int=500, height: int=500):
+        super().__init__(position, width, height)
+        self.texture = arcade.load_texture(texture_filename)
+        self._textures = []
+        self._background_drawn = False
+        self.alpha = 255
+        self.padding = Padding(10, 0, 45, 10)
+        # self.set_region_from_center()
+
+    def draw(self):
+        DrawCommands.draw_textured_rectangle(self.position.x + (self.width//2), self.position.y + (self.height//2),
+                                             self.width, self.height, self.texture, alpha=self.alpha)
+        super().draw()

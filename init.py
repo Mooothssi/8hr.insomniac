@@ -44,6 +44,9 @@ class InsomniaGame(arcade.Window):
     def on_mouse_press(self, x, y, button, modifiers):
         self.manager.dispatcher.on('mouse_press', x, y, button, modifiers)
 
+    def on_mouse_release(self, x, y, button, modifiers):
+        self.manager.dispatcher.on('mouse_release', x, y, button, modifiers)
+
     def on_mouse_motion(self, x, y, dx, dy):
         self.manager.on_mouse_motion(x, y, dx, dy)
 

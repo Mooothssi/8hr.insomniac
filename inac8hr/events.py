@@ -39,9 +39,11 @@ class EventDispatcher():
     REGISTERED_EVENT_NAMES = {
         "mouse_motion": UserEvent.MOUSE_MOTION,
         "mouse_press": UserEvent.MOUSE_PRESS,
+        "mouse_release": UserEvent.MOUSE_RELEASE,
         "key_press": UserEvent.KEY_PRESS
     }
     EVENTS = [UserEvent.MOUSE_MOTION, UserEvent.MOUSE_PRESS,
+              UserEvent.MOUSE_RELEASE,
               UserEvent.KEY_PRESS, UserEvent.KEY_RELEASE,
               UserEvent.WINDOW_RESIZE]
 

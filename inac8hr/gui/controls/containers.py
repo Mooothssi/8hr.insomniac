@@ -1,7 +1,7 @@
 import arcade
 from inac8hr.wrappers.inac8hr_arcade import DrawCommands
 from inac8hr.gui.controls import AlignStyle, Control, AnimatedControl
-from inac8hr.gui.basics import Point, RectangularRegion
+from inac8hr.gui.basics import Point, Padding, RectangularRegion
 from inac8hr.imports import ExtendedSpriteList
 
 
@@ -10,8 +10,10 @@ class Container(Control):
     def __init__(self, position: Point, width: int=500, 
                  height: int=500, color: tuple=arcade.color.AMARANTH_PINK):
         self.children = []
+        self.padding = Padding(0, 0, 0, 0)
         self.color = color
         self._child_spr_list = ExtendedSpriteList()
+        self._background_drawn = True
         super().__init__(position, width, height)
 
     def draw_children(self):
@@ -20,8 +22,9 @@ class Container(Control):
                 c.draw()
 
     def draw(self):
-        arcade.draw_xywh_rectangle_filled(self.position.x, self.position.y,
-                                          self.width, self.height, self.color)
+        if self._background_drawn:
+            arcade.draw_xywh_rectangle_filled(self.position.x, self.position.y,
+                                                    self.width, self.height, self.color)
         if len(self.children) > 0:
             self.draw_children()
 
@@ -31,14 +34,15 @@ class Container(Control):
         if relative:
             self.translate_relative(control)
         control.parent = self
-        control._apply_behaviour()
-        self.reset_region()
+        control._apply_behaviours()
+        control.reset_region()
 
     def add_child(self, control: Control):
-        self.add_control(control)
+        self.add_control(control, True)
 
     def add_event_handler_from_control(self, control: Control):
         self.click_event += control.on_mouse_press
+        self.released += control.on_mouse_release
 
     def get_position(self):
         return super().get_position()
@@ -52,8 +56,8 @@ class Container(Control):
         offset = 0, 0
         if self.centeredly_drawn:
             offset = self.width // 2, self.height // 2
-        control.position.x += self.position.x - offset[0]
-        control.position.y += self.position.y - offset[1]
+        control.position.x += self.position.x - offset[0] + self.padding.left
+        control.position.y += self.position.y - offset[1] + self.padding.bottom
         # for c in self.children:
         #     c.position.x += self.position.x - offset[0]
         #     c.position.y += self.position.y - offset[1]

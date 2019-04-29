@@ -24,9 +24,9 @@ class Level1HUD(UILayer):
         self.lblTest2 = Label(Point(SCR_WIDTH//2,SCR_HEIGHT//2), size=20, align=AlignStyle.BOTTOM_CENTER)
         self.lblTest2.text = "Jumping Ballot\n\nGet ready in 10 seconds!"
 
-        #
-        # Stats Panel
-        #
+#
+# Stats Panel
+#
         self.parent.lv1.scoring.score_changed += self.on_score_changed
 
         self.lblCycle = Label(Point(260,173), size=20, font_name=noto)
@@ -59,14 +59,28 @@ class Level1HUD(UILayer):
         self.testMsg3.visible = False
         # self.testMsg3.add_control(self.lblLv1Panel, True)
         self.testMsg3.position = Point(SCR_WIDTH-424, SCR_HEIGHT-288)
-        #
-        #
-        #
+#
+#
+#
+
+#
+# Side Menu Panel
+#
+        self.sideMenu = MenuPane(Point(0,250), "assets/images/ui/SidePane_menu.png", width=110, height=541)
+        # self.sideMenu.alignment = AlignStyle.TOP_LEFT
+        self.sideMenu.click_event += self.test2
+        self.btnSelect = Button(Point(0,0), "assets/images/ui/btn_SelectTool_normal.png", width=85, height=72)
+        self.btnSelect.append_texture("assets/images/ui/btn_SelectTool_pressed.png")
+        self.btnSelect.alignment = AlignStyle.TOP_CENTER
+        self.sideMenu.add_control(self.btnSelect, True)
+#
+#
+#
 
         self.testMsg = AnimatedTexturedMessageBox(Point(SCR_WIDTH//2, SCR_HEIGHT//2), "assets/images/chars/Ballot_pink.png")
         self.testMsg2 = AnimatedTexturedMessageBox(Point(SCR_WIDTH//2, SCR_HEIGHT//2), "assets/images/titles/lv1.png", width=507, height=315)
         self.testMsg2.alignment = AlignStyle.MIDDLE_CENTER
-        self.testMsg2.add_control(self.lblTest2)
+        self.testMsg2.add_control(self.lblTest)
         self.testMsg2.align_center()
         self.lblTest2.align_center()
 
@@ -79,7 +93,6 @@ class Level1HUD(UILayer):
             self.container1.add_tile(PaneTile(Point(0, 0), width=75, color=arcade.color.AMAZON))
 
         self._register_controls()
-
 
         seq1 = SceneSequence(self.testMsg2, [SequenceInfo("alpha", 255)], 5, ExponentialEaseOut)
         seq2 = SceneSequence(self.testMsg2, [SequenceInfo("alpha", initial_val=255, end_val=0)], 5, QuadEaseIn)
@@ -102,6 +115,7 @@ class Level1HUD(UILayer):
         self.register_control(self.lblTest)
         self.register_control(self.testMsg3)
         self.register_control(self.testMsg2)
+        self.register_control(self.sideMenu)
 
     def _lazy_init(self):
         self.lv1.cycle.cycle_changed += self.on_cycle_changed

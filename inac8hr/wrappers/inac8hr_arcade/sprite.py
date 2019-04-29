@@ -8,7 +8,7 @@ class DrawCommands():
     @staticmethod
     def draw_textured_rectangle(center_x: float, center_y: float, width: float,
                             height: float, texture: arcade.Texture, angle: float=0,
-                            alpha: float=1,
+                            alpha: float=255,
                             repeat_count_x=1, repeat_count_y=1):
         _sprite = arcade.Sprite()
         _sprite._texture = texture
