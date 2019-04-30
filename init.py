@@ -17,13 +17,11 @@ class InsomniaGame(arcade.Window):
         self.manager = GameManager(resolution=(width, height))
         self.manager.load_sprites(width, height)
         self.manager.fullscreen = fullscreen
-        self.fps_display = FPSDisplay(self)
 
     def on_draw(self):
         arcade.start_render()
         arcade.set_background_color(arcade.color.WHEAT)   
         self.manager.draw()
-        self.fps_display.draw()
 
     def on_resize(self, width: float, height: float):
         super().on_resize(width, height)

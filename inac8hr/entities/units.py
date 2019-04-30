@@ -164,6 +164,7 @@ class AnimatedEntity():
 class UnitListBase():
     def __init__(self):
         self.sprites = ExtendedSpriteList()
+        self.scaling_factor = 1
 
     def __iter__(self):
         self.n = 0
@@ -175,6 +176,11 @@ class UnitListBase():
     def draw(self):
         self.sprites.draw()
 
+    def scale(self, scaling_factor):
+        self.scaling_factor = scaling_factor
+        for sprite in self.sprites.sprite_list:
+            sprite.scale = scaling_factor
+
 
 class UnitList(UnitListBase):
     def __init__(self):
@@ -183,6 +189,7 @@ class UnitList(UnitListBase):
 
     def append(self, item: Unit):
         self.units.append(item)
+        item.sprite.scale = self.scaling_factor
         self.sprites.append(item.sprite)
 
     def remove(self, item: Unit):
@@ -199,6 +206,9 @@ class UnitList(UnitListBase):
 
 
 class UnitKeyedList(UnitListBase):
+    """
+        Serves as a simple spatial hash for each unit
+    """
     def __init__(self):
         super().__init__()
         self.units = {}
@@ -208,12 +218,13 @@ class UnitKeyedList(UnitListBase):
 
     def __setitem__(self, key, value):
         self.units[key] = value
+        value.sprite.scale = self.scaling_factor
         self.sprites.append(value.sprite)
 
     def remove(self, item: Unit):
         self.units.remove(item)
         self.sprites.remove(item.sprite)
-    
+
     def values(self):
         return self.units.values()
 

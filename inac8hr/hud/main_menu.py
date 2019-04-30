@@ -5,7 +5,6 @@ from inac8hr.globals import SCR_HEIGHT, SCR_WIDTH
 
 
 class MainMenuLayer(UILayer):
-    def __init__(self, manager):
-        # self.lbl = 
+    def __init__(self):
+        super().__init__()
         pass
-

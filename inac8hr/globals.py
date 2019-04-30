@@ -2,6 +2,8 @@ import arcade
 from inac8hr.settings import Preferences
 from i18n.loc import Localization
 
+APP_VERSION = "0.2.1"
+
 DEFAULT_LIFECYCLE_TIME = 45
 
 GAME_PREFS = Preferences()

@@ -72,7 +72,7 @@ class SelectTool(PositionTool):
     def __init__(self, level: Level):
         super().__init__(level)
         self.selection = None
-        self.PRX = 0.3, 0.7
+        self.PRX = 0.4, 0.6
 
     def eval_availability(self, x, y):
         if self.eval_proximity(x, y):
@@ -87,19 +87,21 @@ class SelectTool(PositionTool):
             r, c = LocationUtil.get_plan_position(x, y, True)
             selection = self.level.get_defender_at(r, c)
             if selection != self.selection:
-                if self.selection != None:
+                if self.selection is not None:
                     self.selection.on_selection(False)
                 self.selection = selection
             self.selection.on_selection(button == arcade.MOUSE_BUTTON_LEFT)
-            # print(self.level.get_defender_at(r, c))
+            print(self.level.get_defender_at(r, c))
 
 
 class ToolHandler():
     registered_inputs = [UserEvent.MOUSE_MOTION]
 
-    def __init__(self, event_dispatcher: EventDispatcher):
+    def __init__(self, event_dispatcher: EventDispatcher, model: Level):
         self.tools = []
+        self.level = model
         self.dispatcher = event_dispatcher
+        self.cursor_loc = (0, 0)
         self.__current_tool__ = None
 
     def get_current_tool(self):
@@ -121,5 +123,8 @@ class ToolHandler():
     def draw(self):
         if self.__current_tool__ is not None:
             self.current_tool.draw()
+    
+    def on_mouse_motion(self, x, y, dx, dy):
+        self.cursor_loc = x, y
 
     current_tool = property(get_current_tool, set_current_tool)

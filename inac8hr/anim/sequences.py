@@ -9,11 +9,15 @@ class ControlSequenceGroup():
         self.sequences = []
 
     def add_sequence(self, info):
-        self.sequences.append()
+        self.sequences.append(info)
 
     def animate(self, time):
         for seq in self.sequences:
             seq.animate(time)
+
+    def end(self):
+        pass
+        # raise NotImplementedError
 
     @property
     def last_sequence(self):
@@ -48,7 +52,7 @@ class ControlSequence():
 
     def animate(self, time):
         for effect in self.effects:
-            effect.animate()
+            effect.animate(self.control, time)
 
 
 class SequenceInfo():

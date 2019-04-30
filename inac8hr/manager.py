@@ -15,10 +15,7 @@ from inac8hr.globals import GAME_PREFS
 from inac8hr.utils import LocationUtil
 from inac8hr.anim import *
 from inac8hr.imports import *
-from inac8hr.utils import FPSCounter
 from i18n.loc import Localization
-
-APP_VERSION = "0.2.1"
 
 
 class GameManager():
@@ -30,40 +27,27 @@ class GameManager():
         self.screen_height = height
         self.activated_keys = []
         self.background = arcade.load_texture("assets/images/bck.png")
-        self.fps = FPSCounter()
         self.updating = False
-        self.locale = Localization()
         self.sprite_list = []
         self.state = STATE_READY
-        self.dispatcher = EventDispatcher()
         self.engine = GameEngine()
-        
         self.engine.load_all()
+        self.dispatcher = self.engine.event_dispatcher
         self.viewport = self.engine.viewport
-
-        self.fps_text = self.viewport.current_scene.get('ui_layer').main_element
-        self.normal_text = self.viewport.current_scene.get('ui_layer').get(2)
-        self.current_level = self.viewport.current_scene.get('canvas_layer').main_element
-
-        self.tool_handler = ToolHandler(self.dispatcher)
-        self.cmd_handler = CommandHandler(self)
-        self.dispatcher.add_dispatcher(self.current_level)
-        self.dispatcher.add_dispatcher(self.cmd_handler)
-        for ctrl in self.viewport.current_scene.get('ui_layer').elements:
-            self.dispatcher.add_dispatcher(ctrl)
+        self.current_level = self.viewport.current_scene.get('ui_layer').lv1
         self.cursor_loc = 0, 0
-        
+
         # self.test_sprite = PreferredSprite("assets/images/chars/avail.png", center_x=500, center_y=0)
         # self.test_sprite.alpha = 50
         # self.test_animator = SpriteAnimator(self.test_sprite, 1, animation=ExponentialEaseOut)
 
-        self.dispatcher.register_tool_events()
+        # self.dispatcher.register_tool_events()
 
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2,
                                       self.screen_width + 500, self.screen_height + 500, self.background, alpha=255)
         self.viewport.draw()
-        self.tool_handler.draw()
+        # self.tool_handler.draw()
         # self.test_sprite.draw()
 
     def load_sprites(self, width, height):
@@ -81,23 +65,15 @@ class GameManager():
 
     def update(self, delta):
         self.viewport.tick()
-        # self.test_animator.update()
-        self.fps.tick()
-        self.fps_text.text = f"FPS: {self.fps.get_fps():.2f}"
-        #f"Scaling: {GAME_PREFS.scaling:.2f} |
-        self.normal_text.text = f"| {self.locale.get_translated_text('Intro/Instructions')} |-|"\
-        f"{self.locale.get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
-        if self.fps.get_fps() < 10:
-            self.current_level.set_state(LevelState.PAUSED)
 
     def on_key_press(self, key, modifiers):
         self.dispatcher.on('key_press', key, modifiers)
       #  self.activated_keys.append(key)
-        if key == arcade.key.ENTER:
-            if self.current_level.is_playing():
-                self.current_level.set_state(LevelState.PAUSED)
-            else:
-                self.current_level.set_state(LevelState.PLAYING)
+        # if key == arcade.key.ENTER:
+        #     if self.current_level.is_playing():
+        #         self.current_level.set_state(LevelState.PAUSED)
+        #     else:
+        #         self.current_level.set_state(LevelState.PLAYING)
         # elif key == arcade.key.A:
         #     self.test_animator.tween_to(500, 500)
 

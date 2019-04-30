@@ -13,6 +13,7 @@ class CollectionView(Container):
         super().__init__(position, width, height)
         self.selected_index_changed_event = Event(self)
         self.__items__ = []
+        self._current_index = -1
 
     @property
     def items(self):
@@ -24,6 +25,14 @@ class CollectionView(Container):
         if len(activated) == 1:
             self._current_index = activated[0][0]
             self.selected_index_changed_event()
+
+    @property
+    def current_index(self) -> int:
+        return self._current_index
+
+    @property
+    def selected_item(self) -> int:
+        return self.items[self._current_index]
 
 
 class PaneTile(Container):
@@ -57,7 +66,6 @@ class ScrollablePaneView(CollectionView):
         self.item_limit = 0
         self.click_event += self.on_click
         self._current_group_number = 1
-        self._current_index = -1
         self._current_item_count = 0
         self._viewgroups = 1
         self.scroll_left_lock = False
@@ -145,9 +153,6 @@ class ScrollablePaneView(CollectionView):
     def on_scroll(self):
         pass
 
-    @property
-    def current_index(self) -> int:
-        return self._current_index
 
 
 class MenuPane(Container):

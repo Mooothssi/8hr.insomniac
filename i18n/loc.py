@@ -10,12 +10,20 @@ class Language:
 
 
 class Localization():
+    __instance = None
     "Allow players to customize their own language."
     def __init__(self, default="en_US"):
         self.languages = {}
         self.default_lang = default
         self.add_language(Language("English (US)", "en_US", LOC_TEXTS_EN_US))
         self.add_language(Language("Thai", "th_TH", LOC_TEXTS_TH))
+        self.Instance = self
+
+    @staticmethod
+    def instance():
+        if Localization.__instance is None:
+            Localization.__instance = Localization()
+        return Localization.__instance
 
     def add_language(self, language: Language):
         self.languages[language.short_name] = language

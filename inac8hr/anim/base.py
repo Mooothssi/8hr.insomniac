@@ -50,12 +50,13 @@ class AnimFX():
 
     def __init__(self, int_val, properties: int,
                  appearance: AnimAppearanceBehaviour=AnimAppearanceBehaviour.NONE,
+                 end_val: int=1,
                  easing_fn: EasingBase=LinearEase):
         self._int_val = int_val
         self.properties = properties
         self.appearance = appearance
-        self.endpoints = (0, 1)
-        self._easing_fn = easing_fn
+        self.endpoints = (0, end_val)
+        self._easing_fn = easing_fn()
         self._easing_fn.start = self.endpoints[0]
         self._init_easing()
 
@@ -91,5 +92,8 @@ class AnimFX():
 
 class AnimFXPrefabs:
     NONE = AnimFX(0, AnimProperty.NONE, AnimAppearanceBehaviour.NONE)
-    FadeIn = AnimFX(1, AnimProperty.Opacity, AnimAppearanceBehaviour.ENTRANCE)
+    FadeIn = AnimFX(1, AnimProperty.Opacity, 
+                    AnimAppearanceBehaviour.ENTRANCE, 255)
+    FadeInTooltip = AnimFX(1, AnimProperty.Opacity, 
+                           AnimAppearanceBehaviour.ENTRANCE, 190)
     FadeOut = AnimFX(2, AnimProperty.Opacity, AnimAppearanceBehaviour.EXIT)

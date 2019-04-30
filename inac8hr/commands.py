@@ -24,10 +24,8 @@ class BaseCommand(Action):
 
 
 class ToolCommand(BaseCommand):
-    def __init__(self, manager, info=None):
-        self.level = manager.current_level
-        self.handler = manager.tool_handler
-        self.manager = manager
+    def __init__(self, handler, info=None):
+        self.handler = handler
         self.info = info
 
     def execute(self):
@@ -35,8 +33,8 @@ class ToolCommand(BaseCommand):
 
 
 class PlacementCommand(ToolCommand):
-    def __init__(self, manager, info=None):
-        super().__init__(manager, info)
+    def __init__(self, handler, info=None):
+        super().__init__(handler, info)
         self.triggered = False
 
     def execute(self):
@@ -44,31 +42,36 @@ class PlacementCommand(ToolCommand):
             self.handler.clear_current_tool()
             self.triggered = False
         else:
-            self.handler.current_tool = PlacementAvailabilityTool(self.level, self.manager.cursor_loc)
+            self.handler.current_tool = PlacementAvailabilityTool(self.handler.level, self.handler.cursor_loc)
             self.triggered = True
         # self.level.place_defender(self.info.x, self.info.y, self.info.defender)
 
 
 class SelectCommand(ToolCommand):
-    def __init__(self, manager, info=None):
-        super().__init__(manager, info)
+    def __init__(self, handler, info=None):
+        super().__init__(handler, info)
         self.triggered = False
 
     def execute(self):
-        self.handler.current_tool = SelectTool(self.level)
+        self.handler.current_tool = SelectTool(self.handler.level)
         self.triggered = True
 
 
 class CommandHandler():
     registered_inputs = [UserEvent.KEY_PRESS]
 
-    def __init__(self, manager):
-        placement = PlacementCommand(manager)
-        select = SelectCommand(manager)
+    def __init__(self, tool_handler):
         self.hotkey_maps = {
-            Hotkey(arcade.key.P, True): placement,
-            Hotkey(arcade.key.S, True): select
+            Hotkey(arcade.key.P, True): PlacementCommand(tool_handler),
+            Hotkey(arcade.key.S, True): SelectCommand(tool_handler)
         }
+        self.str_maps = {
+            "placement": PlacementCommand(tool_handler),
+            "select": SelectCommand(tool_handler)
+        }
+
+    def execute_by_keyword(self, keyword: str):
+        self.str_maps[keyword].execute()
 
     def on_key_press(self, key, modifiers):
         pressed_hotkey = Hotkey(key, (modifiers & arcade.key.MOD_CTRL) > 0,

@@ -11,10 +11,9 @@ class Container(Control):
                  height: int=500, color: tuple=arcade.color.AMARANTH_PINK):
         self.children = []
         self.padding = Padding(0, 0, 0, 0)
-        self.color = color
         self._child_spr_list = ExtendedSpriteList()
         self._background_drawn = True
-        super().__init__(position, width, height)
+        super().__init__(position, width, height, back_color=color)
 
     def draw_children(self):
         for c in self.children:
@@ -24,9 +23,14 @@ class Container(Control):
     def draw(self):
         if self._background_drawn:
             arcade.draw_xywh_rectangle_filled(self.position.x, self.position.y,
-                                                    self.width, self.height, self.color)
+                                                    self.width, self.height, self.back_color)
         if len(self.children) > 0:
             self.draw_children()
+
+    def tick(self):
+        for c in self.children:
+            if c.visible:
+                c.tick()
 
     def add_control(self, control: Control, relative: bool=False):
         self.children.append(control)
@@ -43,6 +47,9 @@ class Container(Control):
     def add_event_handler_from_control(self, control: Control):
         self.click_event += control.on_mouse_press
         self.released += control.on_mouse_release
+        self.mouse_motion += control.on_mouse_motion
+        self.mouse_enter += control.on_mouse_enter
+        self.mouse_leave += control.on_mouse_leave
 
     def get_position(self):
         return super().get_position()
@@ -56,8 +63,8 @@ class Container(Control):
         offset = 0, 0
         if self.centeredly_drawn:
             offset = self.width // 2, self.height // 2
-        control.position.x += self.position.x - offset[0] + self.padding.left
-        control.position.y += self.position.y - offset[1] + self.padding.bottom
+        control.position = Point(control.position.x + self.position.x - offset[0] + self.padding.left,
+                                 control.position.y + self.position.y - offset[1] + self.padding.bottom)
         # for c in self.children:
         #     c.position.x += self.position.x - offset[0]
         #     c.position.y += self.position.y - offset[1]
@@ -78,13 +85,20 @@ class Container(Control):
             else:
                 c._align_to_anchors()
 
+    def inherit_properties(self):
+        for c in self.children:
+            c.opacity = self.opacity
+
+    def set_alpha(self, value: int):
+        super().set_alpha(value)
+        self.inherit_properties()
+
     position = property(get_position, set_position)
+    opacity = property(Control.get_alpha, set_alpha)
 
 
 class AnimatedContainer(Container, AnimatedControl):
-    def tick(self):
-        self.clocked_update()
-        self.tick()
+    pass
 
 
 class AnimatedTexturedMessageBox(AnimatedContainer):

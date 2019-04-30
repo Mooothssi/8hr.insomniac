@@ -16,6 +16,10 @@ class Event():
         self.handlers.insert(0, another)
         return self
 
+    def __isub__(self, another: types.MethodType):
+        self.handlers.remove(another)
+        return self
+
 
 class DataClass():
     def __eq__(self, another):

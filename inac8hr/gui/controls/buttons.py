@@ -2,10 +2,11 @@ import arcade
 from i18n.loc import LocalizedText
 from inac8hr.wrappers.inac8hr_arcade import DrawCommands
 from inac8hr.gui.controls.base import Control, AnimatedControl
+from inac8hr.gui.controls.containers import Container
 from inac8hr.gui.basics import Point
 
 
-class Button(Control):
+class Button(Container):
     TEXTURE_LIMIT = 2
     STATE_NORMAL = 0
     PRESSED = 1
@@ -17,6 +18,7 @@ class Button(Control):
         self._textures = [arcade.load_texture(texture_filename)]
         self._current_tex_index = self.STATE_NORMAL
         self.alpha = 255
+        self._background_drawn = False
         # self.set_region_from_center()
 
     def draw(self):
@@ -24,6 +26,7 @@ class Button(Control):
                                              self.position.y + (self.height//2),
                                              self.width, self.height, 
                                              self.current_texture)
+        super().draw()
 
     def append_texture(self, file_name: str):
         self._textures.append(arcade.load_texture(file_name))

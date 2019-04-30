@@ -4,6 +4,8 @@ from inac8hr.layers import *
 from inac8hr.anim import ControlAnimator, SceneSequence, SequenceInfo, ExponentialEaseOut, QuadEaseIn, TemporalSequence
 from inac8hr.globals import SCR_HEIGHT, SCR_WIDTH
 from inac8hr.entities import In8acUnitInfo
+from inac8hr.commands import CommandHandler
+from inac8hr.tools import ToolHandler
 
 #
 # the Jumping Ballot
@@ -13,7 +15,7 @@ from inac8hr.entities import In8acUnitInfo
 class Level1HUD(UILayer):
 
     def __init__(self, parent):
-        super().__init__('ui_layer')
+        super().__init__()
         self.parent = parent
         disp = 75
         noto = "assets/fonts/NotoSans-Regular"
@@ -68,11 +70,15 @@ class Level1HUD(UILayer):
 #
         self.sideMenu = MenuPane(Point(0,250), "assets/images/ui/SidePane_menu.png", width=110, height=541)
         # self.sideMenu.alignment = AlignStyle.TOP_LEFT
-        self.sideMenu.click_event += self.test2
-        self.btnSelect = Button(Point(0,0), "assets/images/ui/btn_SelectTool_normal.png", width=85, height=72)
+        self.btnSelect = Button(Point(0,0), "assets/images/ui/btn_SelectTool_normal.png", width=85, height=78)
         self.btnSelect.append_texture("assets/images/ui/btn_SelectTool_pressed.png")
         self.btnSelect.alignment = AlignStyle.TOP_CENTER
+        self.btnSelect.click += self.btnSelect_Click
         self.sideMenu.add_control(self.btnSelect, True)
+        # Tooltip Test
+        self.tlpInfo = Tooltip()
+        self.tlpInfo.caption.loc_text = LocalizedText("Tools/Select/TooltipName")
+        self.btnSelect.add_control(self.tlpInfo, True)
 #
 #
 #
@@ -94,6 +100,9 @@ class Level1HUD(UILayer):
 
         self._register_controls()
 
+#
+# Scene sequences & animations
+#
         seq1 = SceneSequence(self.testMsg2, [SequenceInfo("alpha", 255)], 5, ExponentialEaseOut)
         seq2 = SceneSequence(self.testMsg2, [SequenceInfo("alpha", initial_val=255, end_val=0)], 5, QuadEaseIn)
         seq_delay2 = TemporalSequence(2)
@@ -105,12 +114,22 @@ class Level1HUD(UILayer):
         self.animator.add_sequence(seq_delay)
         self.animator.add_sequence(seq2)
         self.animator.start()
+#
+#
+#
+
+        self.tool_handler = ToolHandler(self.parent.dispatcher, self.parent.lv1)
+        self.cmd_handler = CommandHandler(self.tool_handler)
+        # self.parent.dispatcher.add_dispatcher(self.parent.lv1)
+        self.parent.dispatcher.register_dispatcher(self.cmd_handler)
+        self.parent.dispatcher.register_dispatcher(self.tool_handler)
+
         self.lv1 = self.parent.lv1
         self._lazy_init()
 
     def _register_controls(self):
         self.register_control(self.lblFPS)
-        self.register_control(self.container1)
+        # self.register_control(self.container1)
         self.register_control(self.lblStatus)
         self.register_control(self.lblTest)
         self.register_control(self.testMsg3)
@@ -119,6 +138,10 @@ class Level1HUD(UILayer):
 
     def _lazy_init(self):
         self.lv1.cycle.cycle_changed += self.on_cycle_changed
+
+    def draw(self):
+        super().draw()
+        self.tool_handler.draw()
 
     def on_cycle_changed(self, sender, *args):
         self.lblCycle.text = sender.current_cycle
@@ -134,10 +157,10 @@ class Level1HUD(UILayer):
         self.parent.continue_canvas()
 
     def test(self, sender, *args):
-        pass
+        print(sender.selected_item)
 
     def test2(self, *args):
-        print('sender2')
+        pass
 
     def on_score_changed(self, sender, *args):
         self.lblScore.text = sender.total
@@ -147,4 +170,11 @@ class Level1HUD(UILayer):
             self.lblTurnout.fore_color = arcade.color.RED
         else:
             self.lblTurnout.fore_color = arcade.color.BLACK
+
+    def on_window_resize(self, *args):
+        super().on_window_resize(*args)
+        self.lv1.on_resize()
+
+    def btnSelect_Click(self, sender, *args):
+        self.cmd_handler.execute_by_keyword('placement')
 

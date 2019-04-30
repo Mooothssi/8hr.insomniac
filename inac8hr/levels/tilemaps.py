@@ -5,7 +5,7 @@ TILEMAP = {
     "=": "road",
     "C": "road_corner",
     "T": "road_tint1",
-    "&": "precinct",
+    "&": "pavement_1", # precinct
     "$": "precinct_path",
     "E": "precinct_path_alt",
     "O": "ballot_box"

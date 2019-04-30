@@ -111,6 +111,15 @@ class ControlAnimator(AnimatorBase):
         self.__current_group__ = 0
 
     def add_sequence(self, seq: ControlSequence):
+        """
+            Adds an animation sequence of a control to the end of the animation list
+
+            Args:
+                seq (ControlSequence): The given sequence
+        """
+        if self.__animating__:
+            return
+            
         if len(self.sequence_groups) == 0:
             seq_group = ControlSequenceGroup(seq.duration)
             seq_group.add_sequence(seq)
@@ -121,6 +130,7 @@ class ControlAnimator(AnimatorBase):
             else:
                 seq_group = ControlSequenceGroup(seq.duration)
                 seq_group.add_sequence(seq)
+                self.sequence_groups.append(seq_group)
 
     def subscribe_to_sequence(self, sequence, fname: str,
                               handlerfn: types.MethodType):
@@ -129,6 +139,12 @@ class ControlAnimator(AnimatorBase):
     def start(self):
         if len(self.sequence_groups) > 0:
             self.__animating__ = True
+            self.start_time = time.time()
+
+    def reset(self):
+        self.__animating__ = False
+        self.__current_group__ = 0
+        self.sequence_groups.clear()
 
     @property
     def current_group(self):
@@ -148,7 +164,9 @@ class ControlAnimator(AnimatorBase):
             else:
                 self.current_group.end()
                 self.__animating__ = False
-                if self.__current_group__ != len(self.sequence_groups) - 1:
+                if self.__current_group__ != len(self.sequence_groups) - 1:                  
                     self.__animating__ = True
                     self.start_time = time.time()
                     self.next()
+                else:
+                    self.sequence_groups.clear()

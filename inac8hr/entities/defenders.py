@@ -10,7 +10,7 @@ class DefenderUnit(SelectableUnit):
     STATE_SHOOTING = 1
     STATE_SELECTED = 2
     T_SELECTED = 1
-    NORMAL_RADIUS = 26.5#0.8
+    NORMAL_RADIUS = 26.7#0.8
 
     def __init__(self, texture_list: list, initial_pos, scaling=1):
         super().__init__(texture_list, initial_pos, scaling)

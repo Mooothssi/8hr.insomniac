@@ -9,7 +9,7 @@ class SceneLayer():
         self.elements = []
         self.parent = None
 
-    def get(self, key: int):
+    def get_by_index(self, key: int):
         return self.elements[key]
 
     @property
@@ -40,7 +40,7 @@ class PlayableSceneLayer(SceneLayer):
 
 class UILayer(SceneLayer):
 
-    def __init__(self, scene_name, controls: list=[]):
+    def __init__(self, scene_name='ui_layer', controls: list=[]):
         super().__init__(scene_name)
         self.container = Container(Point(0, 0), width=800, height=600)
         self.elements = self.container.children
@@ -59,7 +59,7 @@ class UILayer(SceneLayer):
 
     def clocked_update(self):
         for ele in self.elements:
-            ele.clocked_update()
+            ele.tick()
         self.animator.update()
 
     def on_window_resize(self, *args):

@@ -2,17 +2,18 @@ from inac8hr.gui.basics import Point, Margin, RectangularRegion
 from inac8hr.gui.controls.styles import DockStyle, AlignStyle
 from inac8hr.events import Event, UserEvent
 from inac8hr.anim import ControlAnimator
+import time
 
 
 class Control():
-    registered_inputs = [UserEvent.MOUSE_PRESS, UserEvent.MOUSE_RELEASE]
+    registered_inputs = [UserEvent.MOUSE_PRESS, UserEvent.MOUSE_RELEASE, UserEvent.MOUSE_MOTION]
 
     ANCHOR_TOP = 1 << 0
     ANCHOR_LEFT = 1 << 1
     ANCHOR_RIGHT = 1 << 2
     ANCHOR_BOTTOM = 1 << 3
 
-    def __init__(self, position: Point, width=0, height=0):
+    def __init__(self, position: Point, width=0, height=0, back_color=(0, 0, 0)):
         self._position = position
         self.alignment = AlignStyle.NONE
         self._anchors = self.ANCHOR_LEFT
@@ -29,10 +30,20 @@ class Control():
                                         position + Point(width, height),
                                         position + Point(0, height))
         self.click_event = Event(self)
+        self.click = Event(self)
         self.released = Event(self)
         self.double_clicked = Event(self)
+        self.mouse_motion = Event(self)
+        self.mouse_enter = Event(self)
+        self.mouse_leave = Event(self)
         self._dock = DockStyle.NONE
         self._mouse_down = False
+        self._opacity = 255
+        self._mouse_enter = False
+        self._mouse_enter_time = 0
+        self._color = (0, 0, 0)
+        self.fore_color = self._color
+        self.back_color = back_color
 
     def on_draw(self):
         if self.visible:
@@ -41,7 +52,7 @@ class Control():
     def draw(self):
         pass
 
-    def clocked_update(self):
+    def tick(self):
         pass
 
 #
@@ -61,6 +72,8 @@ class Control():
                 self.position.x = self.parent.position.x + self.parent.width
             if self.alignment & AlignStyle.AlignYStyle.TOP:
                 self.position.y = self.parent.position.y + self.parent.height - self.height
+            if self.alignment & AlignStyle.AlignYStyle.MIDDLE:
+                self.position.y = self.parent.position.y + (self.parent.height//2) - self.height
 
     def _redock(self):
         if self.parent is not None:
@@ -175,13 +188,28 @@ class Control():
         self._dock = value
         self._redock()
 
+    def get_alpha(self):
+        return self._opacity
+
+    def set_alpha(self, value: int):
+        r, g, b = self._color
+        if len(self.fore_color) == 4:
+            fore_r, fore_g, fore_b, a = self.fore_color
+        else:
+            fore_r, fore_g, fore_b = self.fore_color
+        value = int(round(value, 0))
+        # self.visible = value > 0
+        self.fore_color = (fore_r, fore_g, fore_b, value)
+        self.back_color = (r, g, b, value)
+        self._opacity = value
+
     position = property(get_position, set_position)
     width = property(get_width, set_width)
     height = property(get_height, set_height)
     parent = property(get_parent, set_parent)
     anchors = property(get_anc, set_anc)
     dock = property(get_dock, set_dock)
-
+    opacity = property(get_alpha, set_alpha)
 #
 #
 #
@@ -202,6 +230,7 @@ class Control():
             self._mouse_down = True
             self.activated = True
             self.click_event(*args)
+            self.click(*args)
         else:
             self.activated = False
 
@@ -209,6 +238,29 @@ class Control():
         if self._mouse_down:
             self._mouse_down = False
             self.released()
+
+    def on_mouse_motion(self, *args):
+        self.mouse_motion(*args)
+        if len(args) == 4:
+            x, y, dx, dy = args
+        elif len(args) == 5:
+            sender, x, y, dx, dy = args
+        if self.region.is_point_inside(Point(x, y)) and self.visible:
+            
+            if not self._mouse_enter:
+                self.mouse_enter(*args)
+                self._mouse_enter = True          
+                self._mouse_enter_time = time.time()
+        else:
+            if self._mouse_enter:
+                self._mouse_enter = False
+                self.mouse_leave(*args)
+
+    def on_mouse_enter(self, *args):
+        pass
+
+    def on_mouse_leave(self, *args):
+        pass 
 
     def reset_region(self):
         self.region = RectangularRegion(self.position,
