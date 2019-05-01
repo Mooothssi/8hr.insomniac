@@ -1,4 +1,5 @@
 from inac8hr.events import Event
+from inac8hr.entities import PollingStaUnit
 
 
 class ScoringEngine():

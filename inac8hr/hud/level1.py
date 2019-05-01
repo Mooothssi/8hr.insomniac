@@ -2,10 +2,10 @@ import arcade
 from inac8hr.gui import *
 from inac8hr.layers import *
 from inac8hr.anim import ControlAnimator, SceneSequence, SequenceInfo, ExponentialEaseOut, QuadEaseIn, TemporalSequence
-from inac8hr.globals import SCR_HEIGHT, SCR_WIDTH
 from inac8hr.entities import In8acUnitInfo
 from inac8hr.commands import CommandHandler
 from inac8hr.tools import ToolHandler
+from inac8hr.globals import GAME_PREFS
 
 #
 # the Jumping Ballot
@@ -23,7 +23,7 @@ class Level1HUD(UILayer):
         self.lblTest = Label(Point(16, 20), font_name=noto)
         self.lblStatus = Label(Point(16+disp, 8), font_name=noto)
 
-        self.lblTest2 = Label(Point(SCR_WIDTH//2,SCR_HEIGHT//2), size=20, align=AlignStyle.BOTTOM_CENTER)
+        self.lblTest2 = Label(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), size=20, align=AlignStyle.BOTTOM_CENTER)
         self.lblTest2.text = "Jumping Ballot\n\nGet ready in 10 seconds!"
 
 #
@@ -52,7 +52,7 @@ class Level1HUD(UILayer):
         # self.lblLv1Panel.text = "8-hour insomniac:\nthe Jumping Ballot"
 
 
-        self.testMsg3 = AnimatedTexturedMessageBox(Point(SCR_WIDTH-424, SCR_HEIGHT-288), "assets/images/ui/pnl_Stats.png", width=424, height=288)
+        self.testMsg3 = AnimatedTexturedMessageBox(Point(GAME_PREFS.screen_width-424, GAME_PREFS.screen_height-288), "assets/images/ui/pnl_Stats.png", width=424, height=288)
         self.testMsg3.alpha = 255
         self.testMsg3.add_control(self.lblCycle, True)
         self.testMsg3.add_control(self.lblTurnout, True)
@@ -60,7 +60,7 @@ class Level1HUD(UILayer):
         self.testMsg3.add_control(self.lblScore, True)
         self.testMsg3.visible = False
         # self.testMsg3.add_control(self.lblLv1Panel, True)
-        self.testMsg3.position = Point(SCR_WIDTH-424, SCR_HEIGHT-288)
+        self.testMsg3.position = Point(GAME_PREFS.screen_width-424, GAME_PREFS.screen_height-288)
 #
 #
 #
@@ -83,8 +83,8 @@ class Level1HUD(UILayer):
 #
 #
 
-        self.testMsg = AnimatedTexturedMessageBox(Point(SCR_WIDTH//2, SCR_HEIGHT//2), "assets/images/chars/Ballot_pink.png")
-        self.testMsg2 = AnimatedTexturedMessageBox(Point(SCR_WIDTH//2, SCR_HEIGHT//2), "assets/images/titles/lv1.png", width=507, height=315)
+        self.testMsg = AnimatedTexturedMessageBox(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), "assets/images/chars/Ballot_pink.png")
+        self.testMsg2 = AnimatedTexturedMessageBox(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), "assets/images/titles/lv1.png", width=507, height=315)
         self.testMsg2.alignment = AlignStyle.MIDDLE_CENTER
         self.testMsg2.add_control(self.lblTest)
         self.testMsg2.align_center()
@@ -145,7 +145,6 @@ class Level1HUD(UILayer):
 
     def on_cycle_changed(self, sender, *args):
         self.lblCycle.text = sender.current_cycle
-        self.lv1.generate_enemies()
 
     def freeze_canvas(self, *args):
         self.lblStatus.visible = False
@@ -176,5 +175,6 @@ class Level1HUD(UILayer):
         self.lv1.on_resize()
 
     def btnSelect_Click(self, sender, *args):
+        self.parent.end_scene_and_go_to('MainScene')
         self.cmd_handler.execute_by_keyword('placement')
 

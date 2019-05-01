@@ -10,7 +10,7 @@ from i18n.loc import Localization
 class Level1Scene(Scene):
     def __init__(self):
         self.frozen = True
-        super().__init__()
+        super().__init__("LV1Scene")
         self.lv1 = LV1Level()
         hud = Level1HUD(self)
         lv1_canvas = PlayableSceneLayer("canvas_layer", self.lv1)

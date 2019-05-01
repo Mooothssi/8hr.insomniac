@@ -95,6 +95,8 @@ class Control():
                 self.position.x -= self.parent.padding.right
             if self.parent.width > self.width + self.parent.padding.left:
                 self.position.x += self.parent.padding.left
+            if self.width > self.parent.width + self.parent.padding.left + self.parent.padding.right:
+                self.width -= self.parent.padding.left + self.parent.padding.right
 
     def _calc_dist(self):
         denominator = 1

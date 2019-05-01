@@ -44,7 +44,8 @@ class EventDispatcher():
         "mouse_motion": UserEvent.MOUSE_MOTION,
         "mouse_press": UserEvent.MOUSE_PRESS,
         "mouse_release": UserEvent.MOUSE_RELEASE,
-        "key_press": UserEvent.KEY_PRESS
+        "key_press": UserEvent.KEY_PRESS,
+        "window_resize": UserEvent.WINDOW_RESIZE
     }
     EVENTS = [UserEvent.MOUSE_MOTION, UserEvent.MOUSE_PRESS,
               UserEvent.MOUSE_RELEASE,
@@ -88,10 +89,6 @@ class EventDispatcher():
         else:
             print('Event has not been registered yet!')
             print(event_name)
-
-    def on_resize(self, *kwargs):
-        for t in self.event_map[UserEvent.WINDOW_RESIZE]:
-            t.on_resize()
 
     def invoke(self, obj, fname: str, *args):
         getattr(obj, fname)(*args)

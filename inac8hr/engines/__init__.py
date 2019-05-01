@@ -24,20 +24,21 @@ class GameEngine:
         return time.time() - self._lap_time
 
     def load_all(self):
+        self.logger.Intro("######### Now initializing 8HR INSOMNIAC #########")
         self.logger.Log("Loading scenes")
+        self.viewport = Viewport(self.event_dispatcher)
         self.load_scenes()
         self.logger.Log("Scene initialized...")
-        self.viewport = Viewport(self.scenes[0], self.event_dispatcher)
         self.logger.Log("Registering events...")
 
     def load_scenes(self):
         self.lap()
         MMScene = MainMenuScene()
-        # self.scenes.append(MMScene)
+        self.viewport.add_scene(MMScene)
         self.logger.Log(f"MainMenu loaded (took {self.elapsed():.5f} sec)")
 
         self.lap()
         Scene1 = Level1Scene()
         self.logger.Log(f"Scene 1 loaded (took {self.elapsed():.5f} sec)")
-        self.scenes.append(Scene1)
-
+        self.viewport.add_scene(Scene1)
+        self.viewport.choose_scene('MainScene')

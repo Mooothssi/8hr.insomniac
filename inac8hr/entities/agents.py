@@ -80,7 +80,10 @@ class AgentUnit(Unit, AnimatedEntity):
 
 
 class Ballot(AgentUnit):
-    pass
+    def __init__(self, texture_list, pos, full_hp=50,
+                 scaling=1, switches=[], jumped=False):
+        super().__init__(texture_list, pos, full_hp, scaling, switches)
+        self.jumped = jumped
 
 
 class JumpedBallot(Ballot):

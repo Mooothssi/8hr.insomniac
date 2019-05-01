@@ -62,6 +62,9 @@ class UILayer(SceneLayer):
             ele.tick()
         self.animator.update()
 
+    def _register_controls(self):
+        pass
+
     def on_window_resize(self, *args):
         self.container.on_window_resize(*args)
 

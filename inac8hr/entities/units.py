@@ -5,6 +5,7 @@ from inac8hr.particles import Bullet
 from inac8hr.physics import CirclePhysicsEntity
 from inac8hr.imports import ExtendedSpriteList
 import time
+from inac8hr.utils import LocationUtil
 import random
 
 
@@ -163,16 +164,17 @@ class AnimatedEntity():
 
 class UnitListBase():
     def __init__(self):
+        self.screen_res = GAME_PREFS.screen_width, GAME_PREFS.screen_height
         self.sprites = ExtendedSpriteList()
         self.scaling_factor = 1
 
     def __iter__(self):
         self.n = 0
         return self
-       
+
     def __len__(self):
         return len(self.units)
-    
+
     def draw(self):
         self.sprites.draw()
 
@@ -181,6 +183,11 @@ class UnitListBase():
         for sprite in self.sprites.sprite_list:
             sprite.scale = scaling_factor
 
+    def displace_by_screen_res(self, width, height):
+        for sprite in self.sprites.sprite_list:
+            r, c = LocationUtil.get_plan_position(sprite.position[0], sprite.position[1], False, True)
+            x, y = LocationUtil.get_sprite_position(r, c)
+            sprite.set_position(x, y)
 
 class UnitList(UnitListBase):
     def __init__(self):

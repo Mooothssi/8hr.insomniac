@@ -7,7 +7,7 @@ from inac8hr.layers import PlayableSceneLayer
 from inac8hr.utils import LocationUtil
 from inac8hr.globals import *
 from inac8hr.particles import Bullet
-from inac8hr.entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList, GeneratorUnit
+from inac8hr.entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList, PollingStaUnit
 from inac8hr.imports import *
 from inac8hr.cycles import CycleClock
 from inac8hr.scoring import ScoringEngine
@@ -45,8 +45,8 @@ class Level(PlayableSceneLayer):
         self.scaling = 1
         self.score = 0
         self.sprite_list = None
-        self.generate_enemies()
-        self.generate_ballots()
+        # self.generate_enemies()
+        # self.generate_ballots()
 
     #
     # Arcade base overload functions
@@ -142,8 +142,8 @@ class Level(PlayableSceneLayer):
         for _ in range(4):
             files = ['Ballot_pink.png', 'Ballot_orange.png', 'Ballot_red.png']
             r = random.randint(0, len(files)-1)
-            GAME_PREFS.scaling = 1.56
-            enemy = AgentUnit([f'assets/images/chars/{files[r]}'], initial_pos, self.full_health, GAME_PREFS.scaling, self.map_plan.ballot_switch_points)  
+            # GAME_PREFS.scaling = 1
+            enemy = AgentUnit([f'assets/images/chars/{files[r]}'], initial_pos, self.full_health, 1, self.map_plan.ballot_switch_points)
             enemy.displace_position(0, diff)
             diff += 40
             self.enemies.append(enemy)
@@ -173,11 +173,7 @@ class Level(PlayableSceneLayer):
         pass
 
     def calculate_the_dead(self, enemy):
-        if enemy.survived:
-            self.scoring.decrement_score()
-        else:
-            self.scoring.increment_score()
-        self.enemies.remove(enemy)
+        pass
 
 
 class MapPlan():
@@ -284,6 +280,7 @@ class MapPlan():
             for j in range(len(self.plan_array[i])):
                 if self.plan_array[i][j] == char:
                     entities.append((i, j))
+                    print(i, j)
         return entities
 
     def get_initial_entity_position(self, char):
@@ -303,9 +300,9 @@ class MapPlan():
         return self.get_initial_entity_position('O')
 
     def get_all_generators(self):
-        return [GeneratorUnit(['assets/images/chars/ballot_box.png'], i) for i in self.get_initial_entities_position("&")]
+        return [PollingStaUnit(['assets/images/chars/ballot_box.png'], (x, y)) for x, y in self.get_initial_entities_position("&")]
 #
-# Arcade-based override functions
+# Arcade-based overridden functions
 #
     def draw(self):
         self.sprites.draw()

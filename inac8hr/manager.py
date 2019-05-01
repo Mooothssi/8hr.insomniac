@@ -20,7 +20,7 @@ from i18n.loc import Localization
 
 class GameManager():
     def __init__(self, resolution):
-        GAME_PREFS.scaling = 1.11
+        # GAME_PREFS.scaling = 1.11
         self.fullscreen = False
         width, height = resolution
         self.screen_width = width
@@ -34,7 +34,7 @@ class GameManager():
         self.engine.load_all()
         self.dispatcher = self.engine.event_dispatcher
         self.viewport = self.engine.viewport
-        self.current_level = self.viewport.current_scene.get('ui_layer').lv1
+        self.current_level = self.viewport.get('LV1Scene').get('ui_layer').lv1
         self.cursor_loc = 0, 0
 
         # self.test_sprite = PreferredSprite("assets/images/chars/avail.png", center_x=500, center_y=0)
@@ -47,8 +47,6 @@ class GameManager():
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2,
                                       self.screen_width + 500, self.screen_height + 500, self.background, alpha=255)
         self.viewport.draw()
-        # self.tool_handler.draw()
-        # self.test_sprite.draw()
 
     def load_sprites(self, width, height):
         self.reset_scaling(width, height)
@@ -57,6 +55,9 @@ class GameManager():
         self.reset_scaling(width, height)
 
     def reset_scaling(self, width, height):
+        print('scale')
+        GAME_PREFS.screen_width, GAME_PREFS.screen_height = width, height
+
         self.screen_width, self.screen_height = width, height
         width_ratio = width / (self.current_level.map_plan.width*GAME_PREFS.block_size)
         height_ratio = height  / (self.current_level.map_plan.height*GAME_PREFS.block_size)
@@ -91,6 +92,6 @@ class GameManager():
         self.dispatcher.on('mouse_motion', x, y, dx, dy)
 
     def on_resize(self, width, height):
-        self.viewport.on_window_resize(self, width, height)
         self.reset_scaling(width, height)
-        self.dispatcher.on_resize(width, height)
+        self.viewport.on_window_resize(self, width, height)
+

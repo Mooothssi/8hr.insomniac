@@ -8,10 +8,13 @@ class Scene():
     registered_inputs = [UserEvent.MOUSE_PRESS, UserEvent.MOUSE_RELEASE,
                          UserEvent.MOUSE_MOTION, UserEvent.KEY_PRESS]
 
-    def __init__(self, *args: SceneLayer):
+    def __init__(self, name="Scene", *args: SceneLayer):
+        self.name = name
         self.layers = {}
         self.dispatcher = EventDispatcher()
         self.layers_coll = []
+        self.scene_end = Event(self)
+        self.scene_start = Event(self)
         # TODO: Animation sequences for each scene
         # (Loading, Popup backdrop, etc.)
         self.sequences = []
@@ -43,7 +46,7 @@ class Scene():
             self.layers_coll.append(layer)
             self.register_layer(layer)
             self.layers[layer.name] = len(self.layers_coll) - 1
-    
+
     def register_layer(self, layer: SceneLayer):
         if layer.name == 'ui_layer':
             for ctrl in layer.elements:
@@ -67,6 +70,9 @@ class Scene():
         self.layers_coll.pop(index)
         self.layers_coll.insert(index, None)
 
+    def end_scene_and_go_to(self, next_dest_scene: str):
+        self.scene_end(next_dest_scene)
+
     def on_window_resize(self, *args):
         self.get('ui_layer').on_window_resize(*args)
 
@@ -84,29 +90,47 @@ class Scene():
 
 
 class Viewport():
-    def __init__(self, initial_scene: Scene, dispatcher: EventDispatcher):
-        self.scenes = []
-        self.__current_scene_index__ = 0
-        self.add_scene(initial_scene)
+    def __init__(self, dispatcher: EventDispatcher, initial_scene: Scene=None):
+        self.scenes = {}
+        self.__buffered_scene__ = None
+        self.__current_scene_index__ = None
+        if initial_scene is not None:
+            self.add_scene(initial_scene)
         self.resized = Event(self)
+        self.scene_changed = Event(self)
         self.dispatcher = dispatcher
-        self.choose_scene(0)
+        if initial_scene is not None:
+            self.choose_scene(initial_scene.name)
 
     def add_scene(self, scene: Scene):
-        self.scenes.append(scene)
+        self.scenes[scene.name] = scene
 
     def next_scene(self, scene: Scene):
         self.__current_scene_index__ += 1
 
-    def choose_scene(self, index: int):
-        if self.__current_scene_index__ != index:
+    def choose_scene(self, index: str):
+        if self.__current_scene_index__ != None and self.__current_scene_index__ != index:
             self.dispatcher.deregister_dispatcher(self.current_scene)
+            self.current_scene.scene_end -= self.on_scene_changed
         self.__current_scene_index__ = index
+        self.__buffered_scene__ = self.scenes[self.__current_scene_index__]
         self.dispatcher.register_dispatcher(self.current_scene)
+        self.current_scene.scene_end += self.on_scene_changed
+
+    def on_scene_changed(self, sender, *args):
+        if len(args) == 1:
+            self.choose_scene(args[0])
 
     @property
     def current_scene(self):
-        return self.scenes[self.__current_scene_index__]
+        return self.__get_buffered_current_scene # self.scenes[self.__current_scene_index__]
+    
+    @property
+    def __get_buffered_current_scene(self):
+        return self.__buffered_scene__
+
+    def get(self, scene_name: str):
+        return self.scenes[scene_name]
 
     def draw(self):
         self.current_scene.draw()
@@ -115,4 +139,6 @@ class Viewport():
         self.current_scene.tick()
 
     def on_window_resize(self, sender, *args):
-        self.current_scene.on_window_resize(*args)
+        for scene in self.scenes.values():
+            scene.on_window_resize(*args)
+

@@ -9,9 +9,8 @@ DEFAULT_LIFECYCLE_TIME = 45
 GAME_PREFS = Preferences()
 GAME_PREFS.block_size = 40
 GAME_PREFS.scaling = 1
-
-SCR_HEIGHT = 600
-SCR_WIDTH = 800
+GAME_PREFS.screen_width = 800
+GAME_PREFS.screen_height = 600
 
 STATE_READY = 0
 STATE_PLACEMENT = 1

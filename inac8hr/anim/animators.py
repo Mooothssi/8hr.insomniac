@@ -6,6 +6,7 @@ from inac8hr.anim.base import AnimProperty
 from inac8hr.anim.sequences import SceneSequence, ControlSequenceGroup, ControlSequence
 from inac8hr.anim.easing import EasingBase, LinearEase
 
+
 class AnimatorBase():
 
     def __init__(self, duration=1, animation: EasingBase=LinearEase):
@@ -15,6 +16,7 @@ class AnimatorBase():
         self.duration = duration
         self.start_time = time.time()
         self.elapsed = 0
+        self.repeat = "cycling"
         self.__animating__ = False
 
     def get_elapsed(self):
