@@ -23,11 +23,15 @@ class LV1Scoring(ScoringEngine):
 
     def increment_score(self):
         super().increment_score()
-        self.turnout -= 1
 
     def decrement_score(self):
         super().decrement_score()
+
+    def increment_turnout(self):
         self.turnout += 1
+    
+    def decrement_turnout(self):
+        self.turnout -= 1
 
     def on_score_change(self, *args):
         self.jumped = self.turnout > self.voter_count
@@ -67,6 +71,7 @@ class LV1Level(Level):
                 self.scoring.decrement_score()
             else:
                 self.scoring.increment_score()
+                self.scoring.decrement_turnout()
         else:
             if enemy.survived:
                 self.scoring.increment_score()
