@@ -1,5 +1,6 @@
 import arcade
 from inac8hr.wrappers.inac8hr_arcade import DrawCommands
+from inac8hr.events import Event
 from inac8hr.gui.controls import AlignStyle, Control, AnimatedControl
 from inac8hr.gui.basics import Point, Padding, RectangularRegion
 from inac8hr.imports import ExtendedSpriteList
@@ -13,6 +14,7 @@ class Container(Control):
         self.padding = Padding(0, 0, 0, 0)
         self._child_spr_list = ExtendedSpriteList()
         self._background_drawn = True
+        self.window_resize = Event(self)
         super().__init__(position, width, height, back_color=color)
 
     def draw_children(self):
@@ -50,6 +52,7 @@ class Container(Control):
         self.mouse_motion += control.on_mouse_motion
         self.mouse_enter += control.on_mouse_enter
         self.mouse_leave += control.on_mouse_leave
+        self.window_resize += control.on_window_resize
 
     def get_position(self):
         return super().get_position()
@@ -83,6 +86,7 @@ class Container(Control):
             if c.alignment & AlignStyle.AlignXStyle.CENTER:
                 c.align_center()
             else:
+                c._realign()
                 c._align_to_anchors()
 
     def inherit_properties(self):

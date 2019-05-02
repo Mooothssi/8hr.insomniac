@@ -14,10 +14,12 @@ class CycleClock():
         self.current_cycle = 1
         self.limit = DEFAULT_LIFECYCLE_TIME
         self.cycle_changed = Event(self)
+        self.cycle_end = Event(self)
         self.end = False
         self.passed = 0
         self.stop_time = None
         self.paused = False
+        self.all_time_passed = 0
 
     def start(self):
         self.start_time = time.time()
@@ -36,6 +38,14 @@ class CycleClock():
     def stop(self):
         self.stop_time = time.time()
         self.start_time = None
+        self.cycle_end()
+
+    @property
+    def game_time_limit(self):
+        return self.limit*self.DEFAULT_CYCLES_LIMIT
+
+    def get_time_remaining(self):
+        return self.game_time_limit - self.get_elapsed() - self.passed
 
     def get_elapsed(self):
         return time.time() - self.start_time
@@ -54,9 +64,11 @@ class CycleClock():
                 self.current_cycle += 1
                 self.passed += elapsed
                 self.start()
-                self.cycle_changed()
                 if self.current_cycle > self.DEFAULT_CYCLES_LIMIT:
                     self.stop()
+                    self.cycle_end()
+                else:
+                    self.cycle_changed()
 
     def __str__(self):
         return f"Cycle {self.current_cycle} | Time passed: {self.passed}s"

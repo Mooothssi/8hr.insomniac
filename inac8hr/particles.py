@@ -1,8 +1,6 @@
 import arcade
 from inac8hr.physics import CirclePhysicsEntity
 from inac8hr.utils import LocationUtil
-from inac8hr.globals import SFX
-
 
 class Particle(CirclePhysicsEntity):
     def __init__(self, sprite_name, initial_pos=(0, 0), scaling=1):
@@ -45,10 +43,12 @@ class Particle(CirclePhysicsEntity):
 
 
 class Bullet(Particle):
+    
     PROXIMITY_THRESHOLD = 3
     NORMAL_DAMAGE = 10
     DEFAULT_VELOCITY = 5 # 2
     def __init__(self, sprite_name, initial_pos=(0, 0)):
+        from .engines import AudioEngine
         super().__init__(sprite_name, initial_pos)
         r, c = initial_pos
         x, y = LocationUtil.get_sprite_position(r, c)
@@ -59,6 +59,7 @@ class Bullet(Particle):
         self.damage = Bullet.NORMAL_DAMAGE
         self.velocity = self.DEFAULT_VELOCITY
         self.target_pos = (0, 0)
+        self.audio = AudioEngine.get_instance()
 
     def to(self, pos):
         self.target_pos = pos
@@ -84,4 +85,4 @@ class Bullet(Particle):
     def dispose(self):
         self.disarmed = True
         self.x1, self.y1 = self.initial_pos
-        SFX.ROCK.play()
+        self.audio.play_by_id("PARTICLES/ROCK_HIT")

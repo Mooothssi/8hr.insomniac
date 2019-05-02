@@ -5,6 +5,7 @@ LOC_TEXTS_EN_US = {
         "LocalizedText/None": "None",
         "HUD/Loading": "Loading",
         "Tools/Select/TooltipName": "Select",
+        "Tools/Place/TooltipName": "Place (Ctrl + P)",
         "Units/Def/Calc/Name": "Missing Calculator",
         "Units/Def/Calc/Desc": "A machine used for calculating things,"
                                "esp. when the public eye watches\n"

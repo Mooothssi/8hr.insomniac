@@ -18,6 +18,7 @@ class PollingStaUnit(SelectableUnit):
 
     def generate(self, level):
         diff = 0
+        self.ballots = 0
         for _ in range(self.agents_per_cycle):
             files = ['Ballot_pink.png', 'Ballot_orange.png', 'Ballot_red.png']
             jumped = bool(random.randint(0, 1))

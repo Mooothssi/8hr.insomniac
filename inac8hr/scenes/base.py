@@ -27,7 +27,7 @@ class Scene():
 
     def tick(self):
         for layer in self.layers_coll:
-            layer.clocked_update()
+            layer.tick()
 
     def get(self, key):
         return self.layers_coll[self.layers[key]]

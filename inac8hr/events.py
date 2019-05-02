@@ -13,7 +13,7 @@ class Event():
             handler(self.sender, *args, **kwargs)
 
     def __iadd__(self, another: types.MethodType):
-        self.handlers.insert(0, another)
+        self.handlers.append(another)
         return self
 
     def __isub__(self, another: types.MethodType):

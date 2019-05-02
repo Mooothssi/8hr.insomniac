@@ -1,4 +1,5 @@
-from inac8hr.globals import *
+import arcade
+from inac8hr.globals import GAME_PREFS
 from inac8hr.levels.base import Level
 from inac8hr.cycles import CycleClock
 from inac8hr.scoring import ScoringEngine
@@ -8,18 +9,28 @@ from inac8hr.entities import UnitList, UnitKeyedList, PollingStaUnit, Ballot
 
 class LV1Scoring(ScoringEngine):
     def __init__(self):
-        super().__init__()
-        self.voter_count = ScoringFactor.LV1_DEFAULT_BALLOT
-        self.turnout = ScoringFactor.LV1_DEFAULT_BALLOT
-        self.jumped = True
-        self.jumping_limit = 580
+        from inac8hr.engines import AudioEngine
 
-    def recount_ballot(self, generators: list):
+        super().__init__()
         self.voter_count = 0
         self.turnout = 0
+        self.jumped = True
+        self.jumped_count = 0
+        self.valid_count = 0
+        self.jumping_limit = 580
+        self.mode_factor = ScoringFactor.HARD_FACTOR
+        self.audio = AudioEngine.get_instance()
+
+
+    def recount_ballot(self, generators: list):
+        missing_valid_count = self.voter_count - self.valid_count
+        # self.total_score += self.valid_count - self.jumped_count - missing_valid_count
+        self.total_score -= missing_valid_count
+        self.on_score_change()
+        self.jumped_count = 0
+        self.valid_count = 0
         for g in generators:
             self.voter_count += g.ballots
-            self.turnout += g.total_ballots
 
     def increment_score(self):
         super().increment_score()
@@ -27,9 +38,19 @@ class LV1Scoring(ScoringEngine):
     def decrement_score(self):
         super().decrement_score()
 
+    def update_ballot(self, valid):
+        if valid:
+            self.valid_count += 1
+            self.total_score += 1*self.mode_factor
+        else:
+            self.jumped_count += 1
+            self.total_score -= 1
+            self.audio.play_by_id("AGENTS/BALLOT_SPOILT_COUNTED")
+        self.on_score_change()
+
     def increment_turnout(self):
         self.turnout += 1
-    
+
     def decrement_turnout(self):
         self.turnout -= 1
 
@@ -48,6 +69,7 @@ class LV1Level(Level):
             self.generators[i.initial_pos] = i
             i.generate(self)
         self.scoring.recount_ballot(self.generators)
+        self.death = 0
 
     def draw(self):
         super().draw()
@@ -68,13 +90,10 @@ class LV1Level(Level):
     def calculate_the_dead(self, enemy: Ballot):
         if enemy.jumped:
             if enemy.survived:
-                self.scoring.decrement_score()
-            else:
-                self.scoring.increment_score()
-                self.scoring.decrement_turnout()
+                self.scoring.increment_turnout()
+                self.scoring.update_ballot(False)
         else:
             if enemy.survived:
-                self.scoring.increment_score()
-            else:
-                self.scoring.decrement_score()
+                self.scoring.increment_turnout()
+                self.scoring.update_ballot(True)
         self.enemies.remove(enemy)

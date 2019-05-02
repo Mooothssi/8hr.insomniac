@@ -113,7 +113,7 @@ class Level(PlayableSceneLayer):
             sorted(dist, key=lambda x: x[0])
             if len(dist) > 0:
                 selected_enemy = dist[0][1]
-            if selected_enemy is not None:# and not selected_enemy.targeted:
+            if selected_enemy is not None and selected_enemy.jumped:# and not selected_enemy.targeted:
                 d.target_pos = selected_enemy.position
                 bullet = d.shoot()
                 if bullet is not None:

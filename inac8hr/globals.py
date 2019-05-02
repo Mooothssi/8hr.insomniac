@@ -4,7 +4,7 @@ from i18n.loc import Localization
 
 APP_VERSION = "0.2.1"
 
-DEFAULT_LIFECYCLE_TIME = 45
+DEFAULT_LIFECYCLE_TIME = 51
 
 GAME_PREFS = Preferences()
 GAME_PREFS.block_size = 40
@@ -60,5 +60,3 @@ KEYMAPS = {
 }
 
 
-class SFX:
-    ROCK = arcade.load_sound("assets/audio/rockHit2.wav")

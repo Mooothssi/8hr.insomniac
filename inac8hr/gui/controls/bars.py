@@ -3,7 +3,7 @@ import arcade
 
 
 class ProgressBar(Container):
-    def __init__(self, position: Point, width=0, height=0, indicator_color=arcade.color.DODGER_BLUE, back_color=(0, 0, 0)):
+    def __init__(self, position: Point, width=0, height=25, indicator_color=arcade.color.DODGER_BLUE, back_color=(0, 0, 0)):
         super().__init__(position, width, height, back_color)
         self.maximum = 100
         self.minimum = 0
@@ -26,7 +26,10 @@ class ProgressBar(Container):
         if self.minimum <= value <= self.maximum:
             self._value = value
         else:
-            self._value = 100
+            if self.minimum > value:
+                self._value = self.minimum
+            elif value > self.maximum:
+                self._value = self.maximum
         self._resolve_indicator_width()
 
     value = property(get_value, set_value)
@@ -34,5 +37,3 @@ class ProgressBar(Container):
     def _resolve_indicator_width(self):
         self.__indicator_bar__.width = (self._value / self.maximum)*self.content_width
 
-    def tick(self):
-        self.value +=1

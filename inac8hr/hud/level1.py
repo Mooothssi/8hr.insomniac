@@ -61,6 +61,11 @@ class Level1HUD(UILayer):
         self.testMsg3.visible = False
         # self.testMsg3.add_control(self.lblLv1Panel, True)
         self.testMsg3.position = Point(GAME_PREFS.screen_width-424, GAME_PREFS.screen_height-288)
+
+        self.pgbTest = ProgressBar(Point(0,680), 243, 25)
+        self.pgbTest.margin = Margin(0,0,0,5)
+        self.pgbTest.alignment = AlignStyle.AlignXStyle.RIGHT
+        self.pgbTest.visible = False
 #
 #
 #
@@ -69,16 +74,34 @@ class Level1HUD(UILayer):
 # Side Menu Panel
 #
         self.sideMenu = MenuPane(Point(0,250), "assets/images/ui/SidePane_menu.png", width=110, height=541)
-        # self.sideMenu.alignment = AlignStyle.TOP_LEFT
-        self.btnSelect = Button(Point(0,0), "assets/images/ui/btn_SelectTool_normal.png", width=85, height=78)
+
+        self.btnSelect = MenuButton(Point(0,0), "assets/images/ui/btn_SelectTool_normal.png", width=85, height=78)
         self.btnSelect.append_texture("assets/images/ui/btn_SelectTool_pressed.png")
         self.btnSelect.alignment = AlignStyle.TOP_CENTER
-        self.btnSelect.click += self.btnSelect_Click
+
+        self.btnPlace = MenuButton(Point(0,0), "assets/images/ui/btnPlace_0.png", width=85, height=78)
+        self.btnPlace.append_texture("assets/images/ui/btnPlace_1.png")
+        self.btnPlace.alignment = AlignStyle.TOP_CENTER
+        self.btnPlace.margin = Margin(0,0,78+17,0)
+        self.btnPlace.click += self.btnPlace_Click
+
+        self.btnToMainMenu = MenuButton(Point(0,0), "assets/images/ui/btnHbgrMenu_0.png", width=86, height=78)
+        self.btnToMainMenu.append_texture("assets/images/ui/btnHbgrMenu_1.png")
+        self.btnToMainMenu.alignment = AlignStyle.BOTTOM_CENTER
+        self.btnToMainMenu.margin = Margin(0,60,0,0)
+        self.btnToMainMenu.click += self.btnToMainMenu_Click
+
         self.sideMenu.add_control(self.btnSelect, True)
+        self.sideMenu.add_control(self.btnPlace, True)
+        self.sideMenu.add_control(self.btnToMainMenu, True)
+
         # Tooltip Test
-        self.tlpInfo = Tooltip()
-        self.tlpInfo.caption.loc_text = LocalizedText("Tools/Select/TooltipName")
-        self.btnSelect.add_control(self.tlpInfo, True)
+        self.btnSelect.set_localized_tooltip("Tools/Select/TooltipName")
+        self.btnPlace.set_localized_tooltip("Tools/Place/TooltipName")
+        
+        # self.tlpInfo = Tooltip()
+        # self.tlpInfo.caption.loc_text = LocalizedText("Tools/Select/TooltipName")
+        # self.btnSelect.add_control(self.tlpInfo, True)
 #
 #
 #
@@ -125,7 +148,9 @@ class Level1HUD(UILayer):
         self.parent.dispatcher.register_dispatcher(self.tool_handler)
 
         self.lv1 = self.parent.lv1
-        self._lazy_init()
+        self.lv1.cycle.cycle_changed += self.on_cycle_changed
+        self.lv1.cycle.cycle_end += self.on_cycle_end
+        self.pgbTest.maximum = self.lv1.cycle.game_time_limit
 
     def _register_controls(self):
         self.register_control(self.lblFPS)
@@ -135,9 +160,7 @@ class Level1HUD(UILayer):
         self.register_control(self.testMsg3)
         self.register_control(self.testMsg2)
         self.register_control(self.sideMenu)
-
-    def _lazy_init(self):
-        self.lv1.cycle.cycle_changed += self.on_cycle_changed
+        self.register_control(self.pgbTest)
 
     def draw(self):
         super().draw()
@@ -145,6 +168,7 @@ class Level1HUD(UILayer):
 
     def on_cycle_changed(self, sender, *args):
         self.lblCycle.text = sender.current_cycle
+        self.lblVoter.text = self.lv1.scoring.voter_count
 
     def freeze_canvas(self, *args):
         self.lblStatus.visible = False
@@ -153,6 +177,7 @@ class Level1HUD(UILayer):
     def continue_canvas(self, *args):
         self.lblStatus.visible = True
         self.testMsg3.visible = True
+        self.pgbTest.visible = True
         self.parent.continue_canvas()
 
     def test(self, sender, *args):
@@ -161,12 +186,15 @@ class Level1HUD(UILayer):
     def test2(self, *args):
         pass
 
+    def on_cycle_end(self, *args):
+        self.parent.freeze_canvas()
+
     def on_score_changed(self, sender, *args):
         self.lblScore.text = sender.total
-        self.lblTurnout.text = sender.turnout
-        self.lblVoter.text = sender.voter_count
+        self.lblTurnout.text = str(sender.turnout)
         if sender.jumped:
             self.lblTurnout.fore_color = arcade.color.RED
+            self.lblTurnout.text += " (Jumped!)"
         else:
             self.lblTurnout.fore_color = arcade.color.BLACK
 
@@ -174,7 +202,13 @@ class Level1HUD(UILayer):
         super().on_window_resize(*args)
         self.lv1.on_resize()
 
-    def btnSelect_Click(self, sender, *args):
-        self.parent.end_scene_and_go_to('MainScene')
+    def btnPlace_Click(self, sender, *args):
         self.cmd_handler.execute_by_keyword('placement')
+    
+    def btnToMainMenu_Click(self, sender, *args):
+        self.parent.end_scene_and_go_to('MainScene')
 
+    def tick(self):
+        super().tick()
+        if self.lv1.cycle.started:
+            self.pgbTest.value = self.lv1.cycle.get_time_remaining()

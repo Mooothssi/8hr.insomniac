@@ -69,11 +69,13 @@ class Control():
     def _realign(self):
         if self.parent is not None:
             if self.alignment & AlignStyle.AlignXStyle.RIGHT:
-                self.position.x = self.parent.position.x + self.parent.width
+                self.position = Point(self.parent.position.x + self.parent.width - self.width - self.margin.right, self.position.y)
             if self.alignment & AlignStyle.AlignYStyle.TOP:
-                self.position.y = self.parent.position.y + self.parent.height - self.height
+                self.position = Point(self.position.x, self.parent.position.y + self.parent.height - self.height - self.margin.top)
             if self.alignment & AlignStyle.AlignYStyle.MIDDLE:
                 self.position.y = self.parent.position.y + (self.parent.height//2) - self.height
+            if self.alignment & AlignStyle.AlignYStyle.BOTTOM:
+                self.position = Point(self.position.x, self.parent.position.y + self.margin.bottom)
 
     def _redock(self):
         if self.parent is not None:
@@ -263,6 +265,9 @@ class Control():
 
     def on_mouse_leave(self, *args):
         pass 
+    
+    def on_window_resize(self, *args):
+        pass
 
     def reset_region(self):
         self.region = RectangularRegion(self.position,

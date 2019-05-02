@@ -20,17 +20,12 @@ class MainMenuLayer(UILayer):
         self.btnQuit.alignment = AlignStyle.AlignXStyle.CENTER
         self.btnQuit.click += self.btnQuit_Click
 
-        self.pgbTest = ProgressBar(Point(0,0), 243, 75)
-        self.pgbTest.alignment = AlignStyle.AlignXStyle.CENTER
-        self.pgbTest.value = 12
-
         self._register_controls()
 
     def _register_controls(self):
         self.register_control(self.btnSelect)
         self.register_control(self.btnInstr)
         self.register_control(self.btnQuit)
-        self.register_control(self.pgbTest)
 
     def btnStartGame_Click(self, sender, *args):
         self.parent.end_scene_and_go_to('LV1Scene')

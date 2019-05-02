@@ -30,7 +30,7 @@ class GameManager():
         self.updating = False
         self.sprite_list = []
         self.state = STATE_READY
-        self.engine = GameEngine()
+        self.engine = GameEngine.get_instance()
         self.engine.load_all()
         self.dispatcher = self.engine.event_dispatcher
         self.viewport = self.engine.viewport
@@ -55,9 +55,7 @@ class GameManager():
         self.reset_scaling(width, height)
 
     def reset_scaling(self, width, height):
-        print('scale')
         GAME_PREFS.screen_width, GAME_PREFS.screen_height = width, height
-
         self.screen_width, self.screen_height = width, height
         width_ratio = width / (self.current_level.map_plan.width*GAME_PREFS.block_size)
         height_ratio = height  / (self.current_level.map_plan.height*GAME_PREFS.block_size)

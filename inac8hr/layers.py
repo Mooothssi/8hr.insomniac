@@ -20,7 +20,7 @@ class SceneLayer():
         for ele in self.elements:
             ele.draw()
 
-    def clocked_update(self):
+    def tick(self):
         for ele in self.elements:
             ele.clocked_update()
 
@@ -57,7 +57,7 @@ class UILayer(SceneLayer):
         for ele in self.elements:
             ele.on_draw()
 
-    def clocked_update(self):
+    def tick(self):
         for ele in self.elements:
             ele.tick()
         self.animator.update()
