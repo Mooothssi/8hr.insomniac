@@ -1,5 +1,6 @@
 from arcade.sprite import Sprite
 from inac8hr.globals import *
+from ..events import Event
 from inac8hr.utils import LocationUtil
 from inac8hr.particles import Bullet
 from inac8hr.physics import CirclePhysicsEntity
@@ -38,6 +39,9 @@ class Unit(CirclePhysicsEntity):
         self.state = Unit.S_ANIMATED
         self.set_sprite_texture(Unit.T_DEFAULT)
         self.dead = False
+        self.z_order_changed = Event(self)
+        self.sprite_list = []
+        self.sprite_list.append(self.sprite)
         super().__init__([x, y], 25)
 
     def get_x1(self):
@@ -134,13 +138,18 @@ class SelectableUnit(Unit):
 
 
 class AnimatedEntity():
-    def __init__(self, states, animations_tex, initial_pos, scaling=1):
-        self.frame_time = 1
+    def __init__(self, animations_tex, initial_pos, scaling=1, anim_sprite=None):
+        self.frame_time = 5
         self.curr_time = 0
         self.passed_frames = 0
-        self.state_sprite = self.sprite
-        self.animated_sprite = Sprite()
+        if anim_sprite is not None:
+            self.animated_sprite = anim_sprite
+        else:
+            self.animated_sprite = Sprite()
+            for tex in animations_tex:
+                self.animated_sprite.append_texture(tex)
         self.animated_textures = animations_tex
+        self.state_sprite = self.sprite
         self.texture_frames = len(self.animated_textures)
         self.__animating__ = False
 
@@ -149,11 +158,14 @@ class AnimatedEntity():
         self.__animating__ = True
 
     def clocked_update(self):
+        if self.texture_frames <= 1:
+            return
         elapsed = time.time() - self.curr_time
         if elapsed >= self.frame_time:
             r = self.passed_frames % self.texture_frames
             self.animated_sprite.set_texture(r)
             self.passed_frames += 1
+            self.curr_time = time.time()
 
     def draw(self):
         if self.__animating__:
@@ -189,6 +201,16 @@ class UnitListBase():
             x, y = LocationUtil.get_sprite_position(r, c)
             sprite.set_position(x, y)
 
+    def on_item_added(self, item):
+        item.z_order_changed += self.on_z_order_changed
+
+    def on_item_removed(self, item):
+        item.z_order_changed -= self.on_z_order_changed
+
+    def on_z_order_changed(self, sender, *args):
+        pass
+
+
 class UnitList(UnitListBase):
     def __init__(self):
         super().__init__()
@@ -197,11 +219,14 @@ class UnitList(UnitListBase):
     def append(self, item: Unit):
         self.units.append(item)
         item.sprite.scale = self.scaling_factor
-        self.sprites.append(item.sprite)
+        for sprite in item.sprite_list:
+            self.sprites.append(sprite)
+        self.on_item_added(item)
 
     def remove(self, item: Unit):
         self.units.remove(item)
         self.sprites.remove(item.sprite)
+        self.on_item_removed(item)
 
     def __next__(self):
         if self.n <= len(self.units)-1 and len(self.units) > 0:
@@ -223,12 +248,16 @@ class UnitKeyedList(UnitListBase):
     def __getitem__(self, key):
         return self.units[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value: Unit):
         self.units[key] = value
+        print(value)
         value.sprite.scale = self.scaling_factor
-        self.sprites.append(value.sprite)
+        self.on_item_added(value)
+        for sprite in value.sprite_list:
+            self.sprites.append(sprite)
 
     def remove(self, item: Unit):
+        self.on_item_removed(item)
         self.units.remove(item)
         self.sprites.remove(item.sprite)
 

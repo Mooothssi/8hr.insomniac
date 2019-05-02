@@ -1,6 +1,7 @@
 import arcade
 from inac8hr.physics import CirclePhysicsEntity
 from inac8hr.utils import LocationUtil
+from inac8hr.events import Event
 
 class Particle(CirclePhysicsEntity):
     def __init__(self, sprite_name, initial_pos=(0, 0), scaling=1):
@@ -8,7 +9,8 @@ class Particle(CirclePhysicsEntity):
         # TODO: Absolute and Relative position
         self.sprite_name = sprite_name
         self.sprite = arcade.Sprite(sprite_name)
-       
+        self.sprite_list = []
+        self.sprite_list.append(self.sprite)
         self.scaling = scaling
         self.sprite.width = 18
         self.sprite.height = 18
@@ -16,6 +18,7 @@ class Particle(CirclePhysicsEntity):
         super().__init__([x, y], 9)
         self.sprite.change_x = 5
         self.sprite.change_y = 5
+        self.z_order_changed = Event(self)
 
     def draw(self):
         self.sprite.draw()

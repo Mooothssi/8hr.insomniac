@@ -19,13 +19,12 @@ class Level1HUD(UILayer):
         self.parent = parent
         disp = 75
         noto = "assets/fonts/NotoSans-Regular"
-        self.lblFPS = Label(Point(16, 8), font_name=noto)
-        self.lblTest = Label(Point(16, 20), font_name=noto)
+        self.lblFPS = Label(Point(16, 20), font_name=noto)
+        self.lblTest = Label(Point(86, 20), font_name=noto)
         self.lblStatus = Label(Point(16+disp, 8), font_name=noto)
 
-        self.lblTest2 = Label(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), size=20, align=AlignStyle.BOTTOM_CENTER)
+        self.lblTest2 = Label(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), size=20)
         self.lblTest2.text = "Jumping Ballot\n\nGet ready in 10 seconds!"
-
 #
 # Stats Panel
 #
@@ -109,9 +108,9 @@ class Level1HUD(UILayer):
         self.testMsg = AnimatedTexturedMessageBox(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), "assets/images/chars/Ballot_pink.png")
         self.testMsg2 = AnimatedTexturedMessageBox(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), "assets/images/titles/lv1.png", width=507, height=315)
         self.testMsg2.alignment = AlignStyle.MIDDLE_CENTER
-        self.testMsg2.add_control(self.lblTest)
         self.testMsg2.align_center()
-        self.lblTest2.align_center()
+        self.testMsg2.add_control(self.lblTest2)
+        
 
         self.container1 = ScrollablePaneView(Point(100, 0), 640, 65)
         self.container1.selected_index_changed_event += self.test

@@ -153,7 +153,7 @@ class Level(PlayableSceneLayer):
         self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/shredder_40px.png", "assets/images/chars/unavail.png"], (x, y), GAME_PREFS.scaling)
 
     def is_defender_at(self, x, y):
-        return (x, y) in self.defenders
+        return (x, y) in self.defenders.units
 
     def get_defender_at(self, x, y):
         if self.is_defender_at(x, y):

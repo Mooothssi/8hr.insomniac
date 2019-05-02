@@ -12,6 +12,7 @@ class AgentUnit(Unit, AnimatedEntity):
 
     def __init__(self, texture_list, pos, full_hp=50, scaling=1, switches=[]):
         super().__init__(texture_list, pos, scaling)
+        AnimatedEntity.__init__(self, texture_list, pos, anim_sprite=self.sprite)
         self.decay_textures = []
         self.next_direction = DIR_STILL
         self.switches = list(switches)
@@ -19,6 +20,7 @@ class AgentUnit(Unit, AnimatedEntity):
         self.targeted = False
         self.time_lived = 0
         self.reset_hp(full_hp)
+        self.start_animating()
 
     @property
     def position(self):
@@ -32,6 +34,7 @@ class AgentUnit(Unit, AnimatedEntity):
         self.health = self.full_health
 
     def on_animated(self, *kwargs):
+        AnimatedEntity.clocked_update(self)
         self.move_along_switches(self.switches)
         result = (self.health/self.full_health)*self.DECAY_VARIANTS
         if result < 1:
@@ -46,7 +49,7 @@ class AgentUnit(Unit, AnimatedEntity):
             self.dead = True
     
     def won(self):
-        self.dead = True
+        # self.dead = True
         self.survived = True
 
     def move(self):
@@ -84,7 +87,50 @@ class Ballot(AgentUnit):
                  scaling=1, switches=[], jumped=False):
         super().__init__(texture_list, pos, full_hp, scaling, switches)
         self.jumped = jumped
+        self.overlay_sprite = Sprite("assets/images/chars/ballot_drop_masked.png")
+        self._overlay_shown = False
+        self._overlay_flag = False
+        r, c = self.switches[-1][0]
+        self.exit_point = r + 1, c
+        self._anim_end = False
+        self.sprite_list.insert(0, self.overlay_sprite)
 
+    def _show_overlay(self):
+        self.overlay_sprite.set_position(int(self.sprite.position[0]), int(self.sprite.position[1] - 7))
+        self._overlay_shown = True
 
-class JumpedBallot(Ballot):
-    pass
+    def _move_ballot_anim(self):
+        r, c = self.exit_point
+        x, y = LocationUtil.get_sprite_position(r, c)
+        if self.sprite.position[1] < self.sprite.position[1] + 42 and self.sprite.angle < 45:
+            self.sprite.set_position(self.sprite.position[0], self.sprite.position[1] + 1)
+            self.sprite.angle += 1
+        else:
+            self.z_order_changed(self.sprite_list)
+            if not self._anim_end:
+                self.switches.append([self.exit_point, 3])
+                self._anim_end = True
+
+    def draw(self):
+        if self._overlay_shown:
+            self.overlay_sprite.draw()
+
+    def won(self):
+        super().won()
+        if self.survived:
+            self.switches.append([self.exit_point, 1])
+            self._overlay_flag = True
+
+    def on_animated(self, *args):
+        super().on_animated(*args)
+        if self._overlay_flag:
+            if len(self.switches) == 0 and not self._overlay_shown:
+                self._show_overlay()
+            elif self._overlay_shown:
+                self._move_ballot_anim()
+                if len(self.switches) == 0 and self._anim_end:
+                    self.dead = True
+                
+    def goto_box(self, box_loc):
+        pass
+
