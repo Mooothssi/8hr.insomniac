@@ -1,7 +1,7 @@
-from inac8hr.globals import *
-from inac8hr.utils import LocationUtil
-from inac8hr.particles import Bullet
-from inac8hr.entities import SelectableUnit, Unit
+from ..globals import *
+from ..utils import LocationUtil
+from .particles import Bullet
+from . import SelectableUnit, Unit
 import time
 import random
 

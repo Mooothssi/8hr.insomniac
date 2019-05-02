@@ -10,7 +10,8 @@ from inac8hr.globals import GAME_PREFS
 #
 # the Jumping Ballot
 #
-
+# TODO: Add an InspectorPanel.
+#
 
 class Level1HUD(UILayer):
 
@@ -110,10 +111,15 @@ class Level1HUD(UILayer):
         self.testMsg2.alignment = AlignStyle.MIDDLE_CENTER
         self.testMsg2.align_center()
         self.testMsg2.add_control(self.lblTest2)
-        
+        self.awakeMsg = AnimatedTexturedMessageBox(Point(0, 0), "assets/images/titles/awake_screen.png", width=1920, height=1000)
+        self.awakeMsg.alpha = 255
+        self.awakeMsg.alignment = AlignStyle.MIDDLE_CENTER
+        self.awakeMsg.align_center()
+        self.awakeMsg.visible = False
 
         self.container1 = ScrollablePaneView(Point(100, 0), 640, 65)
-        self.container1.selected_index_changed_event += self.test
+        self.container1.visible = False
+        self.container1.selected_index_changed_event += self.on_select_blueprint
         for e in In8acUnitInfo.get_all_as_pane_tile():
             self.container1.add_tile(e)
 
@@ -153,13 +159,14 @@ class Level1HUD(UILayer):
 
     def _register_controls(self):
         self.register_control(self.lblFPS)
-        # self.register_control(self.container1)
+        self.register_control(self.container1)
         self.register_control(self.lblStatus)
         self.register_control(self.lblTest)
         self.register_control(self.testMsg3)
         self.register_control(self.testMsg2)
         self.register_control(self.sideMenu)
         self.register_control(self.pgbTest)
+        self.register_control(self.awakeMsg)
 
     def draw(self):
         super().draw()
@@ -179,14 +186,16 @@ class Level1HUD(UILayer):
         self.pgbTest.visible = True
         self.parent.continue_canvas()
 
-    def test(self, sender, *args):
-        print(sender.selected_item)
+    def on_select_blueprint(self, sender, *args):
+        if self.tool_handler.is_tool_utilized('placement') and sender.selected_item.model is not None:
+            self.tool_handler.current_tool.change_blueprint(sender.selected_item.model)
 
     def test2(self, *args):
         pass
 
     def on_cycle_end(self, *args):
         self.parent.freeze_canvas()
+        self.awakeMsg.visible = True
 
     def on_score_changed(self, sender, *args):
         self.lblScore.text = sender.total
@@ -201,11 +210,14 @@ class Level1HUD(UILayer):
         super().on_window_resize(*args)
         self.lv1.on_resize()
 
-    def btnPlace_Click(self, sender, *args):
-        self.cmd_handler.execute_by_keyword('placement')
+    def btnPlace_Click(self, sender, parent, x, y, button, *args):
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            self.cmd_handler.execute_by_keyword('placement')
+            self.container1.visible = not self.container1.visible
     
-    def btnToMainMenu_Click(self, sender, *args):
-        self.parent.end_scene_and_go_to('MainScene')
+    def btnToMainMenu_Click(self, sender, parent, x, y, button, *args):
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            self.parent.end_scene_and_go_to('MainScene')
 
     def tick(self):
         super().tick()

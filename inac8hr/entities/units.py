@@ -2,7 +2,7 @@ from arcade.sprite import Sprite
 from inac8hr.globals import *
 from ..events import Event
 from inac8hr.utils import LocationUtil
-from inac8hr.particles import Bullet
+from .particles import Bullet
 from inac8hr.physics import CirclePhysicsEntity
 from inac8hr.imports import ExtendedSpriteList
 import time
@@ -252,7 +252,6 @@ class UnitKeyedList(UnitListBase):
 
     def __setitem__(self, key, value: Unit):
         self.units[key] = value
-        print(value)
         value.sprite.scale = self.scaling_factor
         self.on_item_added(value)
         for sprite in value.sprite_list:

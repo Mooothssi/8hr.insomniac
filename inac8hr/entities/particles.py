@@ -51,7 +51,7 @@ class Bullet(Particle):
     NORMAL_DAMAGE = 10
     DEFAULT_VELOCITY = 5 # 2
     def __init__(self, sprite_name, initial_pos=(0, 0)):
-        from .engines import AudioEngine
+        from inac8hr.engines import AudioEngine
         super().__init__(sprite_name, initial_pos)
         r, c = initial_pos
         x, y = LocationUtil.get_sprite_position(r, c)

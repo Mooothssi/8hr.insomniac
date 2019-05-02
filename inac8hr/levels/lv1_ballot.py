@@ -18,7 +18,7 @@ class LV1Scoring(ScoringEngine):
         self.jumped_count = 0
         self.valid_count = 0
         self.jumping_limit = 580
-        self.mode_factor = ScoringFactor.HARD_FACTOR
+        self.mode_factor = ScoringFactor.EASY_FACTOR
         self.audio = AudioEngine.get_instance()
 
 

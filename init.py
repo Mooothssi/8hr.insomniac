@@ -17,6 +17,7 @@ class InsomniaGame(arcade.Window):
         self.manager = GameManager(resolution=(width, height))
         self.manager.load_sprites(width, height)
         self.manager.fullscreen = fullscreen
+        self.resolution = 0, 0
 
     def on_draw(self):
         arcade.start_render()
@@ -24,9 +25,10 @@ class InsomniaGame(arcade.Window):
         self.manager.draw()
 
     def on_resize(self, width: float, height: float):
-        super().on_resize(width, height)
-        self.manager.reload_sprites(width, height)
-        self.manager.on_resize(width, height)
+        if not (self.resolution[0] == width and self.resolution[1] == height):
+            self.resolution = width, height
+            self.manager.reload_sprites(width, height)
+            self.manager.on_resize(width, height)
 
 
     def on_key_press(self, key, modifiers):

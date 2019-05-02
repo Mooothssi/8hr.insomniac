@@ -1,8 +1,8 @@
 from arcade.sprite import Sprite
-from inac8hr.globals import *
-from inac8hr.utils import LocationUtil
-from inac8hr.particles import Bullet
-from inac8hr.entities import Unit, AnimatedEntity
+from ..globals import *
+from ..utils import LocationUtil
+from .particles import Bullet
+from . import Unit, AnimatedEntity
 
 
 class AgentUnit(Unit, AnimatedEntity):
@@ -133,7 +133,7 @@ class Ballot(AgentUnit):
                 if len(self.switches) == 0 and self._anim_end:
                     self.dead = True
                     self._overlay_shown = False
-                
+
     def goto_box(self, box_loc):
         pass
 

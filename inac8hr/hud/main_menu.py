@@ -20,9 +20,15 @@ class MainMenuLayer(UILayer):
         self.btnQuit.alignment = AlignStyle.AlignXStyle.CENTER
         self.btnQuit.click += self.btnQuit_Click
 
+        self.bckMainMenu = AnimatedTexturedMessageBox(Point(0, 0), "assets/images/bck_main.png", width=1924, height=1080)
+        self.bckMainMenu.alpha = 255
+        self.bckMainMenu.alignment = AlignStyle.MIDDLE_CENTER
+        self.bckMainMenu.align_center()
+
         self._register_controls()
 
     def _register_controls(self):
+        self.register_control(self.bckMainMenu)
         self.register_control(self.btnSelect)
         self.register_control(self.btnInstr)
         self.register_control(self.btnQuit)

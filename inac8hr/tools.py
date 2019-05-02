@@ -1,13 +1,14 @@
 import arcade, math
-from inac8hr.entities import UnitBlueprint, VALID_PLACEMENT, INVALID_PLACEMENT
+from inac8hr.entities import UnitBlueprint, UnitInfo, VALID_PLACEMENT, INVALID_PLACEMENT
 from inac8hr.utils import LocationUtil
 from inac8hr.events import EventDispatcher
 from inac8hr.levels import Level
 from inac8hr.globals import *
 
 class BaseTool():
-    def __init__(self, level: Level):
+    def __init__(self, level: Level, name: str="base"):
         self.level = level
+        self.name = name
 
     def draw(self):
         pass
@@ -24,14 +25,15 @@ class PositionTool(BaseTool):
             return False
 
 
-class PlacementAvailabilityTool(PositionTool):
+class UnitPlacementTool(PositionTool):
     registered_inputs = [UserEvent.MOUSE_PRESS, UserEvent.MOUSE_MOTION,
                          UserEvent.WINDOW_RESIZE]
 
     def __init__(self, level: Level, initial_loc=(0, 0)):
-        super().__init__(level)
+        super().__init__(level, "placement")
         self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"], scaling=GAME_PREFS.scaling, initial_loc=initial_loc)
         self.unit_blueprint.sprite.scale = GAME_PREFS.scaling
+        self.current_cursor_pos = initial_loc
 
     def eval_availability(self, x, y):
         if self.eval_proximity(x, y):
@@ -46,8 +48,13 @@ class PlacementAvailabilityTool(PositionTool):
         else:
             self.unit_blueprint.change_state(0)
 
+    def change_blueprint(self, blueprint_info: UnitInfo):
+        self.unit_blueprint = blueprint_info.blueprint
+        self.unit_blueprint.sprite.set_position(self.current_cursor_pos[0], self.current_cursor_pos[1])
+
     def on_mouse_motion(self, *args):
         x, y, dx, dy = args
+        self.current_cursor_pos = x, y
         self.unit_blueprint.sprite.set_position(x, y)
         self.update_blueprint_state(x, y)
 
@@ -70,7 +77,7 @@ class SelectTool(PositionTool):
     registered_inputs = [UserEvent.MOUSE_PRESS]
 
     def __init__(self, level: Level):
-        super().__init__(level)
+        super().__init__(level, "select")
         self.selection = None
         self.PRX = 0.4, 0.6
 
@@ -119,6 +126,12 @@ class ToolHandler():
 
     def clear_current_tool(self):
         self.current_tool = None
+
+    def is_tool_utilized(self, tool_name: str) -> bool:
+        if self.current_tool is None:
+            return False
+        else:
+            return self.current_tool.name == tool_name
 
     def draw(self):
         if self.__current_tool__ is not None:

@@ -1,5 +1,5 @@
 import arcade
-from inac8hr.tools import BaseTool, SelectTool, PlacementAvailabilityTool
+from inac8hr.tools import BaseTool, SelectTool, UnitPlacementTool
 from inac8hr.events import Hotkey
 from inac8hr.globals import UserEvent
 
@@ -42,7 +42,7 @@ class PlacementCommand(ToolCommand):
             self.handler.clear_current_tool()
             self.triggered = False
         else:
-            self.handler.current_tool = PlacementAvailabilityTool(self.handler.level, self.handler.cursor_loc)
+            self.handler.current_tool = UnitPlacementTool(self.handler.level, self.handler.cursor_loc)
             self.triggered = True
         # self.level.place_defender(self.info.x, self.info.y, self.info.defender)
 

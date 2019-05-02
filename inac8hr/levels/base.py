@@ -1,17 +1,16 @@
 import arcade
 import random
-from inac8hr.events import Event
-from inac8hr.loaders import ImageLoader
-from inac8hr.levels.tilemaps import TILEMAP
-from inac8hr.layers import PlayableSceneLayer
-from inac8hr.utils import LocationUtil
-from inac8hr.globals import *
-from inac8hr.particles import Bullet
-from inac8hr.entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList, PollingStaUnit
-from inac8hr.imports import *
-from inac8hr.cycles import CycleClock
-from inac8hr.scoring import ScoringEngine
-from inac8hr.tuning import ScoringFactor
+from ..events import Event
+from ..loaders import ImageLoader
+from .tilemaps import TILEMAP
+from ..layers import PlayableSceneLayer
+from ..utils import LocationUtil
+from ..globals import *
+from ..entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList, PollingStaUnit, Bullet
+from ..imports import *
+from ..cycles import CycleClock
+from ..scoring import ScoringEngine
+from ..tuning import ScoringFactor
 
 BOARD = [
         '%X%###############',
@@ -280,7 +279,6 @@ class MapPlan():
             for j in range(len(self.plan_array[i])):
                 if self.plan_array[i][j] == char:
                     entities.append((i, j))
-                    print(i, j)
         return entities
 
     def get_initial_entity_position(self, char):
@@ -300,13 +298,13 @@ class MapPlan():
         return self.get_initial_entity_position('O')
 
     def get_all_generators(self):
-        return [PollingStaUnit(['assets/images/chars/ballot_box.png'], (x, y)) for x, y in self.get_initial_entities_position("&")]
+        return [PollingStaUnit(['assets/images/chars/polling_booth.png'], (x, y)) for x, y in self.get_initial_entities_position("&")]
 #
 # Arcade-based overridden functions
 #
     def draw(self):
         self.sprites.draw()
-        self.exit.draw()
+        # self.exit.draw()
 #
 #
 #

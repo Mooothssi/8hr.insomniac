@@ -70,6 +70,7 @@ class LocalizedLabel(Label):
                  size: int=12):
         super().__init__(position, key, size)
         self.loc_text = LocalizedText(key)
+        self.loc_font_name = ""
 
     def get_text(self):
         return str(self.loc_text)

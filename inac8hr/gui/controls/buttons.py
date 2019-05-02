@@ -42,7 +42,7 @@ class Button(Container):
 
     def on_mouse_press(self, *args):
         super().on_mouse_press(*args)
-        if self._mouse_down:
+        if self._mouse_down and args[-2] == arcade.MOUSE_BUTTON_LEFT:
             self.change_texture(self.PRESSED)
 
     def on_mouse_release(self, *args):
