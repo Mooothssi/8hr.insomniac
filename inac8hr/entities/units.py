@@ -225,7 +225,9 @@ class UnitList(UnitListBase):
 
     def remove(self, item: Unit):
         self.units.remove(item)
-        self.sprites.remove(item.sprite)
+        for sprite in item.sprite_list:
+            self.sprites.remove(sprite)
+        # self.sprites.remove(item.sprite)
         self.on_item_removed(item)
 
     def __next__(self):

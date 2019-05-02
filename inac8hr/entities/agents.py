@@ -102,22 +102,24 @@ class Ballot(AgentUnit):
     def _move_ballot_anim(self):
         r, c = self.exit_point
         x, y = LocationUtil.get_sprite_position(r, c)
-        if self.sprite.position[1] < self.sprite.position[1] + 42 and self.sprite.angle < 45:
+        if self.sprite.position[1] < self.sprite.position[1] + 200 and self.sprite.angle < 45:
             self.sprite.set_position(self.sprite.position[0], self.sprite.position[1] + 1)
             self.sprite.angle += 1
         else:
+            # self._show_overlay()
             self.z_order_changed(self.sprite_list)
             if not self._anim_end:
                 self.switches.append([self.exit_point, 3])
                 self._anim_end = True
 
     def draw(self):
-        if self._overlay_shown:
-            self.overlay_sprite.draw()
+        pass
+        # if self._overlay_shown:
+        #     self.overlay_sprite.draw()
 
     def won(self):
         super().won()
-        if self.survived:
+        if self.survived and not self._overlay_flag:
             self.switches.append([self.exit_point, 1])
             self._overlay_flag = True
 
@@ -130,6 +132,7 @@ class Ballot(AgentUnit):
                 self._move_ballot_anim()
                 if len(self.switches) == 0 and self._anim_end:
                     self.dead = True
+                    self._overlay_shown = False
                 
     def goto_box(self, box_loc):
         pass
