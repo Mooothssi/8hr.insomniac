@@ -7,7 +7,7 @@ from inac8hr.events import Event
 
 
 class CycleClock():
-    DEFAULT_CYCLES_LIMIT = 1
+    DEFAULT_CYCLES_LIMIT = 8
 
     def __init__(self):
         self.start_time = None
