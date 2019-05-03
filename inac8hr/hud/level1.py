@@ -23,6 +23,8 @@ class Level1HUD(UILayer):
         self.lblFPS = Label(Point(16, 20), font_name=noto)
         self.lblTest = Label(Point(86, 20), font_name=noto)
         self.lblStatus = Label(Point(16+disp, 8), font_name=noto)
+        self.lblTotalScore = Label(Point(1065, 650-56), font_name=noto, size=78, color=arcade.color.WHITE)
+        self.lblTotalScore.visible = False
 
         self.lblTest2 = Label(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), size=20)
         self.lblTest2.text = "Jumping Ballot\n\nGet ready in 10 seconds!"
@@ -111,11 +113,23 @@ class Level1HUD(UILayer):
         self.testMsg2.alignment = AlignStyle.MIDDLE_CENTER
         self.testMsg2.align_center()
         self.testMsg2.add_control(self.lblTest2)
+
+
+
         self.awakeMsg = AnimatedTexturedMessageBox(Point(0, 0), "assets/images/titles/awake_screen.png", width=1920, height=1000)
         self.awakeMsg.alpha = 255
         self.awakeMsg.alignment = AlignStyle.MIDDLE_CENTER
         self.awakeMsg.align_center()
         self.awakeMsg.visible = False
+
+        self.btnMM = Button(Point(683, 394), "assets/images/ui/btnExitToMM.png", width=655, height=109)
+        self.btnMM.append_texture("assets/images/ui/btnExitToMM.png")
+        self.btnMM.alignment = AlignStyle.AlignXStyle.CENTER
+        self.btnMM.click += self.btnToMM_Click
+        self.btnMM.visible = False
+
+
+
 
         self.container1 = ScrollablePaneView(Point(100, 0), 640, 65)
         self.container1.visible = False
@@ -167,6 +181,8 @@ class Level1HUD(UILayer):
         self.register_control(self.sideMenu)
         self.register_control(self.pgbTest)
         self.register_control(self.awakeMsg)
+        self.register_control(self.btnMM)
+        self.register_control(self.lblTotalScore)
 
     def draw(self):
         super().draw()
@@ -196,6 +212,9 @@ class Level1HUD(UILayer):
     def on_cycle_end(self, *args):
         self.parent.freeze_canvas()
         self.awakeMsg.visible = True
+        self.btnMM.visible = True
+        self.lblTotalScore.text = self.lblScore.text
+        self.lblTotalScore.visible = True
 
     def on_score_changed(self, sender, *args):
         self.lblScore.text = sender.total
@@ -214,10 +233,13 @@ class Level1HUD(UILayer):
         if button == arcade.MOUSE_BUTTON_LEFT:
             self.cmd_handler.execute_by_keyword('placement')
             self.container1.visible = not self.container1.visible
-    
+
     def btnToMainMenu_Click(self, sender, parent, x, y, button, *args):
         if button == arcade.MOUSE_BUTTON_LEFT:
             self.parent.end_scene_and_go_to('MainScene')
+
+    def btnToMM_Click(self, sender, parent, x, y, button, *args):
+        self.parent.end_scene_and_go_to('MainScene')
 
     def tick(self):
         super().tick()
