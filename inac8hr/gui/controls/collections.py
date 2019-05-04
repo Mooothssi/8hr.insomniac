@@ -42,13 +42,20 @@ class PaneTile(Container):
         super().__init__(position, width, height, color)
         self.model = model
         self.caption = Label
+        self._generate_from_model()
 
     def _generate_from_model(self):
         if self.model is not None:
-            pass
+            self.texture = self.model.thumbnail
+        else:
+            self.texture = None
 
     def draw(self):
         super().draw()
+        if self.texture is not None:
+            DrawCommands.draw_textured_rectangle(self.position.x + (self.width//2), 
+                                                 self.position.y + (self.height//2),
+                                                 self.width, self.height, self.texture)
         if self.activated:
             self.region.draw()
 

@@ -2,12 +2,24 @@ from inac8hr.gui.basics import Point, Margin, RectangularRegion
 from inac8hr.gui.controls.styles import DockStyle, AlignStyle
 from inac8hr.events import Event, UserEvent
 from inac8hr.anim import ControlAnimator
+from inac8hr.wrappers.inac8hr_arcade import ExtendedSpriteList
+from abc import abstractmethod
+import arcade
 import time
+
+class ControlSpriteList():
+    def __init__(self):
+        self.sprite_list = ExtendedSpriteList()
+        self.controls = []
+
+    def draw(self):
+        pass
+
 
 
 class Control():
     registered_inputs = [UserEvent.MOUSE_PRESS, UserEvent.MOUSE_RELEASE, UserEvent.MOUSE_MOTION]
-
+    _sprite_list_cache = arcade.SpriteList()
     ANCHOR_TOP = 1 << 0
     ANCHOR_LEFT = 1 << 1
     ANCHOR_RIGHT = 1 << 2
@@ -15,6 +27,7 @@ class Control():
 
     def __init__(self, position: Point, width=0, height=0, back_color=(0, 0, 0)):
         self._position = position
+        self._sprite = None
         self.alignment = AlignStyle.NONE
         self._anchors = self.ANCHOR_LEFT
         self.visible = True
@@ -45,13 +58,29 @@ class Control():
         self.fore_color = self._color
         self.back_color = back_color
 
+    def dispose(self):
+        if self._sprite is not None:
+            Control._sprite_list_cache.remove(self._sprite)
+
+    @staticmethod
+    def draw_from_cache():
+        if len(Control._sprite_list_cache) > 0:
+            Control._sprite_list_cache.draw()
+
+    def set_cached_sprite(self, sprite):
+        self._sprite = sprite
+        if self._sprite is not None and not self._sprite in Control._sprite_list_cache:
+            Control._sprite_list_cache.append(self._sprite)
+
     def on_draw(self):
-        if self.visible:
+        if self.visible and self._sprite is None:
             self.draw()
 
+    @abstractmethod
     def draw(self):
         pass
 
+    @abstractmethod
     def tick(self):
         pass
 
@@ -290,3 +319,4 @@ class AnimatedControl():
 
     def tick(self):
         self.animator.update()
+

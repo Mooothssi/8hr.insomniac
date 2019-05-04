@@ -20,7 +20,7 @@ class Level1HUD(UILayer):
         self.parent = parent
         disp = 75
         noto = "assets/fonts/NotoSans-Regular"
-        self.lblFPS = Label(Point(16, 20), font_name=noto)
+        self.lblFPS = Label(Point(16, 20), font_name=noto, cached=False)
         self.lblTest = Label(Point(86, 20), font_name=noto)
         self.lblStatus = Label(Point(16+disp, 8), font_name=noto)
         self.lblTotalScore = Label(Point(1065, 650-56), font_name=noto, size=78, color=arcade.color.WHITE)
@@ -97,13 +97,9 @@ class Level1HUD(UILayer):
         self.sideMenu.add_control(self.btnPlace, True)
         self.sideMenu.add_control(self.btnToMainMenu, True)
 
-        # Tooltip Test
         self.btnSelect.set_localized_tooltip("Tools/Select/TooltipName")
         self.btnPlace.set_localized_tooltip("Tools/Place/TooltipName")
-        
-        # self.tlpInfo = Tooltip()
-        # self.tlpInfo.caption.loc_text = LocalizedText("Tools/Select/TooltipName")
-        # self.btnSelect.add_control(self.tlpInfo, True)
+
 #
 #
 #

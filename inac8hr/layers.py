@@ -54,6 +54,7 @@ class UILayer(SceneLayer):
         self.container.children.remove(control)
 
     def draw(self):
+        Control.draw_from_cache()
         for ele in self.elements:
             ele.on_draw()
 

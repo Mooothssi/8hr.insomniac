@@ -13,19 +13,20 @@ class UnitInfo:
         (e.g. coverage radius, sprite assets, description)\n
         Also serves as a model of a Defender
     """
-    def __init__(self):
-        self.unit_name = ""
+    def __init__(self, loc_name):
+        self.unit_name = loc_name
         self.view_image = None
         self.strength = 1
         self.coverage_radius = 1
         self.descriptor = ""
         self.blueprint = None
         self.abilities = None
+        self.thumbnail = arcade.load_texture("assets/images/chars/avail.png")
 
 
 class PaperShredderUnitInfo(UnitInfo):
     def __init__(self):
-        self.unit_name = LocalizedText("Units/Def/PPS/Name")
+        super().__init__(LocalizedText("Units/Def/PPS/Name"))
         self.strength = 1
         self.coverage_radius = 1
         self.description = LocalizedText("Units/Def/PPS/Desc")
@@ -35,7 +36,7 @@ class PaperShredderUnitInfo(UnitInfo):
 
 class CalculatorUnitInfo(UnitInfo):
     def __init__(self):
-        self.unit_name = LocalizedText("Units/Def/Calc/Name")
+        super().__init__(LocalizedText("Units/Def/Calc/Name"))
         self.strength = 1
         self.coverage_radius = 1
         self.description = LocalizedText("Units/Def/Calc/Desc")

@@ -1,10 +1,12 @@
-from arcade.sprite import Sprite
+from arcade.sprite import Sprite, Texture
 from arcade.sprite_list import SpriteList
+from arcade.text import Text
 import arcade
+import PIL
 from inac8hr.wrappers.inac8hr_arcade.legacy import ArcadeLegacy
 
 
-class DrawCommands():
+class DrawCommands:
     @staticmethod
     def draw_textured_rectangle(center_x: float, center_y: float, width: float,
                             height: float, texture: arcade.Texture, angle: float=0,
@@ -26,9 +28,24 @@ class DrawCommands():
 
         _sprite_list.draw()
 
+    def create_textured_rectangle(center_x: float, center_y: float, width: float,
+                            height: float, texture: arcade.Texture, angle: float=0,
+                            alpha: float=255,
+                            repeat_count_x=1, repeat_count_y=1):
+        _sprite = arcade.Sprite()
+        _sprite._texture = texture
+        _sprite.textures = [texture]
+        _sprite.center_x = center_x
+        _sprite.center_y = center_y
+        _sprite.width = width
+        _sprite.height = height
+        _sprite.angle = angle
+        _sprite.alpha = alpha
+        return _sprite
+
 
 class PreferredSprite(Sprite):
-       
+
     def draw(self):
         if ArcadeLegacy.is_arcade_legacy("2.0.5"):
             self.internal_draw()

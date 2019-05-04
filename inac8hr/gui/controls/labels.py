@@ -2,7 +2,7 @@ import arcade
 import pyglet
 import time
 from i18n.loc import LocalizedText
-from inac8hr.wrappers.inac8hr_arcade import DrawCommands
+from inac8hr.wrappers.inac8hr_arcade import DrawCommands, PILText
 from inac8hr.gui.controls.base import Control, AnimatedControl
 from inac8hr.gui.controls.containers import Container
 from inac8hr.gui.basics import Point, Padding
@@ -11,37 +11,55 @@ from inac8hr.gui.controls.styles import AlignStyle
 
 
 class Label(Control):
+    _sprite_list_cache = arcade.SpriteList()
 
     def __init__(self, position: Point=Point(0, 0), text: str="",
-                 size: int=12, color: tuple=arcade.color.BLACK, align: AlignStyle=AlignStyle.NONE, font_name=('calibri','arial')):
+                 size: int=12, color: tuple=arcade.color.BLACK, align: AlignStyle=AlignStyle.NONE, font_name=('calibri','arial'),
+                 cached=False):
         super().__init__(position)
         self.__label__ = pyglet.text.Label(text, font_size=size, x=position.x,
                                            y=position.y)
         self.alignment = align
-        self.text = text
+        self._text = text
         r, g, b = color
         self._color = color
         self.fore_color = (r, g, b, self.opacity)
         self.font_name = font_name
-        self.__font_size__ = size    
+        self.__font_size__ = size
+        self.cached = cached
+        self.width, self.height = PILText.determine_dimensions(self, self.text, self.position.x, self.position.y,
+                                    self.fore_color, self.font_size, font_name=self.font_name,
+                                    align=self._get_text_alignment(), width=self.width, anchor_x=self._get_anchors_x(),
+                                    anchor_y=self._get_anchors_y())
+        print(self.width, self.height)
+        if self.cached and self.visible:
+            self.set_cached_sprite(PILText.render_text(self.text, self.position.x, self.position.y,
+                                    self.fore_color, self.font_size, font_name=self.font_name,
+                                    align=self._get_text_alignment(), width=self.width, anchor_x=self._get_anchors_x(),
+                                    anchor_y=self._get_anchors_y()))  
 
     @property
     def font_size(self):
         return self.__font_size__
 
-    # def set_text(self, value):
-    #     self.__label__.text = value
+    def set_text(self, value):
+        self._text = value
+        # if self.cached and self.visible:
+        #     self.set_cached_sprite(CreateText.render_text(str(self.text), self.position.x, self.position.y,
+        #                             self.fore_color, self.font_size, font_name=self.font_name,
+        #                             align=self._get_text_alignment(), width=self.width, anchor_x=self._get_anchors_x(),
+        #                             anchor_y=self._get_anchors_y())) 
 
-    # def get_text(self):
-    #     return self.__label__.text
+    def get_text(self):
+        return self._text
 
-    # text = property(get_text, set_text)
+    text = property(get_text, set_text)
 
     def draw(self):
-        if self.text != "" and self.visible:
-            arcade.draw_text(str(self.text), self.position.x, self.position.y,
+        if self.text != "" and self.visible and not self.cached:
+            PILText.draw_text(self, str(self.text), self.position.x, self.position.y,
                              self.fore_color, self.font_size, font_name=self.font_name,
-                             align=self._get_text_alignment(), width=self.width, anchor_x=self._get_anchors_x(),
+                             align=self._get_text_alignment(), anchor_x=self._get_anchors_x(),
                              anchor_y=self._get_anchors_y())
 
     def _get_text_alignment(self):
@@ -68,9 +86,9 @@ class Label(Control):
 class LocalizedLabel(Label):
     def __init__(self, position: Point, key: str="LocalizedText/None",
                  size: int=12):
-        super().__init__(position, key, size)
         self.loc_text = LocalizedText(key)
         self.loc_font_name = ""
+        super().__init__(position, key, size)
 
     def get_text(self):
         return str(self.loc_text)
@@ -82,17 +100,16 @@ class LocalizedLabel(Label):
 
 
 class Tooltip(Container, AnimatedControl):
-    def __init__(self, color: tuple=arcade.color.BLACK, width: int=75, height: int=50, duration: float=0.5, text=""):
+    def __init__(self, color: tuple=arcade.color.BLACK, width: int=75, height: int=30, duration: float=0.35, text=""):
         super().__init__(Point(0, 0), width, height)
         AnimatedControl.__init__(self)
         self._background_drawn = True
         self._color = color
-        self.padding = Padding(5, 5, 5, 5)
+        self.padding = Padding(10, 10, 10, 10)
         r, g, b = color
         self.back_color = (r, g, b, 0)
-        self.caption = LocalizedLabel(Point(0, 0),size=14)
+        self.caption = LocalizedLabel(Point(0, 0), size=14)
         self.text = self.caption.loc_text
-        self.caption.alignment = AlignStyle.AlignYStyle.MIDDLE
         self.caption.fore_color = arcade.color.WHITE
         self.add_child(self.caption)
         self.opacity = 0
@@ -106,13 +123,17 @@ class Tooltip(Container, AnimatedControl):
         self._shape_list.center_x = SCREEN_WIDTH // 2
         self._shape_list.center_y = SCREEN_HEIGHT // 2
         self._append_to_shape_list()
-        
+        self._autosize()
 
     def _generate_sequences(self, prefab):
         self.animator.add_sequence(ControlSequence(self, self.duration, prefab))
 
+    def _autosize(self):
+        self.width = self.caption.width + self.padding.left + self.padding.right
+
     def draw(self):
         super().draw()
+        self._autosize()
 
     def _append_to_shape_list(self):
         shape = arcade.create_rectangle_filled(self.position.x + (self.width//2), self.position.y,

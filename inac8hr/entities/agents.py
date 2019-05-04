@@ -14,6 +14,7 @@ class AgentUnit(Unit, AnimatedEntity):
         super().__init__(texture_list, pos, scaling)
         AnimatedEntity.__init__(self, texture_list, pos, anim_sprite=self.sprite)
         self.decay_textures = []
+        self.velocity = 1
         self.next_direction = DIR_STILL
         self.switches = list(switches)
         self.survived = False
@@ -55,11 +56,9 @@ class AgentUnit(Unit, AnimatedEntity):
     def move(self):
         if self.check_if_overlapping():
             self.board_position = self.next_board_pos
-            #reset_pos_x, reset_pos_y = LocationUtil.get_sprite_position(self.board_position[0], self.board_position[1])
         else:
             x, y = self.sprite.position[0], self.sprite.position[1]
-            rand_velc = 2#(random.randint(1,50)/20)
-            #self.set_position(x + DIR_OFFSETS[self.next_direction][1]*rand_velc, y + DIR_OFFSETS[self.next_direction][0]*rand_velc)
+            rand_velc = self.velocity
             self.sprite.change_x = DIR_OFFSETS[self.next_direction][1]*rand_velc
             self.sprite.change_y = DIR_OFFSETS[self.next_direction][0]*rand_velc
             self.sprite.update()

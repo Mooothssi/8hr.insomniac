@@ -19,12 +19,11 @@ class LV1Scoring(ScoringEngine):
         self.valid_count = 0
         self.jumping_limit = 580
         self.mode_factor = ScoringFactor.EASY_FACTOR
+        self.velocity_factors = [ScoringFactor.SLOW_FACTOR, ScoringFactor.MEDIUM_FACTOR, ScoringFactor.FAST_FACTOR, ScoringFactor.FAST_FACTOR]
         self.audio = AudioEngine.get_instance()
-
 
     def recount_ballot(self, generators: list):
         missing_valid_count = self.voter_count - self.valid_count
-        # self.total_score += self.valid_count - self.jumped_count - missing_valid_count
         self.total_score -= missing_valid_count
         self.on_score_change()
         self.jumped_count = 0
@@ -53,6 +52,13 @@ class LV1Scoring(ScoringEngine):
 
     def decrement_turnout(self):
         self.turnout -= 1
+
+    def adjust_velocity(self, units):
+        for unit in units:
+            unit.velocity = self.velocity_factors[0]
+        sp = self.velocity_factors[0]
+        self.velocity_factors.pop(0)
+        self.velocity_factors.append(sp)
 
     def on_score_change(self, *args):
         self.jumped = self.turnout > self.voter_count
@@ -85,6 +91,7 @@ class LV1Level(Level):
         # self.generate_enemies()
         for g in self.generators:
             g.generate(self)
+        self.scoring.adjust_velocity(self.enemies)
         self.scoring.recount_ballot(self.generators)
 
     def calculate_the_dead(self, enemy: Ballot):

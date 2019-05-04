@@ -17,7 +17,6 @@ class Localization():
         self.default_lang = default
         self.add_language(Language("English (US)", "en_US", LOC_TEXTS_EN_US))
         self.add_language(Language("Thai", "th_TH", LOC_TEXTS_TH))
-        self.Instance = self
 
     @staticmethod
     def instance():
@@ -33,9 +32,9 @@ class Localization():
 
 
 class LocalizedText:
-    def __init__(self, key, locale=Localization()):
+    def __init__(self, key):
         self.key = key
-        self.locale = locale
+        self.locale = Localization.instance()
 
     def get(self):
         self.locale.get_translated_text(self.key)

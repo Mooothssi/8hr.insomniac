@@ -1,6 +1,8 @@
 from inac8hr.manager import GameManager
 from i18n.loc import LocalizedText
 from inac8hr.anim import *
+import pyglet
+import pyglet.clock
 from pyglet.gl import *
 from pyglet.window import FPSDisplay
 import arcade
@@ -10,13 +12,14 @@ GAME_TITLE = str(LocalizedText('Game/Title'))
 SCREEN_WIDTH = 1920  # 18*40
 SCREEN_HEIGHT = 1000  # 12*40
 
-
 class InsomniaGame(arcade.Window):
     def __init__(self, width, height, title, fullscreen=False):
         super().__init__(width, height, title, fullscreen)
         self.manager = GameManager(resolution=(width, height))
         self.manager.load_sprites(width, height)
         self.manager.fullscreen = fullscreen
+        self.text = pyglet.resource.image("assets/images/bck.png")
+        self.config.alpha_size = 8
         self.resolution = 0, 0
 
     def on_draw(self):
