@@ -3,6 +3,7 @@ from typing import List
 from typing import Union
 from .sprite import Sprite, Texture
 from arcade.text import Text
+from arcade.color import BLACK
 import PIL
 
 RGB = Union[Tuple[int, int, int], List[int]]
@@ -167,8 +168,6 @@ class PILText:
 
     @staticmethod
     def determine_dimensions(control, text: str,
-                             start_x: float, start_y: float,
-                             color: Color,
                              font_size: float = 12,
                              width: int = 0,
                              align: str = "left",
@@ -183,7 +182,6 @@ class PILText:
         scale_up = 5
         scale_down = 5
         font_size *= scale_up
-        key = f"{text}{color}{font_size}{width}{align}{font_name}{bold}{italic}"
         label = Text()
 
         # Figure out the font to use
@@ -277,43 +275,14 @@ class PILText:
         image = PIL.Image.new("RGBA", text_image_size)
         draw = PIL.ImageDraw.Draw(image)
 
-        # Convert to tuple if needed, because the multiline_text does not take a
-        # list for a color
-        if isinstance(color, list):
-            color = tuple(color)
-        draw.multiline_text((image_start_x, image_start_y), text, color, align=align, font=font)
+        draw.multiline_text((image_start_x, image_start_y), text, BLACK, align=align, font=font)
         image = image.resize((width // scale_down, text_height // scale_down), resample=PIL.Image.LANCZOS)
 
         text_sprite = Sprite()
-        text_sprite._texture = Texture(key)
-        text_sprite._texture.image = image
-
         text_sprite.image = image
-        text_sprite.texture_name = key
         text_sprite.width = image.width
         text_sprite.height = image.height
 
-        if anchor_x == "left":
-            text_sprite.center_x = start_x + text_sprite.width / 2
-        elif anchor_x == "center":
-            text_sprite.center_x = start_x
-        elif anchor_x == "right":
-            text_sprite.right = start_x
-        else:
-            raise ValueError(f"anchor_x should be 'left', 'center', or 'right'. Not '{anchor_x}'")
-
-        if anchor_y == "top":
-            text_sprite.center_y = start_y + text_sprite.height / 2
-        elif anchor_y == "center":
-            text_sprite.center_y = start_y
-        elif anchor_y == "bottom" or anchor_y == "baseline":
-            text_sprite.bottom = start_y
-        else:
-            raise ValueError(f"anchor_x should be 'top', 'center', 'bottom', or 'baseline'. Not '{anchor_y}'")
-
-        text_sprite.angle = rotation
-
-        PILText.cache[key] = label
         return text_sprite.width, text_sprite.height
 
     @staticmethod

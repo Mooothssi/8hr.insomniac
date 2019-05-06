@@ -47,9 +47,10 @@ class UserEvent:
     MOUSE_PRESS = 1
     MOUSE_MOTION = 2
     MOUSE_RELEASE = 3
-    KEY_PRESS = 4
-    KEY_RELEASE = 5
-    WINDOW_RESIZE = 6
+    MOUSE_SCROLL = 4
+    KEY_PRESS = 5
+    KEY_RELEASE = 6
+    WINDOW_RESIZE = 7
 
 #
 # Keymaps for each combination of pressed keys

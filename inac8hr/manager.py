@@ -14,7 +14,6 @@ from inac8hr.globals import GAME_PREFS
 from inac8hr.utils import LocationUtil
 from inac8hr.anim import *
 from inac8hr.imports import *
-from i18n.loc import Localization
 
 
 class GameManager():

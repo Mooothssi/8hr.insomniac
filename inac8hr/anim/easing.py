@@ -31,6 +31,8 @@ class EasingBase:
         curr_t = self.limit[0] * (1 - alpha) + self.limit[1] * alpha
         if self.reverse:
             t = self.duration - curr_t
+            if alpha >= self.duration:
+                return self.end
         else:
             t = curr_t
         t /= self.duration

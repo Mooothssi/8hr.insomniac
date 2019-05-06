@@ -2,6 +2,7 @@ import arcade
 from inac8hr.gui import PaneTile, Point
 from i18n.loc import LocalizedText
 from inac8hr.globals import GAME_PREFS
+from . import PaperShredderUnit, CalculatorUnit
 
 VALID_PLACEMENT = 1
 INVALID_PLACEMENT = 0
@@ -13,35 +14,40 @@ class UnitInfo:
         (e.g. coverage radius, sprite assets, description)\n
         Also serves as a model of a Defender
     """
-    def __init__(self, loc_name):
+    def __init__(self, loc_name, unit_type):
         self.unit_name = loc_name
+        self.unit_type = unit_type
         self.view_image = None
         self.strength = 1
         self.coverage_radius = 1
         self.descriptor = ""
         self.blueprint = None
         self.abilities = None
+        self.unlocked = False
         self.thumbnail = arcade.load_texture("assets/images/chars/avail.png")
 
 
 class PaperShredderUnitInfo(UnitInfo):
     def __init__(self):
-        super().__init__(LocalizedText("Units/Def/PPS/Name"))
+        super().__init__(LocalizedText("Units/Def/PPS/Name"), PaperShredderUnit)
         self.strength = 1
         self.coverage_radius = 1
         self.description = LocalizedText("Units/Def/PPS/Desc")
-        self.blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"], scaling=GAME_PREFS.scaling)
+        self.blueprint = UnitBlueprint(["assets/images/chars/unavail.png", 
+                                        "assets/images/chars/avail.png"], scaling=GAME_PREFS.scaling)
         self.abilities = None
 
 
 class CalculatorUnitInfo(UnitInfo):
     def __init__(self):
-        super().__init__(LocalizedText("Units/Def/Calc/Name"))
-        self.strength = 1
+        super().__init__(LocalizedText("Units/Def/Calc/Name"), CalculatorUnit)
+        self.strength = 10
         self.coverage_radius = 1
         self.description = LocalizedText("Units/Def/Calc/Desc")
-        self.blueprint = UnitBlueprint(["assets/images/chars/avail.png", "assets/images/chars/unavail.png"], scaling=GAME_PREFS.scaling)
+        self.blueprint = UnitBlueprint(["assets/images/chars/calculator.png", 
+                                        "assets/images/chars/calculator.png"], scaling=GAME_PREFS.scaling)
         self.abilities = None
+        self.thumbnail = arcade.load_texture("assets/images/chars/thumb_calc.png")
 
 
 class UnitBlueprint():
@@ -91,4 +97,4 @@ class In8acUnitInfo:
 
     @classmethod
     def get_all_as_pane_tile(cls):
-        return [PaneTile(Point(0, 0), model=i) for i in In8acUnitInfo.INFO_LIST]
+        return [PaneTile(Point(0, 0), model=i) for i in cls.INFO_LIST]

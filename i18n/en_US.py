@@ -4,16 +4,18 @@ LOC_TEXTS_EN_US = {
         "Game/Name/Leetspeak": "8-h0ur 1ns0mn18c",
         "LocalizedText/None": "None",
         "HUD/Loading": "Loading",
+        "Levels/LV1Ballot/Name": "the Jumping Ballot",
         "Tools/Select/TooltipName": "Select",
         "Tools/Place/TooltipName": "Place (Ctrl + P)",
+        "Tools/Exit/TooltipName": "Exit to Main Menu",
         "Units/Def/Calc/Name": "Missing Calculator",
         "Units/Def/Calc/Desc": "A machine used for calculating things,"
                                "esp. when the public eye watches\n"
                                "Damage: -10 on jumped ballots\n"
                                "Accuracy: 88% (another 12% depending on the User's luck)\n"
                                "Weakness: Sometimes, it's missing on duty.",
-        "Units/Def/DoNothingAgency/Name": "The Election Commission",
-        "Units/Def/DoNothingAgency/Desc": "An independent agency that administrate elections"
+        "Units/Def/DoNothingAgency/Name": "The Election Commission Precinct",
+        "Units/Def/DoNothingAgency/Desc": "An independent agency subdivision that administrate elections in the area"
                                           "Maybe they'll just do nothing and chill out on (field) trips.\n"
                                           "Damage: randomly around -5 to -50 on either ballots\n"
                                           "Accuracy: 50%\n"
@@ -21,7 +23,7 @@ LOC_TEXTS_EN_US = {
         "Units/Gen/PollingSta/Name": "Polling Station",
         "Units/Gen/PollingSta/Desc": "A place where voters gather around"
                                      "to cast their votes. Hopefully, this place do not mistakenly consider some ballots spoilt,\n"
-                                     "while some others do\n"
+                                     "while some others do.\n"
                                      "Generates: 25 ballots/cycle (including valid and spoilt one)\n"
                                      "Your task is to carefully inspect the vote count and turnout.",
         "Events/HowlingDog/Name": "The Howling Dog Night",

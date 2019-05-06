@@ -6,12 +6,14 @@ from inac8hr.entities import In8acUnitInfo
 from inac8hr.commands import CommandHandler
 from inac8hr.tools import ToolHandler
 from inac8hr.globals import GAME_PREFS
+import i18n
 
 #
 # the Jumping Ballot
 #
 # TODO: Add an InspectorPanel.
 #
+
 
 class Level1HUD(UILayer):
 
@@ -22,7 +24,7 @@ class Level1HUD(UILayer):
         noto = "assets/fonts/NotoSans-Regular"
         self.lblFPS = Label(Point(16, 20), font_name=noto, cached=False)
         self.lblTest = Label(Point(86, 20), font_name=noto)
-        self.lblStatus = Label(Point(16+disp, 8), font_name=noto)
+        self.lblStatus = LocalizedLabel(Point(16+disp, 8), "Intro/Instructions")
         self.lblTotalScore = Label(Point(1065, 650-56), font_name=noto, size=78, color=arcade.color.WHITE)
         self.lblTotalScore.visible = False
 
@@ -80,6 +82,7 @@ class Level1HUD(UILayer):
         self.btnSelect = MenuButton(Point(0,0), "assets/images/ui/btn_SelectTool_normal.png", width=85, height=78)
         self.btnSelect.append_texture("assets/images/ui/btn_SelectTool_pressed.png")
         self.btnSelect.alignment = AlignStyle.TOP_CENTER
+        self.btnSelect.click += self.btnSelect_Click
 
         self.btnPlace = MenuButton(Point(0,0), "assets/images/ui/btnPlace_0.png", width=85, height=78)
         self.btnPlace.append_texture("assets/images/ui/btnPlace_1.png")
@@ -99,6 +102,7 @@ class Level1HUD(UILayer):
 
         self.btnSelect.set_localized_tooltip("Tools/Select/TooltipName")
         self.btnPlace.set_localized_tooltip("Tools/Place/TooltipName")
+        self.btnToMainMenu.set_localized_tooltip("Tools/Exit/TooltipName")
 
 #
 #
@@ -124,18 +128,17 @@ class Level1HUD(UILayer):
         self.btnMM.click += self.btnToMM_Click
         self.btnMM.visible = False
 
+#
+#  Unit placement selection view
+#
 
-
-
-        self.container1 = ScrollablePaneView(Point(100, 0), 640, 65)
+        self.container1 = ScrollablePaneView(Point(200, 0), 338, 109, 81, 81, 11)
+        self.container1.set_background_image("assets/images/ui/pnlSelectAgent.png")
         self.container1.visible = False
         self.container1.selected_index_changed_event += self.on_select_blueprint
         for e in In8acUnitInfo.get_all_as_pane_tile():
             self.container1.add_tile(e)
-
-        for _ in range(7):
-            self.container1.add_tile(PaneTile(Point(0, 0), width=75, color=arcade.color.AMAZON))
-
+        self.container1.set_item_background_image("assets/images/ui/pnlSelectUnitItem.png")
         self._register_controls()
 
 #
@@ -158,7 +161,6 @@ class Level1HUD(UILayer):
 
         self.tool_handler = ToolHandler(self.parent.dispatcher, self.parent.lv1)
         self.cmd_handler = CommandHandler(self.tool_handler)
-        # self.parent.dispatcher.add_dispatcher(self.parent.lv1)
         self.parent.dispatcher.register_dispatcher(self.cmd_handler)
         self.parent.dispatcher.register_dispatcher(self.tool_handler)
 
@@ -181,8 +183,8 @@ class Level1HUD(UILayer):
         self.register_control(self.lblTotalScore)
 
     def draw(self):
-        super().draw()
         self.tool_handler.draw()
+        super().draw()
 
     def on_cycle_changed(self, sender, *args):
         self.lblCycle.text = sender.current_cycle
@@ -201,9 +203,6 @@ class Level1HUD(UILayer):
     def on_select_blueprint(self, sender, *args):
         if self.tool_handler.is_tool_utilized('placement') and sender.selected_item.model is not None:
             self.tool_handler.current_tool.change_blueprint(sender.selected_item.model)
-
-    def test2(self, *args):
-        pass
 
     def on_cycle_end(self, *args):
         self.parent.freeze_canvas()
@@ -224,6 +223,11 @@ class Level1HUD(UILayer):
     def on_window_resize(self, *args):
         super().on_window_resize(*args)
         self.lv1.on_resize()
+
+    def btnSelect_Click(self, sender, parent, x, y, button, *args):
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            self.cmd_handler.execute_by_keyword('select')
+            i18n.Localization.instance().set_language_by_code("th_TH")
 
     def btnPlace_Click(self, sender, parent, x, y, button, *args):
         if button == arcade.MOUSE_BUTTON_LEFT:

@@ -1,6 +1,7 @@
 import time
 import types
 from arcade.sprite import Sprite
+from ..events import Event
 from inac8hr.gui import Point
 from inac8hr.anim.base import AnimProperty
 from inac8hr.anim.sequences import SceneSequence, ControlSequenceGroup, ControlSequence
@@ -110,6 +111,7 @@ class ControlAnimator(AnimatorBase):
         super().__init__()
         self.start_time = time.time()
         self.sequence_groups = []
+        self.animated = Event(self)
         self.__current_group__ = 0
 
     def add_sequence(self, seq: ControlSequence):
@@ -163,6 +165,7 @@ class ControlAnimator(AnimatorBase):
             alpha_time = self.get_elapsed()
             if not self.ended():
                 self.current_group.animate(alpha_time)
+                self.animated(self.current_group)
             else:
                 self.current_group.end()
                 self.__animating__ = False

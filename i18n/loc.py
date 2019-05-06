@@ -3,10 +3,11 @@ from i18n.th_TH import *
 
 
 class Language:
-    def __init__(self, full_name, short_name, dictionary={}):
+    def __init__(self, full_name, short_name, dictionary={}, font_name=None):
         self.short_name = short_name
         self.full_name = full_name
         self.dictionary = dictionary
+        self.font_name = font_name
 
 
 class Localization():
@@ -15,8 +16,11 @@ class Localization():
     def __init__(self, default="en_US"):
         self.languages = {}
         self.default_lang = default
-        self.add_language(Language("English (US)", "en_US", LOC_TEXTS_EN_US))
-        self.add_language(Language("Thai", "th_TH", LOC_TEXTS_TH))
+        self.add_language(Language("English (US)", "en_US", LOC_TEXTS_EN_US,
+                                   "assets/fonts/NotoSans-Regular"))
+        self.add_language(Language("Thai", "th_TH", LOC_TEXTS_TH,
+                                   "assets/fonts/SansThai-Regular"))
+        self.initialized = True
 
     @staticmethod
     def instance():
@@ -26,9 +30,18 @@ class Localization():
 
     def add_language(self, language: Language):
         self.languages[language.short_name] = language
+        
+    def set_language_by_code(self, lang_short_name: str):
+        self.default_lang = lang_short_name
 
     def get_translated_text(self, key="!ERROR!"):
-        return self.languages[self.default_lang].dictionary[key]
+        if key in self.languages[self.default_lang].dictionary:
+            return self.languages[self.default_lang].dictionary[key]
+        else:
+            return f"!MISSING! {key}!"
+
+    def get_localized_font_name(self):
+        return self.languages[self.default_lang].font_name
 
 
 class LocalizedText:

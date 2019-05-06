@@ -14,6 +14,7 @@ class Container(Control):
         self.padding = Padding(0, 0, 0, 0)
         self._child_spr_list = ExtendedSpriteList()
         self._shape = None
+        self._texture = None
         self._background_drawn = True
         self.window_resize = Event(self)
         super().__init__(position, width, height, back_color=color)
@@ -25,9 +26,13 @@ class Container(Control):
 
     def draw(self):
         if self._background_drawn:
-            self._shape = arcade.create_rectangle_filled(self.position.x + self.width//2, self.position.y + self.height//2,
-                                                    self.width, self.height, self.back_color)
-            self._shape.draw()
+            if self._texture is None:
+                self._shape = arcade.create_rectangle_filled(self.position.x + self.width//2, self.position.y + self.height//2,
+                                                        self.width, self.height, self.back_color)
+                self._shape.draw()
+            else:
+                DrawCommands.draw_textured_rectangle(self.position.x + self.width//2, self.position.y + self.height//2,
+                                                    self.width, self.height, self._texture)
             # arcade.draw_xywh_rectangle_filled(self.position.x, self.position.y,
             #                                         self.width, self.height, self.back_color)
         if len(self.children) > 0:

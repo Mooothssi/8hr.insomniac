@@ -11,6 +11,7 @@ class Level1Scene(Scene):
     def __init__(self):
         self.frozen = True
         super().__init__("LV1Scene")
+        self.scene_start += self.on_scene_start
         self.lv1 = LV1Level()
         hud = Level1HUD(self)
         lv1_canvas = PlayableSceneLayer("canvas_layer", self.lv1)
@@ -19,6 +20,13 @@ class Level1Scene(Scene):
         self.fps = FPSCounter()
         self.fps_text = hud.main_element
         self.normal_text = hud.get_by_index(2)
+
+    def on_scene_start(self, *args):
+        self._reinit_scene()
+
+    def _reinit_scene(self):
+        self.lv1.restart()
+        
 
     def freeze_canvas(self):
         self.frozen = True

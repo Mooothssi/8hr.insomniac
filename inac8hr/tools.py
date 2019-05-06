@@ -1,9 +1,10 @@
 import arcade, math
-from inac8hr.entities import UnitBlueprint, UnitInfo, VALID_PLACEMENT, INVALID_PLACEMENT
+from inac8hr.entities import UnitBlueprint, UnitInfo, VALID_PLACEMENT, INVALID_PLACEMENT, PaperShredderUnit
 from inac8hr.utils import LocationUtil
 from inac8hr.events import EventDispatcher
 from inac8hr.levels import Level
 from inac8hr.globals import *
+
 
 class BaseTool():
     def __init__(self, level: Level, name: str="base"):
@@ -33,6 +34,7 @@ class UnitPlacementTool(PositionTool):
         super().__init__(level, "placement")
         self.unit_blueprint = UnitBlueprint(["assets/images/chars/unavail.png", "assets/images/chars/avail.png"], scaling=GAME_PREFS.scaling, initial_loc=initial_loc)
         self.unit_blueprint.sprite.scale = GAME_PREFS.scaling
+        self.unit_type = PaperShredderUnit
         self.current_cursor_pos = initial_loc
 
     def eval_availability(self, x, y):
@@ -49,6 +51,7 @@ class UnitPlacementTool(PositionTool):
             self.unit_blueprint.change_state(0)
 
     def change_blueprint(self, blueprint_info: UnitInfo):
+        self.unit_type = blueprint_info.unit_type
         self.unit_blueprint = blueprint_info.blueprint
         self.unit_blueprint.sprite.set_position(self.current_cursor_pos[0], self.current_cursor_pos[1])
 
@@ -63,7 +66,7 @@ class UnitPlacementTool(PositionTool):
         if self.eval_availability(x, y):
             self.unit_blueprint.location = LocationUtil.get_plan_position(x,y, True)
             r, c = self.unit_blueprint.location
-            self.level.place_defender(r, c)
+            self.level.place_defender(r, c, self.unit_type)
             self.unit_blueprint.change_state(INVALID_PLACEMENT)
 
     def on_resize(self):

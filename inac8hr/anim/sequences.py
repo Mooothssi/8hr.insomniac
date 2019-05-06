@@ -16,8 +16,8 @@ class ControlSequenceGroup():
             seq.animate(time)
 
     def end(self):
-        pass
-        # raise NotImplementedError
+        for seq in self.sequences:
+            seq.animate(self.duration)
 
     @property
     def last_sequence(self):
@@ -113,7 +113,6 @@ class SceneSequence(TemporalSequence):
         if not self.played:
             self.played = True
             self.on_start()
-
         for prop in self.props:
             if prop.start is None:
                 prop.start = getattr(self.control, prop.prop_name)

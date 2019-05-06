@@ -24,14 +24,10 @@ class Label(Control):
         r, g, b = color
         self._color = color
         self.fore_color = (r, g, b, self.opacity)
-        self.font_name = font_name
+        self._font_name = font_name
         self.__font_size__ = size
         self.cached = cached
-        self.width, self.height = PILText.determine_dimensions(self, self.text, self.position.x, self.position.y,
-                                    self.fore_color, self.font_size, font_name=self.font_name,
-                                    align=self._get_text_alignment(), width=self.width, anchor_x=self._get_anchors_x(),
-                                    anchor_y=self._get_anchors_y())
-        print(self.width, self.height)
+        self.width, self.height = PILText.determine_dimensions(self, self.text)
         if self.cached and self.visible:
             self.set_cached_sprite(PILText.render_text(self.text, self.position.x, self.position.y,
                                     self.fore_color, self.font_size, font_name=self.font_name,
@@ -82,12 +78,19 @@ class Label(Control):
         else:
             return "bottom"
 
+    def get_font_name(self):
+        return self._font_name
+
+    def set_font_name(self, value):
+        self._font_name = value
+
+    font_name = property(get_font_name, set_font_name)
+
 
 class LocalizedLabel(Label):
     def __init__(self, position: Point, key: str="LocalizedText/None",
                  size: int=12):
         self.loc_text = LocalizedText(key)
-        self.loc_font_name = ""
         super().__init__(position, key, size)
 
     def get_text(self):
@@ -96,7 +99,12 @@ class LocalizedLabel(Label):
     def set_text(self, value):
         self._text = value
 
+    def get_font_name(self):
+        return self.loc_text.locale.get_localized_font_name()
+
     text = property(get_text, set_text)
+    font_name = property(get_font_name, Label.set_font_name)
+
 
 
 class Tooltip(Container, AnimatedControl):
@@ -114,7 +122,7 @@ class Tooltip(Container, AnimatedControl):
         self.add_child(self.caption)
         self.opacity = 0
         self.duration = duration
-        self.await_duration = 0.75
+        self.await_duration = 0.5
         self._triggered = False
         self.visible = True
         self._shape_list = arcade.ShapeElementList()
@@ -149,7 +157,7 @@ class Tooltip(Container, AnimatedControl):
         AnimatedControl.tick(self)
         if self._triggered and time.time() - self._mouse_enter_time > self.await_duration:
             self._triggered = False
-            self.fade(AnimFXPrefabs.FadeInTooltip)    
+            self.fade(AnimFXPrefabs.FadeInTooltip)
 
     def on_mouse_enter(self, *args):
         x, y, dx, dy = args[-4], args[-3], args[-2], args[-1]

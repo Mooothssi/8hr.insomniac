@@ -25,6 +25,13 @@ class MainMenuLayer(UILayer):
         self.bckMainMenu.alignment = AlignStyle.MIDDLE_CENTER
         self.bckMainMenu.align_center()
 
+        self.cmbSel = DropdownMenu(Point(0, 500), 125, 50)
+        self.it1 = DropdownItem()
+        self.cmbSel.add(self.it1)
+        self.cmbSel.add(DropdownItem())
+        self.cmbSel.add(DropdownItem())
+
+
         self._register_controls()
 
     def _register_controls(self):
@@ -32,6 +39,7 @@ class MainMenuLayer(UILayer):
         self.register_control(self.btnSelect)
         self.register_control(self.btnInstr)
         self.register_control(self.btnQuit)
+        self.register_control(self.cmbSel)
 
     def btnStartGame_Click(self, sender, *args):
         self.parent.end_scene_and_go_to('LV1Scene')

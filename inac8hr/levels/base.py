@@ -6,11 +6,12 @@ from .tilemaps import TILEMAP
 from ..layers import PlayableSceneLayer
 from ..utils import LocationUtil
 from ..globals import *
-from ..entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList, PollingStaUnit, Bullet
+from ..entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList, PollingStaUnit, Bullet, PaperShredderUnit
 from ..imports import *
 from ..cycles import CycleClock
 from ..scoring import ScoringEngine
 from ..tuning import ScoringFactor
+from abc import abstractmethod
 
 BOARD = [
         '%X%###############',
@@ -33,6 +34,7 @@ class Level(PlayableSceneLayer):
     registered_inputs = [UserEvent.WINDOW_RESIZE]
 
     def __init__(self):
+        self.scaling = 1
         self.scoring = ScoringEngine()
         self.cycle = CycleClock()
         self.full_health = 50
@@ -41,11 +43,12 @@ class Level(PlayableSceneLayer):
         self.enemies = UnitList()
         self.particles = UnitList()
         self.__state__ = LevelState.PLAYING
-        self.scaling = 1
         self.score = 0
         self.sprite_list = None
+        self.defenders.scale(GAME_PREFS.scaling)
+        self.map_plan.scale(GAME_PREFS.scaling)
+        self.play()
         # self.generate_enemies()
-        # self.generate_ballots()
 
     #
     # Arcade base overload functions
@@ -70,6 +73,9 @@ class Level(PlayableSceneLayer):
     #
     #
 
+    def restart(self):
+        pass
+
     def set_state(self, value):
         self.__state__ = value
 
@@ -77,7 +83,6 @@ class Level(PlayableSceneLayer):
         return self.__state__
 
     state = property(get_state, set_state)
-
 
     def pause(self):
         for e, d in zip(self.enemies, self.defenders.values()):
@@ -112,9 +117,8 @@ class Level(PlayableSceneLayer):
             sorted(dist, key=lambda x: x[0])
             if len(dist) > 0:
                 selected_enemy = dist[0][1]
-            if selected_enemy is not None and selected_enemy.jumped:# and not selected_enemy.targeted:
-                d.target_pos = selected_enemy.position
-                bullet = d.shoot()
+            if selected_enemy is not None and selected_enemy.jumped: # and not selected_enemy.targeted:
+                bullet = d.shoot(selected_enemy.position)
                 if bullet is not None:
                     self.particles.append(bullet)
             d.play()
@@ -148,8 +152,8 @@ class Level(PlayableSceneLayer):
             self.enemies.append(enemy)
         self.full_health += 80
 
-    def place_defender(self, x, y, category=None):
-        self.defenders[(x, y)] = DefenderUnit(["assets/images/chars/shredder_40px.png", "assets/images/chars/unavail.png"], (x, y), GAME_PREFS.scaling)
+    def place_defender(self, x, y, category=PaperShredderUnit):
+        self.defenders[(x, y)] = category((x, y), GAME_PREFS.scaling)
 
     def is_defender_at(self, x, y):
         return (x, y) in self.defenders.units

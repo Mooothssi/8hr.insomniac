@@ -12,6 +12,7 @@ GAME_TITLE = str(LocalizedText('Game/Title'))
 SCREEN_WIDTH = 1920  # 18*40
 SCREEN_HEIGHT = 1000  # 12*40
 
+
 class InsomniaGame(arcade.Window):
     def __init__(self, width, height, title, fullscreen=False):
         super().__init__(width, height, title, fullscreen)
@@ -28,6 +29,7 @@ class InsomniaGame(arcade.Window):
         self.manager.draw()
 
     def on_resize(self, width: float, height: float):
+        super().on_resize(width, height)
         if not (self.resolution[0] == width and self.resolution[1] == height):
             self.resolution = width, height
             self.manager.reload_sprites(width, height)
@@ -36,6 +38,9 @@ class InsomniaGame(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.F11:
+            self.manager.fullscreen = not self.manager.fullscreen
+            self.set_fullscreen(self.manager.fullscreen)
+        elif key == arcade.key.ESCAPE:
             self.manager.fullscreen = not self.manager.fullscreen
             self.set_fullscreen(self.manager.fullscreen)
         self.manager.on_key_press(key, modifiers)
@@ -53,10 +58,12 @@ class InsomniaGame(arcade.Window):
     def on_mouse_motion(self, x, y, dx, dy):
         self.manager.on_mouse_motion(x, y, dx, dy)
 
+    def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
+        super().on_mouse_scroll(x, y, scroll_x, scroll_y)
+
     def update(self, delta):
         self.manager.update(delta)
 
 if __name__ == '__main__':
     game = InsomniaGame(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE)
     arcade.run()
-

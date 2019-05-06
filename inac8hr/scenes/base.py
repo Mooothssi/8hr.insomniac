@@ -116,6 +116,7 @@ class Viewport():
         self.__buffered_scene__ = self.scenes[self.__current_scene_index__]
         self.dispatcher.register_dispatcher(self.current_scene)
         self.current_scene.scene_end += self.on_scene_changed
+        self.current_scene.scene_start()
 
     def on_scene_changed(self, sender, *args):
         if len(args) == 1:

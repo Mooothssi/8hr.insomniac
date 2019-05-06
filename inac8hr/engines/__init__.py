@@ -18,7 +18,6 @@ class GameEngine:
         self.viewport = None
         self._lap_time = 0
         self.lap()
-        Localization()
 
     def lap(self):
         self._lap_time = time.time()
@@ -30,8 +29,8 @@ class GameEngine:
         self.logger.Intro("######### Now initializing 8HR INSOMNIAC #########")
         self.logger.Log("Loading up audio...")
         self.audio.load_sound_library()
-        self.audio.add_source_from_filename("assets/audio/spoilt_ballot.wav","AGENTS/BALLOT_SPOILT_COUNTED")
-        self.audio.add_source_from_filename("assets/audio/rockHit2.wav","PARTICLES/ROCK_HIT")
+        self.audio.add_source_from_filename("assets/audio/spoilt_ballot.wav", "AGENTS/BALLOT_SPOILT_COUNTED")
+        self.audio.add_source_from_filename("assets/audio/rockHit2.wav", "PARTICLES/ROCK_HIT")
         self.logger.Log("Loading scenes...")
         self.viewport = Viewport(self.event_dispatcher)
         self.load_scenes()

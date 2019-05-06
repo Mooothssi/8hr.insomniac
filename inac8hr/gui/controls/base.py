@@ -316,7 +316,11 @@ class Control():
 class AnimatedControl():
     def __init__(self):
         self.animator = ControlAnimator()
+        self.animator.animated += self.on_animated
 
     def tick(self):
         self.animator.update()
+
+    def on_animated(self, *args):
+        pass
 

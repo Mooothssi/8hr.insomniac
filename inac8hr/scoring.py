@@ -7,6 +7,7 @@ class ScoringEngine():
         self.total_score = 0
         self.factor = 1
         self.stages = 1
+        self.energy_point = 1
         self.increment = 1
         self.score_changed = Event(self)
 

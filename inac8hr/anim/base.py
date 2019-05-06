@@ -7,12 +7,16 @@ class AnimProperty:
     PositionX = 1
     PositionY = 2
     Opacity = 4
+    Width = 8
+    Height = 16
     Position = PositionX | PositionY
-    PROPS = [NONE, PositionX, PositionY, Opacity, Position]
+    PROPS = [NONE, PositionX, PositionY, Opacity, Position, Width, Height]
     NAMES = {
         Opacity: "opacity",
         PositionX: "position.x",
         PositionY: "position.y",
+        Width: "width",
+        Height: "height"
     }
 
 #
@@ -92,8 +96,8 @@ class AnimFX():
 
 class AnimFXPrefabs:
     NONE = AnimFX(0, AnimProperty.NONE, AnimAppearanceBehaviour.NONE)
-    FadeIn = AnimFX(1, AnimProperty.Opacity, 
+    FadeIn = AnimFX(1, AnimProperty.Opacity,
                     AnimAppearanceBehaviour.ENTRANCE, 255)
-    FadeInTooltip = AnimFX(1, AnimProperty.Opacity, 
+    FadeInTooltip = AnimFX(1, AnimProperty.Opacity,
                            AnimAppearanceBehaviour.ENTRANCE, 190)
     FadeOut = AnimFX(2, AnimProperty.Opacity, AnimAppearanceBehaviour.EXIT)
