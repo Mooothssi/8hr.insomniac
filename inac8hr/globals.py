@@ -4,7 +4,7 @@ from i18n.loc import Localization
 
 APP_VERSION = "0.2.1"
 
-DEFAULT_LIFECYCLE_TIME = 51
+DEFAULT_LIFECYCLE_TIME = 55
 
 GAME_PREFS = Preferences()
 GAME_PREFS.block_size = 40
@@ -26,9 +26,9 @@ class LevelState:
 
 
 DIR_STILL = 0
-DIR_UP = 4
-DIR_DOWN = 2
-DIR_LEFT = 3
+DIR_UP = 8
+DIR_DOWN = 4
+DIR_LEFT = 2
 DIR_RIGHT = 1
 
 DIR_OFFSETS = {

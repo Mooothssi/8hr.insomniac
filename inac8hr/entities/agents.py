@@ -17,8 +17,11 @@ class AgentUnit(Unit, AnimatedEntity):
         self.velocity = 1
         self.next_direction = DIR_STILL
         self.switches = list(switches)
+        self.pending_switches = []
         self.survived = False
         self.targeted = False
+        self.processed = False
+        self.eaten = False
         self.time_lived = 0
         self.reset_hp(full_hp)
         self.start_animating()
@@ -48,7 +51,7 @@ class AgentUnit(Unit, AnimatedEntity):
         self.health -= hp
         if self.health <= 0:
             self.dead = True
-    
+
     def won(self):
         # self.dead = True
         self.survived = True
@@ -108,7 +111,7 @@ class Ballot(AgentUnit):
             # self._show_overlay()
             self.z_order_changed(self.sprite_list)
             if not self._anim_end:
-                self.switches.append([self.exit_point, 3])
+                self.switches.append([self.exit_point, DIR_LEFT])
                 self._anim_end = True
 
     def draw(self):
@@ -118,8 +121,8 @@ class Ballot(AgentUnit):
 
     def won(self):
         super().won()
-        if self.survived and not self._overlay_flag:
-            self.switches.append([self.exit_point, 1])
+        if self.survived and not self._overlay_flag and not self.eaten:
+            self.switches.append([self.exit_point, DIR_RIGHT])
             self._overlay_flag = True
 
     def on_animated(self, *args):
@@ -135,4 +138,3 @@ class Ballot(AgentUnit):
 
     def goto_box(self, box_loc):
         pass
-

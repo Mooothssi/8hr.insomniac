@@ -68,13 +68,16 @@ class Bullet(Particle):
         self.target_pos = pos
         change_x = pos[0] - self.x1
         change_y = pos[1] - self.y1
-        if change_x == 0 or change_y == 0:
-            self.sprite.change_x, self.sprite.change_y = 0, 0
-            return
-        change_x /= abs(change_x)
-        change_y /= abs(change_y)
-        self.sprite.change_x = self.velocity*change_x
-        self.sprite.change_y = self.velocity*change_y
+        if 0 <= change_x <= Bullet.PROXIMITY_THRESHOLD:
+            self.sprite.change_x = 0
+        else:
+            change_x /= abs(change_x)
+            self.sprite.change_x = self.velocity*change_x
+        if 0 <= change_y <= Bullet.PROXIMITY_THRESHOLD:
+            self.sprite.change_y = 0
+        else:
+            change_y /= abs(change_y)
+            self.sprite.change_y = self.velocity*change_y 
 
     def play(self):
         super().play()

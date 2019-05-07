@@ -58,6 +58,8 @@ class Level1HUD(UILayer):
 
         self.testMsg3 = AnimatedTexturedMessageBox(Point(GAME_PREFS.screen_width-424, GAME_PREFS.screen_height-288), "assets/images/ui/pnl_Stats.png", width=424, height=288)
         self.testMsg3.alpha = 255
+        self.testMsg3.anchors |= Control.ANCHOR_RIGHT | Control.ANCHOR_TOP
+        self.testMsg3.set_region_from_center()
         self.testMsg3.add_control(self.lblCycle, True)
         self.testMsg3.add_control(self.lblTurnout, True)
         self.testMsg3.add_control(self.lblVoter, True)
@@ -111,6 +113,7 @@ class Level1HUD(UILayer):
         self.testMsg = AnimatedTexturedMessageBox(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), "assets/images/chars/Ballot_pink.png")
         self.testMsg2 = AnimatedTexturedMessageBox(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), "assets/images/titles/lv1.png", width=507, height=315)
         self.testMsg2.alignment = AlignStyle.MIDDLE_CENTER
+        self.testMsg2.alpha = 0
         self.testMsg2.align_center()
         self.testMsg2.add_control(self.lblTest2)
 
@@ -212,6 +215,7 @@ class Level1HUD(UILayer):
         self.lblTotalScore.visible = True
 
     def on_score_changed(self, sender, *args):
+        self.lblVoter.text = sender.voter_count
         self.lblScore.text = sender.total
         self.lblTurnout.text = str(sender.turnout)
         if sender.jumped:

@@ -107,12 +107,18 @@ class SceneControlAnimator(AnimatorBase):
 
 
 class ControlAnimator(AnimatorBase):
+    TIME_DOMAIN = 1
+    FRAME_DOMAIN = 2
+
     def __init__(self, duration=1, sequences=[]):
         super().__init__()
         self.start_time = time.time()
+        self.domain = ControlAnimator.TIME_DOMAIN
         self.sequence_groups = []
         self.animated = Event(self)
         self.__current_group__ = 0
+        self.time_per_frame = 1/60
+        self.__elapsed__ = 0
 
     def add_sequence(self, seq: ControlSequence):
         """
@@ -123,7 +129,7 @@ class ControlAnimator(AnimatorBase):
         """
         if self.__animating__:
             return
-            
+
         if len(self.sequence_groups) == 0:
             seq_group = ControlSequenceGroup(seq.duration)
             seq_group.add_sequence(seq)
@@ -154,6 +160,13 @@ class ControlAnimator(AnimatorBase):
     def current_group(self):
         return self.sequence_groups[self.__current_group__]
 
+    def get_elapsed(self):
+        if self.domain == ControlAnimator.TIME_DOMAIN:
+            return super().get_elapsed()
+        else:
+            
+            return self.__elapsed__
+
     def ended(self):
         return self.get_elapsed() >= self.current_group.duration
 
@@ -162,6 +175,8 @@ class ControlAnimator(AnimatorBase):
 
     def update(self):
         if self.__animating__:
+            if self.domain == ControlAnimator.FRAME_DOMAIN:
+                self.__elapsed__ += self.time_per_frame
             alpha_time = self.get_elapsed()
             if not self.ended():
                 self.current_group.animate(alpha_time)
@@ -171,6 +186,8 @@ class ControlAnimator(AnimatorBase):
                 self.__animating__ = False
                 if self.__current_group__ != len(self.sequence_groups) - 1:                  
                     self.__animating__ = True
+                    if self.domain == FRAME_DOMAIN:
+                        self.__elapsed__ = 0
                     self.start_time = time.time()
                     self.next()
                 else:

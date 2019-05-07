@@ -1,4 +1,4 @@
-from inac8hr.scenes import Level1Scene, MainMenuScene
+from inac8hr.scenes import Level1Scene, MainMenuScene, CodexScene
 from inac8hr.logging import Logger
 from inac8hr.events import EventDispatcher
 from inac8hr.scenes import Viewport
@@ -45,8 +45,14 @@ class GameEngine:
 
         self.lap()
         Scene1 = Level1Scene()
-        self.logger.Log(f"Scene 1 loaded (took {self.elapsed():.5f} sec)")
         self.viewport.add_scene(Scene1)
+        self.logger.Log(f"Scene 1 loaded (took {self.elapsed():.5f} sec)")
+
+        self.lap()
+        codex = CodexScene()
+        self.viewport.add_scene(codex)
+        self.logger.Log(f"WikiScene loaded (took {self.elapsed():.5f} sec)")
+        
         self.viewport.choose_scene('MainScene')
 
     @staticmethod

@@ -31,7 +31,7 @@ class Margin():
         Defines outer space of a control
         (Typically used with an anchor)
     """
-    __slots__ = ['left', 'right', 'bottom', 'top']
+    __slots__ = ('left', 'right', 'bottom', 'top')
 
     def __init__(self, left=0, bottom=0, top=0, right=0):
         self.left = left
@@ -47,7 +47,7 @@ class Padding(Margin):
     """
         Defines inner space of a control around its content.
     """
-    __slots__ = ['left', 'right', 'bottom', 'top']
+    __slots__ = ('left', 'right', 'bottom', 'top')
 
     def __str__(self):
         return f"Padding(top: {self.top}, left: {self.left}, bottom: {self.bottom}, right: {self.right})"

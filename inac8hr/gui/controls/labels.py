@@ -106,7 +106,6 @@ class LocalizedLabel(Label):
     font_name = property(get_font_name, Label.set_font_name)
 
 
-
 class Tooltip(Container, AnimatedControl):
     def __init__(self, color: tuple=arcade.color.BLACK, width: int=75, height: int=30, duration: float=0.35, text=""):
         super().__init__(Point(0, 0), width, height)

@@ -4,6 +4,7 @@ import pyglet
 from pyglet.media.player import Player
 import copy
 
+
 class AudioFile():
     def __init__(self, file_name: str):
         self.file_name = file_name
@@ -16,12 +17,12 @@ class AudioFile():
         self.source = pyglet.media.load(self.file_name)
 
     def play(self):
-        if self.source.is_queued:
-            self.source = pyglet.media.load(self.file_name)
-            self.source.play()
-        else:
-            self.source.play()
-    
+        # if self.source.is_queued:
+        #     self.source = pyglet.media.load(self.file_name)
+        #     self.source.play()
+        # else:
+        self.source.play()
+
     def pause(self):
         self.source.pause()
 
@@ -29,7 +30,7 @@ class AudioFile():
 class AudioEngine():
     _ffmpeg2_loaded = False
     _instance = None
-    
+
     def __init__(self):
         self.sources = {}
         self.player = Player()

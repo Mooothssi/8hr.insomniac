@@ -1,12 +1,75 @@
+from arcade import shader
+from PIL import Image
+import numpy as np
+import math
+
+VERTEX_SHADER = """
+#version 330
+uniform mat4 Projection;
+
+// per vertex
+in vec2 in_vert;
+in vec2 in_texture;
+
+// per instance
+in vec2 in_pos;
+in float in_angle;
+in vec2 in_scale;
+in vec4 in_sub_tex_coords;
+in vec4 in_color;
+
+out vec2 v_texture;
+out vec4 v_color;
+
+void main() {
+    mat2 rotate = mat2(
+                cos(in_angle), sin(in_angle),
+                -sin(in_angle), cos(in_angle)
+            );
+    vec2 pos;
+    pos = in_pos + vec2(rotate * (in_vert * in_scale));
+    gl_Position = Projection * vec4(pos, 0.0, 1.0);
+
+    vec2 tex_offset = in_sub_tex_coords.xy;
+    vec2 tex_size = in_sub_tex_coords.zw;
+
+    v_texture = (in_texture * tex_size + tex_offset) * vec2(1, -1);
+    v_color = in_color;
+}
+"""
+
+FRAGMENT_SHADER = """
+#version 330
+uniform sampler2D Texture;
+
+in vec2 v_texture;
+in vec4 v_color;
+
+out vec4 f_color;
+
+void main() {
+    vec4 basecolor = texture(Texture, v_texture);
+    basecolor = basecolor * v_color;
+    if (basecolor.a == 0.0){
+        discard;
+    }
+    f_color = basecolor;
+}
+"""
 
 
 class VisualRenderer:
+    def __init__(self):
+        self.vao = None
+        self.program = shader.program(
+                vertex_shader=VERTEX_SHADER,
+                fragment_shader=FRAGMENT_SHADER
+        )
+
     def _calculate_sprite_buffer(self):
 
         if len(self.sprite_list) == 0:
-            return
-
-        # Loop through each sprite and grab its position, and the texture it will be using.
+            return    
         array_of_positions = []
         array_of_sizes = []
         array_of_colors = []
@@ -26,8 +89,6 @@ class VisualRenderer:
         if self.array_of_images is None:
             new_texture = True
 
-        # print()
-        # print("New texture start: ", new_texture)
 
         for sprite in self.sprite_list:
 
@@ -37,17 +98,11 @@ class VisualRenderer:
             name_of_texture_to_check = sprite._texture.name
             if name_of_texture_to_check not in self.array_of_texture_names:
                 new_texture = True
-                # print("New because of ", name_of_texture_to_check)
 
             if name_of_texture_to_check not in new_array_of_texture_names:
                 new_array_of_texture_names.append(name_of_texture_to_check)
                 image = sprite._texture.image
                 new_array_of_images.append(image)
-
-        # print("New texture end: ", new_texture)
-        # print(new_array_of_texture_names)
-        # print(self.array_of_texture_names)
-        # print()
 
         if new_texture:
             # Add back in any old textures. Chances are we'll need them.
@@ -112,8 +167,11 @@ class VisualRenderer:
             array_of_sub_tex_coords.append(tex_coords[index])
 
         # Create numpy array with info on location and such
-        buffer_type = np.dtype([('position', '2f4'), ('angle', 'f4'), ('size', '2f4'),
-                                ('sub_tex_coords', '4f4'), ('color', '4B')])
+        buffer_type = np.dtype([('position', '2f4'),
+                                ('angle', 'f4'),
+                                ('size', '2f4'),
+                                ('sub_tex_coords', '4f4'),
+                                ('color', '4B')])
         self.sprite_data = np.zeros(len(self.sprite_list), dtype=buffer_type)
         self.sprite_data['position'] = array_of_positions
         self.sprite_data['angle'] = array_of_angles

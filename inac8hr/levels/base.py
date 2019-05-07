@@ -14,10 +14,10 @@ from ..tuning import ScoringFactor
 from abc import abstractmethod
 
 BOARD = [
-        '%X%###############',
+        '%&%###############',
         '% %#% == ##### = #',
         '% %%% %% ####  # #',
-        '%C=== %% #### ## #',
+        '%C=== %% #&EE ## #',
         '%%%%%%%% ####  # #',
         '## ===== ##### # #',
         '## ##########  # #',
@@ -48,7 +48,6 @@ class Level(PlayableSceneLayer):
         self.defenders.scale(GAME_PREFS.scaling)
         self.map_plan.scale(GAME_PREFS.scaling)
         self.play()
-        # self.generate_enemies()
 
     #
     # Arcade base overload functions
@@ -100,7 +99,7 @@ class Level(PlayableSceneLayer):
                 remove_list = []
                 for p in self.particles:
                     if p.collides(e):
-                        e.take_damage(p.damage)    
+                        e.take_damage(p.damage)
                         playing = False
                         p.dispose()
                         remove_list.append(p)
@@ -117,26 +116,13 @@ class Level(PlayableSceneLayer):
             sorted(dist, key=lambda x: x[0])
             if len(dist) > 0:
                 selected_enemy = dist[0][1]
-            if selected_enemy is not None and selected_enemy.jumped: # and not selected_enemy.targeted:
-                bullet = d.shoot(selected_enemy.position)
-                if bullet is not None:
-                    self.particles.append(bullet)
+            if selected_enemy is not None and selected_enemy.jumped and not selected_enemy.processed: # and not selected_enemy.targeted:
+                d.deal_enemy(selected_enemy)
+                if d.current_bullet is not None:
+                    self.particles.append(d.current_bullet)
+                    d.disarm()
+                    
             d.play()
-        # if len(self.enemies) == 0:
-        #     self.generate_enemies()
-
-    def generate_enemies(self):
-        x, y = self.map_plan.get_initial_agent_position()
-        initial_pos = x, y
-        diff = 0
-        for _ in range(4):
-            files = ['Ballot_pink.png', 'Ballot_orange.png', 'Ballot_red.png']
-            r = random.randint(0, len(files)-1)
-            enemy = AgentUnit([f'assets/images/chars/{files[r]}'], initial_pos, self.full_health, GAME_PREFS.scaling, self.map_plan.switch_points)
-            enemy.displace_position(0, diff)
-            diff += 40
-            self.enemies.append(enemy)
-        self.full_health += 80
 
     def generate_ballots(self):
         x, y = self.map_plan.get_initial_station_location()
@@ -187,7 +173,6 @@ class MapPlan():
         self.ballot_switch_points = []
         self.determine_dimensions()
         self.gen_ballot_flow_points()
-        self.calculate_all_switch_points()
         self.sprites = ExtendedSpriteList()
         self.init_sprites()
         self.exit = arcade.Sprite('assets/images/chars/ballot_box.png')
@@ -207,17 +192,21 @@ class MapPlan():
         x, y = LocationUtil.get_sprite_position(r, c)
         self.exit.set_position(x, y)
 
-    def gen_ballot_flow_points(self):
-        x, y = self.get_initial_station_location()
+    def gen_ballot_flow_point(self, location):
+        x, y = location
         out_of_bounds = False
+        switch_points = []
         board = list(self.plan_array)
+        selective_routing = True
         while not out_of_bounds:
             for offset_key in DIR_OFFSETS.keys():
-                x_offset, y_offset = DIR_OFFSETS[offset_key]           
+                x_offset, y_offset = DIR_OFFSETS[offset_key]
                 check_pos = (x + x_offset, y + y_offset)
                 status = self.is_path_routable(check_pos, board)
-                if status == 0:
-                    self.ballot_switch_points.append([check_pos, offset_key])
+                if status == 0 or (status == 3 and selective_routing):
+                    if status == 3:
+                        selective_routing = True
+                    switch_points.append([check_pos, offset_key])
                     line = list(board[x])
                     line[y] = '-'
                     board[x] = ''.join(line)
@@ -228,8 +217,17 @@ class MapPlan():
                     line[check_pos[1]] = 'X'
                     board[check_pos[0]] = ''.join(line)
 
+                    if status == 0:
+                        selective_routing = False
                 elif status == 2:
                     out_of_bounds = True
+        return switch_points
+
+    def set_ballot_flow_points(self, generator):
+        generator.directions = self.gen_ballot_flow_point(generator.initial_pos)
+
+    def gen_ballot_flow_points(self):
+        self.ballot_switch_points = self.gen_ballot_flow_point(self.get_initial_station_location())
 
     def preview_board_specific(self, board):
         for line in board:
@@ -278,12 +276,12 @@ class MapPlan():
         return sprites
 
     def get_initial_entities_position(self, char):
-        entities = []
+        entity_locs = []
         for i in range(len(self.plan_array)):
             for j in range(len(self.plan_array[i])):
                 if self.plan_array[i][j] == char:
-                    entities.append((i, j))
-        return entities
+                    entity_locs.append((i, j))
+        return entity_locs
 
     def get_initial_entity_position(self, char):
         for i in range(len(self.plan_array)):
@@ -302,7 +300,10 @@ class MapPlan():
         return self.get_initial_entity_position('O')
 
     def get_all_generators(self):
-        return [PollingStaUnit(['assets/images/chars/polling_booth.png'], (x, y)) for x, y in self.get_initial_entities_position("&")]
+        return [PollingStaUnit(['assets/images/chars/polling_booth.png'], (x, y),
+                self.gen_ballot_flow_point((x, y)))
+                for x, y in self.get_initial_entities_position("&")]
+
 #
 # Arcade-based overridden functions
 #
@@ -351,8 +352,10 @@ class MapPlan():
             Given a position, determine whether an agent can be routed through that or not
         """
         if -1 <= pos[0] <= len(board) - 1 and -1 <= pos[1] <= len(board[0]) - 1:
-            if board[pos[0]][pos[1]] in ' |=CTE':
+            if board[pos[0]][pos[1]] in ' |=CT':
                 return 0
+            elif board[pos[0]][pos[1]] == 'E':
+                return 3
             elif board[pos[0]][pos[1]] == 'O':
                 return 2
             else:

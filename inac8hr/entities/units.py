@@ -19,14 +19,15 @@ class Unit(CirclePhysicsEntity):
         S_ANIMATED: T_DEFAULT
     }
 
-    def __init__(self, texture_files: list, initial_pos, scaling=1):
+    def __init__(self, texture_files: list, initial_pos, scaling=1, initial_state="idle"):
         x, y = LocationUtil.get_sprite_position(*initial_pos)
         # TODO: Absolute and Relative position
-        # self.sprite = Sprite()
+        self.texture_state = initial_state
+        self.texture_groups = {}
         self.texture_files = texture_files
-        # for file_name in texture_files:
-        #     self.sprite.append_texture(arcade.load_texture(file_name))
-        #     print(file_name)
+
+
+
         self.scaling = scaling
         self.init_sprites()
         self.board_position = 0, 0 
@@ -35,7 +36,7 @@ class Unit(CirclePhysicsEntity):
         self.next_board_pos = (0, 0)     
         self.sprite.width = 50
         self.sprite.height = 50
-        self.curr_texture = None
+        self._current_texture_group = None
         self.state = Unit.S_ANIMATED
         self.set_sprite_texture(Unit.T_DEFAULT)
         self.dead = False
@@ -43,6 +44,10 @@ class Unit(CirclePhysicsEntity):
         self.sprite_list = []
         self.sprite_list.append(self.sprite)
         super().__init__([x, y], 25)
+
+#
+# Getters, setters, and properties
+#
 
     def get_x1(self):
         return self.sprite.position[0]
@@ -61,7 +66,6 @@ class Unit(CirclePhysicsEntity):
 
     def set_state(self, value):
         self.__state__ = value
-        # self.set_texture_from_state(value)  
 
     def get_sprite(self):
         return self._sprite
@@ -73,15 +77,39 @@ class Unit(CirclePhysicsEntity):
     y1 = property(get_y1, set_y1)
     state = property(get_state, set_state)
     sprite = property(get_sprite, set_sprite)
+#
+#
+#
 
     def draw(self):
         self.sprite.draw()
 
+    def add_state_texture_from_filename(self, tex_class, filename: str, animated=False):
+        if tex_class not in self.texture_groups:
+            tex_group = EntityTextureGroup(tex_class)
+            tex_group.animated = animated
+            tex_group.add_texture_from_filename(filename, GAME_PREFS.scaling)
+            self.texture_groups[tex_class] = tex_group
+        else:
+            tex_group = self.texture_groups[tex_class]
+            tex_group.add_texture_from_filename(filename, GAME_PREFS.scaling)
+
+    def add_state_texture_from_filenames(self, tex_class, filenames: list, animated=False):
+        for filename in filenames:
+            self.add_state_texture_from_filename(tex_class, filename, animated)
+
+    def apply_textures(self, tex_class):
+        self.sprite.textures.clear()
+        for texture in self.texture_groups[tex_class]:
+            self.sprite.append_texture(texture)
+        self.sprite.set_texture(0)
+        self._current_texture_group = self.texture_groups[tex_class]
+
     def init_sprites(self):
         self.sprite = Sprite()
         self.sprite.scale = GAME_PREFS.scaling
-        for file_name in self.texture_files:
-            self.sprite.append_texture(arcade.load_texture(file_name))
+        self.add_state_texture_from_filenames(self.texture_state, self.texture_files)
+        self.apply_textures(self.texture_state)
         self.sprite.scale = GAME_PREFS.scaling
 
     def set_board_position(self, r, c):
@@ -104,7 +132,7 @@ class Unit(CirclePhysicsEntity):
 
     def pause(self):
         self.state = Unit.S_IDLE
-    
+
     def play(self):
         self.state = Unit.S_ANIMATED
         self.on_animated()
@@ -119,13 +147,23 @@ class Unit(CirclePhysicsEntity):
         r, c = self.board_position
         self.set_board_position(r, c)
 
-    def set_texture_from_state(self, state_no):
+    def change_state(self, state):
         self.sprite.scale = GAME_PREFS.scaling
-        self.set_sprite_texture(Unit.TEXTURE_STATEMAP[state_no])
+        self.apply_textures(state)
+
+    # def set_texture_from_state(self, state_no):
+    #     self.sprite.scale = GAME_PREFS.scaling
+    #     self.set_sprite_texture(Unit.TEXTURE_STATEMAP[state_no])
 
     def set_sprite_texture(self, texture_no):
         self.sprite.scale = GAME_PREFS.scaling
         self.sprite.set_texture(texture_no)
+
+    def is_animated(self):
+        if self._current_texture_group is None:
+            return False
+        else:
+            return self._current_texture_group.animated
 
 
 class SelectableUnit(Unit):
@@ -137,25 +175,54 @@ class SelectableUnit(Unit):
         self.selected = selected
 
 
+class EntityTextureGroup():
+    def __init__(self, texture_class: str, animated=False):
+        self.texture_class = texture_class
+        self.textures = []
+        self.animated = animated
+
+    def add_texture_from_filename(self, filename, scaling=1):
+        tex = arcade.load_texture(filename, scale=scaling)
+        self.textures.append(tex)
+
+    def scale(self, scaling_factor=1):
+        for tex in self.textures:
+            tex.scale = scaling_factor
+
+    def __iter__(self):
+        self.n = 0
+        return self
+    
+    def __next__(self):
+        if self.n <= len(self.textures)-1 and len(self.textures) > 0:
+            result = self.textures[self.n]
+            self.n += 1
+            return result
+        else:
+            raise StopIteration
+
+
 class AnimatedEntity():
-    def __init__(self, animations_tex, initial_pos, scaling=1, anim_sprite=None):
-        self.frame_time = 5
+    def __init__(self, animations_tex, initial_pos, scaling=1, anim_sprite:Sprite=None):
+        self.frame_time = 0.75
         self.curr_time = 0
         self.passed_frames = 0
-        if anim_sprite is not None:
-            self.animated_sprite = anim_sprite
-        else:
-            self.animated_sprite = Sprite()
-            for tex in animations_tex:
-                self.animated_sprite.append_texture(tex)
+        # if anim_sprite is not None:
+        self.animated_sprite = anim_sprite
+        # else:
+        #     self.animated_sprite = Sprite()
+        #     for tex in animations_tex:
+        #         self.animated_sprite.append_texture(tex)
         self.animated_textures = animations_tex
-        self.state_sprite = self.sprite
-        self.texture_frames = len(self.animated_textures)
+        # self.texture_frames = len(self.animated_textures)
         self.__animating__ = False
 
     def start_animating(self):
         self.curr_time = time.time()
         self.__animating__ = True
+
+    def stop_animating(self):
+        self.__animating__ = False
 
     def clocked_update(self):
         if self.texture_frames <= 1:
@@ -167,11 +234,14 @@ class AnimatedEntity():
             self.passed_frames += 1
             self.curr_time = time.time()
 
-    def draw(self):
-        if self.__animating__:
-            self.animated_sprite.draw()
-        else:
-            self.sprite.draw()
+    @property
+    def texture_frames(self):
+        return len(self.animated_sprite.textures)
+    # def draw(self):
+    #     if self.__animating__:
+    #         self.animated_sprite.draw()
+    #     else:
+    #         self.sprite.draw()
 
 
 class UnitListBase():

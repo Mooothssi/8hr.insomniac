@@ -1,6 +1,6 @@
 import math
 import arcade
-from inac8hr.gui.controls import Label, Control, AnimatedControl
+from inac8hr.gui.controls import Label, Control, AnimatedControl, LocalizedLabel
 from inac8hr.gui.controls.buttons import Button
 from inac8hr.gui.basics import Point, Padding
 from inac8hr.events import Event
@@ -227,12 +227,23 @@ class DropdownItem(Container):
 class DropdownMenu(CollectionView, AnimatedControl):
     DEFAULT_ITEM_LIMIT = 5
 
-    def __init__(self, position, width, height):
+    def __init__(self, position, width, height, item_height=75):
         super().__init__(position, width, height)
         AnimatedControl.__init__(self)
-        self._item_height = 75
+        self.padding = Padding(10, 10, 10, 10)
+        self._item_height = item_height
         self._menu_container = Container(Point(0, 0), color=arcade.color.COPPER_ROSE)
         self._menu_height = DropdownMenu.DEFAULT_ITEM_LIMIT*75
+        _chevron_origin = Point(self.position.x + 50, self.position.y + 50)
+        _chevron_p2 = Point(self.position.x + 50, self.position.y + 50) + Point(10, 0)
+        _chevron_p3 = Point(_chevron_p2.x + _chevron_origin.x // 2, self.position.y)
+        # self._chevron = arcade.create_triangles_filled_with_colors([_chevron_p2, _chevron_p3, _chevron_origin], [(255, 255, 255)])
+
+        self.caption = LocalizedLabel(Point(0, 0), size=14)
+        self.text = self.caption.loc_text
+        self.caption.fore_color = arcade.color.WHITE
+        self.add_child(self.caption)
+
         self._shown_items = []
         self.click_event += self.on_click
         self._resize_menu()
@@ -241,24 +252,33 @@ class DropdownMenu(CollectionView, AnimatedControl):
     def _resize_menu(self):
         self._menu_container.width = self.width
         self._menu_container.height = 0
-        self.add_child(self._menu_container)
+        self._menu_container.position = Point(self.position.x, self.position.y + 1)
+        self._menu_container.visible = False
+        # self.add_child(self._menu_container)
 
     def on_animated(self, *args):
-        self._menu_container.position.y = self.position.y - self._menu_container.height
+        self._menu_container.position = Point(self._menu_container.position.x, self.position.y - self._menu_container.height + 1)
+        for item in self.__items__:
+            if item.position.y > self._menu_container.position.y + self._menu_container.height:
+                item.visible = False
+            else:
+                item.visible = True
 
     def add(self, child: DropdownItem):
         const = 1
         if len(self.items) > 0:
             const = len(self.items) + 1
-        super().add_item(child)
+        self.__items__.append(child)
         if const % 2 == 0:
             child.back_color = arcade.color.WATERSPOUT
         else:
             child.back_color = arcade.color.WILD_WATERMELON
         child.width = self.width
-        child.position.y = self.position.y - (const)*child.height
+        child.height = self._item_height
+        child.position.y = self._menu_height - (const)*child.height
         child.visible = False
         child._lower = False
+        self._menu_container.add_child(child)
         if const > DropdownMenu.DEFAULT_ITEM_LIMIT:
             child._lower = True
 
@@ -269,6 +289,7 @@ class DropdownMenu(CollectionView, AnimatedControl):
         self.animator.add_sequence(ControlSequence(self._menu_container, self.duration, prefab))
 
     def start_scrolling_out_menu(self, end_val):
+        self._menu_container.visible = True
         prefab = AnimFX(0, AnimProperty.Height, AnimAppearanceBehaviour.NONE,
                         end_val, QuadEaseOut)
         self.animator.reset()
@@ -293,3 +314,9 @@ class DropdownMenu(CollectionView, AnimatedControl):
         super().on_mouse_press(*args)
         if not self.activated:
             self.close_menu()
+
+    def draw(self):
+        if self._menu_container.visible:
+            self._menu_container.draw()
+        # self._chevron.draw()
+        super().draw()

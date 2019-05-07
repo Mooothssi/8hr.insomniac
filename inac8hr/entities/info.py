@@ -33,7 +33,7 @@ class PaperShredderUnitInfo(UnitInfo):
         self.strength = 1
         self.coverage_radius = 1
         self.description = LocalizedText("Units/Def/PPS/Desc")
-        self.blueprint = UnitBlueprint(["assets/images/chars/unavail.png", 
+        self.blueprint = UnitBlueprint(["assets/images/chars/unavail.png",
                                         "assets/images/chars/avail.png"], scaling=GAME_PREFS.scaling)
         self.abilities = None
 

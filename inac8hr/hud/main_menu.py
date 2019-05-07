@@ -14,6 +14,7 @@ class MainMenuLayer(UILayer):
         self.btnInstr = Button(Point(674+90,424-26-(91)), "assets/images/ui/btnInstructions_0.png", width=421, height=91)
         self.btnInstr.append_texture("assets/images/ui/btn_SelectTool_pressed.png")
         self.btnInstr.alignment = AlignStyle.AlignXStyle.CENTER
+        self.btnInstr.click += self.btnInstr_Click
 
         self.btnQuit = Button(Point(674+90,424-26-26-(91*2)), "assets/images/ui/btnQuit.png", width=421, height=92)
         self.btnQuit.append_texture("assets/images/ui/btn_SelectTool_pressed.png")
@@ -21,17 +22,8 @@ class MainMenuLayer(UILayer):
         self.btnQuit.click += self.btnQuit_Click
 
         self.bckMainMenu = AnimatedTexturedMessageBox(Point(0, 0), "assets/images/bck_main.png", width=1924, height=1080)
-        self.bckMainMenu.alpha = 255
         self.bckMainMenu.alignment = AlignStyle.MIDDLE_CENTER
         self.bckMainMenu.align_center()
-
-        self.cmbSel = DropdownMenu(Point(0, 500), 125, 50)
-        self.it1 = DropdownItem()
-        self.cmbSel.add(self.it1)
-        self.cmbSel.add(DropdownItem())
-        self.cmbSel.add(DropdownItem())
-
-
         self._register_controls()
 
     def _register_controls(self):
@@ -39,10 +31,12 @@ class MainMenuLayer(UILayer):
         self.register_control(self.btnSelect)
         self.register_control(self.btnInstr)
         self.register_control(self.btnQuit)
-        self.register_control(self.cmbSel)
 
     def btnStartGame_Click(self, sender, *args):
         self.parent.end_scene_and_go_to('LV1Scene')
+
+    def btnInstr_Click(self, sender, *args):
+        self.parent.end_scene_and_go_to('CodexScene')
 
     def btnQuit_Click(self, sender, *args):
         exit(0)

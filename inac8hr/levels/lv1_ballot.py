@@ -14,12 +14,15 @@ class LV1Scoring(ScoringEngine):
         super().__init__()
         self.voter_count = 0
         self.turnout = 0
+        self.budget = 0
         self.jumped = True
         self.jumped_count = 0
         self.valid_count = 0
         self.jumping_limit = 580
-        self.mode_factor = ScoringFactor.EASY_FACTOR
-        self.velocity_factors = [ScoringFactor.SLOW_FACTOR, ScoringFactor.MEDIUM_FACTOR, ScoringFactor.FAST_FACTOR, ScoringFactor.FAST_FACTOR]
+        self.cycle_number = 1
+        self.mode_factor = ScoringFactor.HARD_FACTOR
+        self.velocity_factors = (ScoringFactor.FIRST_STAGE_FACTOR, ScoringFactor.SECOND_STAGE_FACTOR, ScoringFactor.THIRD_STAGE_FACTOR, ScoringFactor.FOURTH_STAGE_FACTOR)
+        self.phases = CycleClock.DEFAULT_CYCLES_LIMIT // len(self.velocity_factors)
         self.audio = AudioEngine.get_instance()
 
     def recount_ballot(self, generators: list):
@@ -28,8 +31,14 @@ class LV1Scoring(ScoringEngine):
         self.on_score_change()
         self.jumped_count = 0
         self.valid_count = 0
-        for g in generators:
-            self.voter_count += g.ballots
+        # for g in generators:
+        #     self.voter_count += g.ballots
+
+    def add_ballot_from_generator(self, g, *args):
+        result = (self.cycle_number % 2) + (self.cycle_number // 2) - 1
+        g.ballot_velocity = self.velocity_factors[result]
+        self.voter_count += g.ballots
+        self.on_score_change()
 
     def increment_score(self):
         super().increment_score()
@@ -53,12 +62,11 @@ class LV1Scoring(ScoringEngine):
     def decrement_turnout(self):
         self.turnout -= 1
 
-    def adjust_velocity(self, units):
+    def adjust_velocity(self, units, cycle_number):
+        self.cycle_number = cycle_number
+        result = (cycle_number % 2) + (cycle_number // 2) - 1
         for unit in units:
-            unit.velocity = self.velocity_factors[0]
-        sp = self.velocity_factors[0]
-        self.velocity_factors.pop(0)
-        self.velocity_factors.append(sp)
+            unit.velocity = self.velocity_factors[result]
 
     def on_score_change(self, *args):
         self.jumped = self.turnout > self.voter_count
@@ -67,19 +75,25 @@ class LV1Scoring(ScoringEngine):
 
 class LV1Level(Level):
     def __init__(self):
+        self.generators = UnitKeyedList()
         super().__init__()
         self.scoring = LV1Scoring()
-        self.generators = UnitKeyedList()
         self.cycle.cycle_changed += self.on_cycle_changed
         for i in self.map_plan.get_all_generators():
             self.generators[i.initial_pos] = i
             i.generate(self)
+            i.gen_cycle_ended += self.scoring.add_ballot_from_generator
         self.scoring.recount_ballot(self.generators)
         self.death = 0
 
     def draw(self):
         super().draw()
         self.generators.draw()
+
+    def play(self):
+        super().play()
+        for g in self.generators.values():
+            g.play()
 
     def on_resize(self):
         super().on_resize()
@@ -88,10 +102,9 @@ class LV1Level(Level):
         self.enemies.displace_by_screen_res(GAME_PREFS.screen_width, GAME_PREFS.screen_height)
 
     def on_cycle_changed(self, sender, *args):
-        # self.generate_enemies()
         for g in self.generators:
             g.generate(self)
-        self.scoring.adjust_velocity(self.enemies)
+        self.scoring.adjust_velocity(self.enemies, sender.current_cycle)
         self.scoring.recount_ballot(self.generators)
 
     def calculate_the_dead(self, enemy: Ballot):

@@ -120,9 +120,7 @@ class AnimatedTexturedMessageBox(AnimatedContainer):
         super().__init__(position, width, height)
         self.texture = arcade.load_texture(texture_filename)
         self._alpha = 0
-        self.alpha = 0
-        self.anchors |= self.ANCHOR_RIGHT | self.ANCHOR_TOP
-        self.set_region_from_center()
+        self.alpha = 255
         # self.set_cached_sprite(DrawCommands.create_textured_rectangle(self.position.x + (self.width//2), 
         #                        self.position.y + (self.height//2),
         #                        self.width, self.height, self.texture, alpha=self.alpha))
