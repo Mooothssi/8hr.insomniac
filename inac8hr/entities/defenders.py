@@ -80,7 +80,6 @@ class DefenderUnit(SelectableUnit, AnimatedEntity):
                     AnimatedEntity.stop_animating(self)
                     self.change_state('idle')
                 AnimatedEntity.clocked_update(self)
-                
 
     def on_selection(self, selected):
         super().on_selection(selected)

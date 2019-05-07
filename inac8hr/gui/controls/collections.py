@@ -6,7 +6,7 @@ from inac8hr.gui.basics import Point, Padding
 from inac8hr.events import Event
 from inac8hr.gui.controls.containers import Container
 from inac8hr.wrappers.inac8hr_arcade import DrawCommands
-from inac8hr.anim import AnimFX, AnimProperty, AnimAppearanceBehaviour, ControlSequence, QuadEaseOut
+from inac8hr.anim import AnimFX, AnimProperty, AnimAppearanceBehaviour, ControlSequence, QuinticEaseOut
 
 
 class ControlItemCollection:
@@ -23,6 +23,7 @@ class CollectionView(Container):
     def __init__(self, position, width, height):
         super().__init__(position, width, height)
         self.selected_index_changed_event = Event(self)
+        self.navigated = Event(self)
         self.__items__ = []
         self._current_index = -1
 
@@ -30,6 +31,22 @@ class CollectionView(Container):
         self.add_child(item)
         self.__items__.append(item)
 
+    def select_index(self, index: int):
+        if 0 <= index <= len(self.__items__)-1: 
+            self._current_index = index
+        else:
+            raise Exception("Invalid index")
+
+    def go_next(self):
+        if self._current_index + 1 < len(self.__items__):
+            self._current_index += 1
+            self.navigated("next")
+
+    def go_back(self):
+        if self._current_index - 1 >= 0:
+            self._current_index -= 1
+            self.navigated("back")
+    
     @property
     def items(self):
         return self.__items__
@@ -40,7 +57,7 @@ class CollectionView(Container):
         activated = list(filter(lambda x: x[1].activated is True, children))
         if len(activated) == 1:
             self._current_index = activated[0][0]
-            self.selected_index_changed_event()
+            self.selected_index_changed_event(self._current_index)
 
     @property
     def current_index(self) -> int:
@@ -220,17 +237,25 @@ class MenuPane(Container):
 
 
 class DropdownItem(Container):
-    def __init__(self):
+    def __init__(self, localized_caption_key: str="LocalizedText/None", font_size=14):
         super().__init__(Point(0, 0), height=25)
+        self.padding = Padding(14, 14, 14, 14)
+        self.caption = LocalizedLabel(Point(0, 0), key=localized_caption_key, size=font_size)
+        self.text = self.caption.loc_text
+        self.caption.fore_color = arcade.color.WHITE
+        self.add_child(self.caption)
+
+    def draw(self):
+        super().draw()
 
 
 class DropdownMenu(CollectionView, AnimatedControl):
     DEFAULT_ITEM_LIMIT = 5
 
-    def __init__(self, position, width, height, item_height=75):
+    def __init__(self, position, width, height, item_height=75, font_size=14):
         super().__init__(position, width, height)
         AnimatedControl.__init__(self)
-        self.padding = Padding(10, 10, 10, 10)
+        self.padding = Padding(20, 10, 10, 10)
         self._item_height = item_height
         self._menu_container = Container(Point(0, 0), color=arcade.color.COPPER_ROSE)
         self._menu_height = DropdownMenu.DEFAULT_ITEM_LIMIT*75
@@ -239,22 +264,26 @@ class DropdownMenu(CollectionView, AnimatedControl):
         _chevron_p3 = Point(_chevron_p2.x + _chevron_origin.x // 2, self.position.y)
         # self._chevron = arcade.create_triangles_filled_with_colors([_chevron_p2, _chevron_p3, _chevron_origin], [(255, 255, 255)])
 
-        self.caption = LocalizedLabel(Point(0, 0), size=14)
-        self.text = self.caption.loc_text
+        self.caption = LocalizedLabel(Point(0, 0), size=font_size, custom_font=True)
+        self.caption.font_name = "assets/fonts/Roboto-Medium"
         self.caption.fore_color = arcade.color.WHITE
         self.add_child(self.caption)
-
+        self._menu_open = False
         self._shown_items = []
         self.click_event += self.on_click
         self._resize_menu()
         self.duration = 0.75
+        self.selected_index_changed_event += self.on_selected_index_change
+        self._extra_spacing = 5
+
+    def _autosize(self):
+        self.width = self.caption.width + self.padding.left + self.padding.right + self._extra_spacing
 
     def _resize_menu(self):
         self._menu_container.width = self.width
         self._menu_container.height = 0
         self._menu_container.position = Point(self.position.x, self.position.y + 1)
         self._menu_container.visible = False
-        # self.add_child(self._menu_container)
 
     def on_animated(self, *args):
         self._menu_container.position = Point(self._menu_container.position.x, self.position.y - self._menu_container.height + 1)
@@ -263,6 +292,7 @@ class DropdownMenu(CollectionView, AnimatedControl):
                 item.visible = False
             else:
                 item.visible = True
+                item.reset_region()
 
     def add(self, child: DropdownItem):
         const = 1
@@ -273,12 +303,18 @@ class DropdownMenu(CollectionView, AnimatedControl):
             child.back_color = arcade.color.WATERSPOUT
         else:
             child.back_color = arcade.color.WILD_WATERMELON
+        child.caption.font_size = self.caption.font_size
+        child.padding = self.padding
         child.width = self.width
         child.height = self._item_height
-        child.position.y = self._menu_height - (const)*child.height
+        child.set_vertical_position(self._menu_height - (const)*child.height)
         child.visible = False
         child._lower = False
         self._menu_container.add_child(child)
+
+        if self.width < child.caption.width + self.padding.left + self.padding.right:
+            self.width = child.caption.width + self.padding.left + self.padding.right
+
         if const > DropdownMenu.DEFAULT_ITEM_LIMIT:
             child._lower = True
 
@@ -291,7 +327,7 @@ class DropdownMenu(CollectionView, AnimatedControl):
     def start_scrolling_out_menu(self, end_val):
         self._menu_container.visible = True
         prefab = AnimFX(0, AnimProperty.Height, AnimAppearanceBehaviour.NONE,
-                        end_val, QuadEaseOut)
+                        end_val, self.easing)
         self.animator.reset()
         self._generate_sequences(prefab)
         self.animator.start()
@@ -304,15 +340,19 @@ class DropdownMenu(CollectionView, AnimatedControl):
         for item in self.__items__:
             if not item._lower:
                 item.visible = True
+        self._menu_open = True
+        self.mouse_press += self._menu_container.on_mouse_press
 
     def close_menu(self):
+        self.mouse_press -= self._menu_container.on_mouse_press
+        self._menu_open = False
         self.start_scrolling_out_menu(0)
         for item in self.__items__:
             item.visible = False
 
     def on_mouse_press(self, *args):
         super().on_mouse_press(*args)
-        if not self.activated:
+        if not self.activated and self._menu_open:
             self.close_menu()
 
     def draw(self):
@@ -320,3 +360,6 @@ class DropdownMenu(CollectionView, AnimatedControl):
             self._menu_container.draw()
         # self._chevron.draw()
         super().draw()
+
+    def on_selected_index_change(self, *args):
+        self.caption.loc_text = self.selected_item.text

@@ -1,11 +1,12 @@
 from inac8hr.gui.basics import Point, Margin, RectangularRegion
 from inac8hr.gui.controls.styles import DockStyle, AlignStyle
 from inac8hr.events import Event, UserEvent
-from inac8hr.anim import ControlAnimator
+from inac8hr.anim import ControlAnimator, QuadEaseOut, QuinticEaseOut
 from inac8hr.wrappers.inac8hr_arcade import ExtendedSpriteList
 from abc import abstractmethod
 import arcade
 import time
+
 
 class ControlSpriteList():
     def __init__(self):
@@ -14,7 +15,6 @@ class ControlSpriteList():
 
     def draw(self):
         pass
-
 
 
 class Control():
@@ -46,6 +46,7 @@ class Control():
         self.click = Event(self)
         self.released = Event(self)
         self.double_clicked = Event(self)
+        self.mouse_press = Event(self)
         self.mouse_motion = Event(self)
         self.mouse_enter = Event(self)
         self.mouse_leave = Event(self)
@@ -255,10 +256,8 @@ class Control():
         pass
 
     def on_mouse_press(self, *args):
-        if len(args) == 4:
-            x, y, btn, modifiers = args
-        elif len(args) == 5:
-            sender, x, y, btn, modifiers = args
+        x, y, btn, modifiers = tuple(args[-4:])
+        self.mouse_press(*args)
         if self.region.is_point_inside(Point(x, y)) and self.visible:
             self._mouse_down = True
             self.activated = True
@@ -274,12 +273,8 @@ class Control():
 
     def on_mouse_motion(self, *args):
         self.mouse_motion(*args)
-        if len(args) == 4:
-            x, y, dx, dy = args
-        elif len(args) == 5:
-            sender, x, y, dx, dy = args
+        x, y, dx, dy = tuple(args[-4:])
         if self.region.is_point_inside(Point(x, y)) and self.visible:
-            
             if not self._mouse_enter:
                 self.mouse_enter(*args)
                 self._mouse_enter = True          
@@ -316,6 +311,7 @@ class Control():
 class AnimatedControl():
     def __init__(self):
         self.animator = ControlAnimator()
+        self.easing = QuinticEaseOut
         self.animator.animated += self.on_animated
 
     def tick(self):

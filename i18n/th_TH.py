@@ -9,5 +9,10 @@ LOC_TEXTS_TH = {
         "Levels/LV1Ballot/Name": "บัตรเขย่ง",
         "Stats/LV1Ballot/Turnout": "จำนวนคะแนนเสียง",
         "Stats/LV1Ballot/VoterCount": "จน.ผู้มาใช้สิทธิ์เลือกตั้ง",
-        "Stats/LV1Ballot/ElectionNumber": "การเลือกตั้งครั้งที่"
+        "Stats/LV1Ballot/ElectionNumber": "การเลือกตั้งครั้งที่",
+        "Codex/Category/Agents": "บัตรเลือกตั้ง",
+        "Codex/Category/Inspectors": "หน่วยตรวจสอบ",
+        "Codex/Category/Precincts": "เขตเลือกตั้ง",
+        "Codex/Category/Intro": "วิธีการเล่น",
+        "Codex/Category/Controls": "การควบคุม"
 }

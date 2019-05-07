@@ -20,7 +20,7 @@ class UnitInfo:
         self.view_image = None
         self.strength = 1
         self.coverage_radius = 1
-        self.descriptor = ""
+        self.description = ""
         self.blueprint = None
         self.abilities = None
         self.unlocked = False

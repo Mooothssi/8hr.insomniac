@@ -30,5 +30,10 @@ LOC_TEXTS_EN_US = {
         "Events/HowlingDog/NewsHeadline": "Dogs Howl on the Last Day of 8th Election",
         "Events/HowlingDog/MessageBody": "Be prepared for extra jumped ballots.\n"
                                          "Keep an eye on any cheating that occurs!\n"   
-                                         "And please don't be scared of ghosts!"
+                                         "And please don't be scared of ghosts!",
+        "Codex/Category/Agents": "Agents",
+        "Codex/Category/Inspectors": "Inspectors",
+        "Codex/Category/Precincts": "Precincts",
+        "Codex/Category/Intro": "How to Play",
+        "Codex/Category/Controls": "Controls"
 }

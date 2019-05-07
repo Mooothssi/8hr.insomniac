@@ -11,7 +11,7 @@ class Container(Control):
     def __init__(self, position: Point, width: int=500, 
                  height: int=500, color: tuple=arcade.color.AMARANTH_PINK):
         self.children = []
-        self.padding = Padding(0, 0, 0, 0)
+        self._padding = Padding(0, 0, 0, 0)
         self._child_spr_list = ExtendedSpriteList()
         self._shape = None
         self._texture = None
@@ -43,17 +43,18 @@ class Container(Control):
             if c.visible:
                 c.tick()
 
-    def add_control(self, control: Control, relative: bool=False):
+    def add_control(self, control: Control, relative: bool=False, apply_behaviours=True):
         self.children.append(control)
         self.add_event_handler_from_control(control)
         if relative:
             self.translate_relative(control)
         control.parent = self
-        control._apply_behaviours()
-        control.reset_region()
+        if apply_behaviours:
+            control._apply_behaviours()
+            control.reset_region()
 
-    def add_child(self, control: Control):
-        self.add_control(control, True)
+    def add_child(self, control: Control, apply_behaviours=True):
+        self.add_control(control, apply_behaviours, apply_behaviours)
 
     def add_event_handler_from_control(self, control: Control):
         self.click_event += control.on_mouse_press
@@ -62,14 +63,28 @@ class Container(Control):
         self.mouse_enter += control.on_mouse_enter
         self.mouse_leave += control.on_mouse_leave
         self.window_resize += control.on_window_resize
-
-    def get_position(self):
-        return super().get_position()
+    
+    def remove_event_handler_from_control(self, control: Control):
+        self.click_event -= control.on_mouse_press
+        self.released -= control.on_mouse_release
+        self.mouse_motion -= control.on_mouse_motion
+        self.mouse_enter -= control.on_mouse_enter
+        self.mouse_leave -= control.on_mouse_leave
+        self.window_resize -= control.on_window_resize
 
     def set_position(self, value: Point):
         if len(self.children) > 0:
             self.translate_controls(value.x, value.y)
         super().set_position(value)
+
+    def set_vertical_position(self, y):
+        self.set_position(Point(self.position.x, y))
+
+    def set_padding(self, value: Padding):
+        if len(self.children) > 0:
+            for child in self.children:
+                child._realign_to_padding()
+        self._padding = value
 
     def translate_relative(self, control):
         offset = 0, 0
@@ -84,8 +99,8 @@ class Container(Control):
     def translate_controls(self, x, y):
         dx, dy = x - self.position.x, y - self.position.y
         for c in self.children:
-            c.position.x += dx
-            c.position.y += dy
+            c.position = Point(c.position.x + dx, c.position.y + dy)
+            c.reset_region()
 
     def on_window_resize(self, *args):
         width, height = args
@@ -106,7 +121,8 @@ class Container(Control):
         super().set_alpha(value)
         self.inherit_properties()
 
-    position = property(get_position, set_position)
+    padding = property(lambda self: self._padding, set_padding)
+    position = property(lambda self: super().get_position(), set_position)
     opacity = property(Control.get_alpha, set_alpha)
 
 

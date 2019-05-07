@@ -19,17 +19,41 @@ class InsomniaGame(arcade.Window):
         self.manager = GameManager(resolution=(width, height))
         self.manager.load_sprites(width, height)
         self.manager.fullscreen = fullscreen
-        self.text = pyglet.resource.image("assets/images/bck.png")
+        self.label = pyglet.text.Label(str(1),
+                          font_name='Times New Roman',
+                          font_size=36,
+                          x=width//2, y=height//2,
+                          anchor_x='center', anchor_y='center')
+        self.fps_display = FPSDisplay(self)
+
         self.config.alpha_size = 8
         self.resolution = 0, 0
+        arcade.set_background_color(arcade.color.WHEAT)
+        self.set_update_rate(1/144)
 
     def on_draw(self):
         arcade.start_render()
-        arcade.set_background_color(arcade.color.WHEAT)   
         self.manager.draw()
+        
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glPushMatrix()
+        gl.glLoadIdentity()
+
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glPushMatrix()
+        gl.glLoadIdentity()
+        gl.glOrtho(0, self.width, 0, self.height, -1, 1)
+         
+    
+        self.label.draw()
+
+        gl.glPopMatrix()
+
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glPopMatrix()
 
     def on_resize(self, width: float, height: float):
-        super().on_resize(width, height)
+        # super().on_resize(width, height)
         if not (self.resolution[0] == width and self.resolution[1] == height):
             self.resolution = width, height
             self.manager.reload_sprites(width, height)
@@ -62,8 +86,10 @@ class InsomniaGame(arcade.Window):
         super().on_mouse_scroll(x, y, scroll_x, scroll_y)
 
     def update(self, delta):
+        # self.label.text = str(int(self.label.text) + 1)
         self.manager.update(delta)
 
 if __name__ == '__main__':
     game = InsomniaGame(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE)
     arcade.run()
+    

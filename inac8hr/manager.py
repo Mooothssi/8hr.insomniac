@@ -43,7 +43,7 @@ class GameManager():
 
     def draw(self):
         arcade.draw_texture_rectangle(self.screen_width // 2, self.screen_height // 2,
-                                      self.screen_width + 500, self.screen_height + 500, self.background, alpha=255)
+                                      self.screen_width + 500, self.screen_height + 500, self.background)
         self.viewport.draw()
 
     def load_sprites(self, width, height):

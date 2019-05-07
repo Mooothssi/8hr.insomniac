@@ -34,9 +34,8 @@ class Label(Control):
                                     align=self._get_text_alignment(), width=self.width, anchor_x=self._get_anchors_x(),
                                     anchor_y=self._get_anchors_y()))  
 
-    @property
-    def font_size(self):
-        return self.__font_size__
+    def set_font_size(self, value):
+        self.__font_size__ = value
 
     def set_text(self, value):
         self._text = value
@@ -50,6 +49,7 @@ class Label(Control):
         return self._text
 
     text = property(get_text, set_text)
+    font_size = property(lambda self: self.__font_size__, set_font_size)
 
     def draw(self):
         if self.text != "" and self.visible and not self.cached:
@@ -89,20 +89,21 @@ class Label(Control):
 
 class LocalizedLabel(Label):
     def __init__(self, position: Point, key: str="LocalizedText/None",
-                 size: int=12):
+                 size: int=12, custom_font=False):
         self.loc_text = LocalizedText(key)
+        self.custom_font = custom_font
         super().__init__(position, key, size)
-
-    def get_text(self):
-        return str(self.loc_text)
 
     def set_text(self, value):
         self._text = value
 
     def get_font_name(self):
-        return self.loc_text.locale.get_localized_font_name()
+        if self.custom_font and self.loc_text.locale.default_lang == "en_US":
+            return self._font_name
+        else:
+            return self.loc_text.locale.get_localized_font_name()
 
-    text = property(get_text, set_text)
+    text = property(lambda self: str(self.loc_text), set_text)
     font_name = property(get_font_name, Label.set_font_name)
 
 
@@ -129,7 +130,7 @@ class Tooltip(Container, AnimatedControl):
         SCREEN_HEIGHT = 1000
         self._shape_list.center_x = SCREEN_WIDTH // 2
         self._shape_list.center_y = SCREEN_HEIGHT // 2
-        self._append_to_shape_list()
+        # self._append_to_shape_list()
         self._autosize()
 
     def _generate_sequences(self, prefab):
@@ -140,7 +141,6 @@ class Tooltip(Container, AnimatedControl):
 
     def draw(self):
         super().draw()
-        self._autosize()
 
     def _append_to_shape_list(self):
         shape = arcade.create_rectangle_filled(self.position.x + (self.width//2), self.position.y,
@@ -154,6 +154,7 @@ class Tooltip(Container, AnimatedControl):
 
     def tick(self):
         AnimatedControl.tick(self)
+        self._autosize()
         if self._triggered and time.time() - self._mouse_enter_time > self.await_duration:
             self._triggered = False
             self.fade(AnimFXPrefabs.FadeInTooltip)
