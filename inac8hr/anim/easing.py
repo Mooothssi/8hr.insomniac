@@ -1,16 +1,18 @@
 import math
+from abc import abstractmethod
 
 
 class EasingBase:
     """
         Based on Penner's easing (gentle motion) functions
-        Courtesy of Semitable (https://github.com/semitable/easing-functions)
+        Adapted from Semitable's version(https://github.com/semitable/easing-functions)
 
         Args:
             start (int): The start position of the function
             end (int): The end position of the function (multiplier)
             duration (int): Time duration of easing
     """
+    __slots__ = ("start", "end", "duration", "reverse")
     limit = (0, 1)
 
     def __init__(self, start=0, end=1, duration=1):
@@ -23,8 +25,8 @@ class EasingBase:
             self.end = start
             self.reverse = True
 
-    @classmethod
-    def func(cls, t):
+    @abstractmethod
+    def func(self, t):
         pass
 
     def ease(self, alpha):

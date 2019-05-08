@@ -1,7 +1,7 @@
 from ..gui import *
 from ..layers import UILayer
 from ..anim import ControlAnimator, SceneSequence, SequenceInfo, ExponentialEaseOut, QuadEaseIn, TemporalSequence
-from ..codex import CodexCategory, CodexBook
+from ..codex import CodexCategory, CodexBook, In8acCategories
 
 
 class CodexLayer(UILayer):
@@ -20,7 +20,18 @@ class CodexLayer(UILayer):
         self.titleSign = AnimatedTexturedMessageBox(Point(619, 800), "assets/images/ui/codex/title_codex_sign.png", width=846, height=124)
 
         self.cmbSel = DropdownMenu(Point(54, 624), 385, 75, font_size=33)
-        for item in CodexCategory.LV1.get_all_as_dropdown_items(): self.cmbSel.add(item)
+        self.codexBook = CodexBook(title_label_loc=Point(757, 674), desc_label_loc=Point(1111, 332),
+                                   body_label_loc=Point(1111, 164), thumbnail_size=284,
+                                   btnPrev_loc=Point(626, 665), btnNext_loc=Point(1516, 665),
+                                   region=self.bckPollingBoard.region,
+                                   thumbnail_loc=Point(684, 214))
+        for item in CodexCategory.LV1.get_all_as_dropdown_items(): 
+            self.cmbSel.add(item)
+        for item in In8acCategories.ALL:
+            self.codexBook.add_category(item)
+
+        
+        self.cmbSel.selected_index_changed_event += self.codexBook.on_change_category_callback
         self._register_controls()
 
     def _register_controls(self):
@@ -29,6 +40,8 @@ class CodexLayer(UILayer):
         self.register_control(self.bckPollingBoard)
         self.register_control(self.titleSign)
         self.register_control(self.cmbSel)
+        self.register_control(self.codexBook)
+        self.codexBook.register_drawing()
 
     def btnStartGame_Click(self, sender, *args):
         self.parent.end_scene_and_go_to('MainScene')

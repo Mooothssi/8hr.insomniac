@@ -19,6 +19,7 @@ class DefenderUnit(SelectableUnit, AnimatedEntity):
         super().__init__(texture_list, initial_pos, scaling)
         AnimatedEntity.__init__(self, texture_list, initial_pos, anim_sprite=self.sprite)
         self.bullets = []
+        self.bullet_tex_filename = 'assets/images/particle.png'
         self.current_bullet = None
         self.damage = 10
         self.placement_cost = 10
@@ -48,7 +49,7 @@ class DefenderUnit(SelectableUnit, AnimatedEntity):
                 bullet.draw()
 
     def get_ready(self):
-        bullet = self._bullet_type('assets/images/particle.png', self.initial_pos)
+        bullet = self._bullet_type(self.bullet_tex_filename, self.initial_pos)
         bullet.damage = self.damage
         self.bullets.append(bullet)
         self.defender_state = self.STATE_SHOOTING
@@ -74,12 +75,7 @@ class DefenderUnit(SelectableUnit, AnimatedEntity):
                     remove_list.append(bullet)
             for i in remove_list:
                 self.bullets.remove(i)
-        else:
-            if self.is_animated():
-                if not self.cooled_down():
-                    AnimatedEntity.stop_animating(self)
-                    self.change_state('idle')
-                AnimatedEntity.clocked_update(self)
+        
 
     def on_selection(self, selected):
         super().on_selection(selected)
@@ -102,6 +98,7 @@ class CalculatorUnit(DefenderUnit):
         super().__init__(["assets/images/chars/calculator.png"], initial_pos, scaling)
         self.cooldown_duration = 1.2
         self.damage = 5
+        self.bullet_tex_filename = "assets/images/calc_particle.png"
 
     def deal_enemy(self, enemy: AgentUnit):
         if super().deal_enemy(enemy):
@@ -117,7 +114,8 @@ class PaperShredderUnit(DefenderUnit):
                                                  "assets/images/chars/shredder_2.png",
                                                  "assets/images/chars/shredder_3.png",
                                                  "assets/images/chars/shredder_4.png"], True)
-        self.cooldown_duration = 120
+        self.cooldown_duration = 30
+        self.eaten_enemy = None
 
     def deal_enemy(self, enemy: AgentUnit):
         if super().deal_enemy(enemy):
@@ -138,5 +136,17 @@ class PaperShredderUnit(DefenderUnit):
                     enemy.eaten = True
                     self.last_activity = time.time()
                     enemy.processed = True
+                    self.eaten_enemy = enemy
                     self.change_state("animated")
                     self.start_animating()
+
+    def on_animated(self, *args):
+        super().on_animated(*args)
+        if self.is_animated():
+            if not self.cooled_down():
+                AnimatedEntity.stop_animating(self)
+                self.change_state('idle')
+                if self.eaten_enemy is not None:
+                    self.eaten_enemy.survived = False
+                    self.eaten_enemy.dead = True
+            AnimatedEntity.clocked_update(self)

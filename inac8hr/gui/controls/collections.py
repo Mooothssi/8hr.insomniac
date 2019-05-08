@@ -40,13 +40,22 @@ class CollectionView(Container):
     def go_next(self):
         if self._current_index + 1 < len(self.__items__):
             self._current_index += 1
+            self.selected_index_changed_event(self._current_index)
             self.navigated("next")
+            return True
+        else:
+            return False
 
     def go_back(self):
+        print(self._current_index)
         if self._current_index - 1 >= 0:
             self._current_index -= 1
+            self.selected_index_changed_event(self._current_index)
             self.navigated("back")
-    
+            return True
+        else:
+            return False
+
     @property
     def items(self):
         return self.__items__
@@ -263,7 +272,7 @@ class DropdownMenu(CollectionView, AnimatedControl):
         _chevron_p2 = Point(self.position.x + 50, self.position.y + 50) + Point(10, 0)
         _chevron_p3 = Point(_chevron_p2.x + _chevron_origin.x // 2, self.position.y)
         # self._chevron = arcade.create_triangles_filled_with_colors([_chevron_p2, _chevron_p3, _chevron_origin], [(255, 255, 255)])
-
+        
         self.caption = LocalizedLabel(Point(0, 0), size=font_size, custom_font=True)
         self.caption.font_name = "assets/fonts/Roboto-Medium"
         self.caption.fore_color = arcade.color.WHITE
@@ -358,7 +367,6 @@ class DropdownMenu(CollectionView, AnimatedControl):
     def draw(self):
         if self._menu_container.visible:
             self._menu_container.draw()
-        # self._chevron.draw()
         super().draw()
 
     def on_selected_index_change(self, *args):

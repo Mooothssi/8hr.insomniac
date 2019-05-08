@@ -1,12 +1,16 @@
 from .gui.controls.collections import CollectionView, DropdownItem
-from .entities.info import UnitInfo
+from .gui.controls.containers import Container
+from .gui.controls.labels import LocalizedLabel
+from .gui.controls.buttons import Button
+from .gui import Point
+from .entities.info import UnitInfo, In8acUnitInfo
 from i18n.loc import LocalizedText
 
 
 class CodexEntry:
     def __init__(self, thumbnail, unit_info):
-        self.thumbnail = None
-        self.unit_info = None
+        self.thumbnail = thumbnail
+        self.unit_info = unit_info
 
 
 class CodexCategory(CollectionView):
@@ -18,8 +22,8 @@ class CodexCategory(CollectionView):
         PRECINCT = 4
         BALLOT_BOX = 5
         LOC_STRINGS_DICT = {
-            AGENT: LocalizedText('Codex/Category/Agents'),
             INSPECTOR: LocalizedText('Codex/Category/Inspectors'),
+            AGENT: LocalizedText('Codex/Category/Agents'),
             PRECINCT: LocalizedText('Codex/Category/Precincts'),
             INTRO: LocalizedText('Codex/Category/Intro'),
             CONTROLS: LocalizedText('Codex/Category/Controls')
@@ -31,6 +35,8 @@ class CodexCategory(CollectionView):
     def __init__(self, name):
         super().__init__(Point(0,0), 500, 500)
         self._background_drawn = False
+        self.name = name
+        self.entries = self.__items__
 
     @classmethod
     def lv1_get_from_preset(cls, preset: int):
@@ -48,16 +54,45 @@ class CodexCategory(CollectionView):
         self.__items__.append(entry)
 
 
+class InspectorCategory(CodexCategory):
+    def __init__(self):
+        super().__init__(CodexCategory.LV1.LOC_STRINGS_DICT[CodexCategory.LV1.INSPECTOR])
+        for info in In8acUnitInfo.get_all():
+            self.add_entry(info.thumbnail, info)
+
+
+class In8acCategories:
+    ALL = [
+        InspectorCategory()
+    ]
+
+
 class CodexBook(CollectionView):
-    def __init__(self, title_label_loc, desc_label_loc, body_label_loc):
-        super().__init__(Point(0,0), 500, 500)
+    def __init__(self, title_label_loc: Point, desc_label_loc: Point, 
+                 body_label_loc: Point, thumbnail_loc: Point, btnPrev_loc: Point,
+                 btnNext_loc: Point, region, thumbnail_size: int):
+        super().__init__(Point(0, 0), 500, 500)
         self._background_drawn = False
-        self.title_label = None
-        self.description_label = None
-        self.body_label = None
-        self.thumbnail = None
-        self._btnPrev = None
-        self._btnNext = None
+        self.title_label = LocalizedLabel(title_label_loc, size=72)
+        self.description_label = LocalizedLabel(desc_label_loc)
+        self.body_label = LocalizedLabel(body_label_loc)
+        self.thumbnail = Container(thumbnail_loc, thumbnail_size, thumbnail_size)
+        self._btnPrev = Button(btnPrev_loc,
+                                "assets/images/ui/codex/btnCodexPrev.png", height=59,
+                                width=42)
+        self._btnNext = Button(btnNext_loc,
+                                "assets/images/ui/codex/btnCodexNext.png", height=59,
+                                width=42)
+        self.register_drawing()
+        self._region_2 = region
+
+    def register_drawing(self):
+        self._btnPrev.click_event += self.on_prev
+        self._btnNext.click_event += self.on_next
+        self.add_child(self._btnPrev)
+        self.add_child(self._btnNext)
+        self.children.extend([self.title_label, self.description_label, self.body_label, self.thumbnail
+        ])
 
     def add_category(self, category):
         self.__items__.append(category)
@@ -65,15 +100,32 @@ class CodexBook(CollectionView):
     def _preview_first_one(self):
         info = self.selected_item.entries[0].unit_info
         self.thumbnail = info.thumbnail
-        self.title_label.text = info.unit_name
-        self.description_label.text = info.description
+        self.title_label.loc_text = info.unit_name
+        self.description_label.loc_text = info.description
+        self._btnPrev.visible = False
+        self._btnNext.visible = True
 
     def on_change_info_callback(self, *args):
         info = self.selected_item.selected_item.unit_info
+        print(self.selected_item._current_index)
         self.thumbnail = info.thumbnail
-        self.title_label.text = info.unit_name
-        self.description_label.text = info.description
-    
+        self.title_label.loc_text = info.unit_name
+        self.description_label.loc_text = info.description
+
     def on_change_category_callback(self, *args):
-        pass
+        self.select_index(args[1])
+        self.selected_item.selected_index_changed_event += self.on_change_info_callback
         self._preview_first_one()
+
+    def on_mouse_press(self, *args):
+        if self.region != self._region_2:
+            self.region = self._region_2
+        super().on_mouse_press(*args)
+
+    def on_next(self, *args):
+        self._btnNext.visible = self.selected_item.go_next()
+        self._btnPrev.visible = not self._btnNext.visible
+
+    def on_prev(self, *args):
+        self._btnPrev.visible = self.selected_item.go_back()
+        self._btnNext.visible = not self._btnPrev.visible

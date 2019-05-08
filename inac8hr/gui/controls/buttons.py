@@ -33,8 +33,9 @@ class Button(Container):
         assert(len(self._textures) <= self.TEXTURE_LIMIT)
 
     def change_texture(self, tex_no: int):
-        assert(0 <= tex_no <= len(self._textures) - 1)
-        self._current_tex_index = tex_no
+        if len(self._textures) > 1:
+            assert(0 <= tex_no <= len(self._textures) - 1)
+            self._current_tex_index = tex_no
 
     @property
     def current_texture(self):

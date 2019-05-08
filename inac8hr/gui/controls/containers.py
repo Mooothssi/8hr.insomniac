@@ -43,7 +43,8 @@ class Container(Control):
             if c.visible:
                 c.tick()
 
-    def add_control(self, control: Control, relative: bool=False, apply_behaviours=True):
+    def add_control(self, control: Control, relative: bool=False, 
+                    apply_behaviours=True):
         self.children.append(control)
         self.add_event_handler_from_control(control)
         if relative:
@@ -121,9 +122,13 @@ class Container(Control):
         super().set_alpha(value)
         self.inherit_properties()
 
+    def set_texture(self, value: arcade.Texture):
+        self._texture = value
+
     padding = property(lambda self: self._padding, set_padding)
     position = property(lambda self: super().get_position(), set_position)
     opacity = property(Control.get_alpha, set_alpha)
+    texture = property(lambda self: self._texture, set_texture)
 
 
 class AnimatedContainer(Container, AnimatedControl):

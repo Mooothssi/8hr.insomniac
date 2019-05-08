@@ -3,7 +3,7 @@ import typing
 import pyglet
 from pyglet.media.player import Player
 import copy
-
+import threading
 
 class AudioFile():
     def __init__(self, file_name: str):
@@ -45,25 +45,30 @@ class AudioEngine():
         file_ = self.sources[id]
         source = file_.source
         player = Player()
-        if source.is_queued:
-            source = pyglet.media.load(file_.file_name)
-            source.play()
-        else:
-            player.queue(source)
-            player.play()
-        source._players.append(self.player)
 
-        def _on_player_eos():
-            source._players.remove(self.player)
-            player.on_player_eos = None
-            player.delete()
+        def play(source, player):
+            if source.is_queued:
+                source = pyglet.media.load(file_.file_name)
+                source.play()
+            else:
+                player.queue(source)
+                player.play()
+            source._players.append(self.player)
 
-        player.on_player_eos = _on_player_eos
+            def _on_player_eos():
+                source._players.remove(self.player)
+                player.on_player_eos = None
+                player.delete()
+
+            player.on_player_eos = _on_player_eos
+
+        threading.Thread(args=(source, player), target=play).start()
 
     def load_sound_library(self):
         """
             Loads the proper avbin (audio library) automatically.\n
-            It loads from our directory first, otherwise loads the installed package (maybe incorrect).
+            It loads from our directory first, otherwise loads the installed 
+            package (maybe incorrect).
         """
         if not AudioEngine._ffmpeg2_loaded:
             AudioEngine._ffmpeg2_loaded = True
@@ -77,4 +82,3 @@ class AudioEngine():
         if AudioEngine._instance is None:
             AudioEngine._instance = AudioEngine()
         return AudioEngine._instance
-

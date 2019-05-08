@@ -87,8 +87,8 @@ class In8acUnitInfo:
         Unit information instance of Insomni8 Game
     """
     INFO_LIST = [
-        PaperShredderUnitInfo(),
-        CalculatorUnitInfo()
+        CalculatorUnitInfo(),
+        PaperShredderUnitInfo()
     ]
 
     @classmethod
