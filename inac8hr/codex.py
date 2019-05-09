@@ -85,6 +85,7 @@ class CodexBook(CollectionView):
                                 width=42)
         self.register_drawing()
         self._region_2 = region
+        self._category_lock = False
 
     def register_drawing(self):
         self._btnPrev.click_event += self.on_prev
@@ -107,14 +108,18 @@ class CodexBook(CollectionView):
 
     def on_change_info_callback(self, *args):
         info = self.selected_item.selected_item.unit_info
-        print(self.selected_item._current_index)
         self.thumbnail = info.thumbnail
         self.title_label.loc_text = info.unit_name
         self.description_label.loc_text = info.description
 
-    def on_change_category_callback(self, *args):
+    def on_change_category(self, *args):
         self.select_index(args[1])
+        try:
+            self.selected_item.selected_index_changed_event -= self.on_change_info_callback
+        except:
+            pass
         self.selected_item.selected_index_changed_event += self.on_change_info_callback
+        self.selected_item.select_index(0)
         self._preview_first_one()
 
     def on_mouse_press(self, *args):
@@ -123,9 +128,13 @@ class CodexBook(CollectionView):
         super().on_mouse_press(*args)
 
     def on_next(self, *args):
-        self._btnNext.visible = self.selected_item.go_next()
-        self._btnPrev.visible = not self._btnNext.visible
+        self.selected_item.go_next()
+        if self.selected_item._current_index == len(self.selected_item.items) - 1:
+            self._btnNext.visible = False
+            self._btnPrev.visible = True
 
     def on_prev(self, *args):
-        self._btnPrev.visible = self.selected_item.go_back()
-        self._btnNext.visible = not self._btnPrev.visible
+        self.selected_item.go_back()
+        if self.selected_item._current_index == 0:
+            self._btnPrev.visible = False
+            self._btnNext.visible = True

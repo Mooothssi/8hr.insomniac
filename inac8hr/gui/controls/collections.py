@@ -47,7 +47,6 @@ class CollectionView(Container):
             return False
 
     def go_back(self):
-        print(self._current_index)
         if self._current_index - 1 >= 0:
             self._current_index -= 1
             self.selected_index_changed_event(self._current_index)
@@ -63,7 +62,7 @@ class CollectionView(Container):
     def on_mouse_press(self, *args):
         super().on_mouse_press(*args)
         children = zip(range(len(self.items)), self.items)
-        activated = list(filter(lambda x: x[1].activated is True, children))
+        activated = list(filter(lambda x: x[1].activated and x[1].visible, children))
         if len(activated) == 1:
             self._current_index = activated[0][0]
             self.selected_index_changed_event(self._current_index)
@@ -272,7 +271,6 @@ class DropdownMenu(CollectionView, AnimatedControl):
         _chevron_p2 = Point(self.position.x + 50, self.position.y + 50) + Point(10, 0)
         _chevron_p3 = Point(_chevron_p2.x + _chevron_origin.x // 2, self.position.y)
         # self._chevron = arcade.create_triangles_filled_with_colors([_chevron_p2, _chevron_p3, _chevron_origin], [(255, 255, 255)])
-        
         self.caption = LocalizedLabel(Point(0, 0), size=font_size, custom_font=True)
         self.caption.font_name = "assets/fonts/Roboto-Medium"
         self.caption.fore_color = arcade.color.WHITE
@@ -301,7 +299,6 @@ class DropdownMenu(CollectionView, AnimatedControl):
                 item.visible = False
             else:
                 item.visible = True
-                item.reset_region()
 
     def add(self, child: DropdownItem):
         const = 1

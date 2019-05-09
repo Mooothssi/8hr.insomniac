@@ -7,7 +7,7 @@ SCREEN_WIDTH = 1920  # 18*40
 SCREEN_HEIGHT = 1000  # 12*40
 
 def create_window():
-    from window import InsomniaGame, arcade
+    from inac8hr.window import InsomniaGame, arcade
     game = InsomniaGame(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE)
     arcade.run()
 

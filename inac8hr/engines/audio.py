@@ -62,7 +62,7 @@ class AudioEngine():
 
             player.on_player_eos = _on_player_eos
 
-        threading.Thread(args=(source, player), target=play).start()
+        play(source, player)
 
     def load_sound_library(self):
         """

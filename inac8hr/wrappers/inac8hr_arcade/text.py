@@ -5,6 +5,7 @@ from .sprite import Sprite, Texture
 from arcade.text import Text
 from arcade.color import BLACK
 import PIL
+from PIL import ImageFilter
 
 RGB = Union[Tuple[int, int, int], List[int]]
 RGBA = Union[Tuple[int, int, int, int], List[int]]
@@ -297,7 +298,8 @@ class PILText:
                   italic: bool = False,
                   anchor_x: str = "left",
                   anchor_y: str = "baseline",
-                  rotation: float = 0
+                  rotation: float = 0,
+                  blur_factor=0
                   ):
         # Scale the font up, so it matches with the sizes of the old code back
         # when Pyglet drew the text.
@@ -434,6 +436,8 @@ class PILText:
                 color = tuple(color)
             draw.multiline_text((image_start_x, image_start_y), text, color, align=align, font=font)
             image = image.resize((width // scale_down, text_height // scale_down), resample=PIL.Image.LANCZOS)
+            if blur_factor > 0:
+                image = image.filter(ImageFilter.GaussianBlur(blur_factor))
 
             text_sprite = Sprite()
             text_sprite._texture = Texture(key)

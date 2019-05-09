@@ -58,6 +58,9 @@ class Level(PlayableSceneLayer):
         self.defenders.draw()
         self.particles.draw()
 
+    def queued_draw(self):
+        pass
+
     def clocked_update(self):
         self.cycle.update()
         if self.state == LevelState.PAUSED:
@@ -121,7 +124,6 @@ class Level(PlayableSceneLayer):
                 if d.current_bullet is not None:
                     self.particles.append(d.current_bullet)
                     d.disarm()
-                    
             d.play()
 
     def generate_ballots(self):

@@ -29,9 +29,7 @@ class CodexLayer(UILayer):
             self.cmbSel.add(item)
         for item in In8acCategories.ALL:
             self.codexBook.add_category(item)
-
-        
-        self.cmbSel.selected_index_changed_event += self.codexBook.on_change_category_callback
+        self.cmbSel.selected_index_changed_event += self.codexBook.on_change_category
         self._register_controls()
 
     def _register_controls(self):
@@ -41,7 +39,6 @@ class CodexLayer(UILayer):
         self.register_control(self.titleSign)
         self.register_control(self.cmbSel)
         self.register_control(self.codexBook)
-        self.codexBook.register_drawing()
 
     def btnStartGame_Click(self, sender, *args):
         self.parent.end_scene_and_go_to('MainScene')

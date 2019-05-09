@@ -1,6 +1,9 @@
 from arcade.sprite import Sprite, Texture
 from arcade.sprite_list import SpriteList
+from arcade import shader, VERTEX_SHADER, FRAGMENT_SHADER, get_projection
+import pyglet.gl as gl
 from arcade.text import Text
+from ...gui.basics import RectangularRegion
 import arcade
 import PIL
 from inac8hr.wrappers.inac8hr_arcade.legacy import ArcadeLegacy
@@ -45,6 +48,13 @@ class DrawCommands:
 
 
 class PreferredSprite(Sprite):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.animator = None
+
+    def region(self):
+        return RectangularRegion([Point(self.left, self.bottom), Point(self.right, self.bottom), 
+                                  Point(self.right, self.top), Point(self.left, self.top)])
 
     def draw(self):
         if ArcadeLegacy.is_arcade_legacy("2.0.5"):
@@ -75,3 +85,5 @@ class ExtendedSpriteList(SpriteList):
         self.vao = None
         if self.use_spatial_hash:
             self.spatial_hash.insert_object_for_box(item)
+
+# class QueuedSpriteList(SpriteList):

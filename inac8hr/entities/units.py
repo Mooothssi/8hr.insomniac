@@ -1,4 +1,4 @@
-from arcade.sprite import Sprite
+from ..graphics import Sprite, DrawableLayer
 from inac8hr.globals import *
 from ..events import Event
 from inac8hr.utils import LocationUtil
@@ -192,7 +192,7 @@ class EntityTextureGroup():
     def __iter__(self):
         self.n = 0
         return self
-    
+
     def __next__(self):
         if self.n <= len(self.textures)-1 and len(self.textures) > 0:
             result = self.textures[self.n]
@@ -248,6 +248,7 @@ class UnitListBase():
     def __init__(self):
         self.screen_res = GAME_PREFS.screen_width, GAME_PREFS.screen_height
         self.sprites = ExtendedSpriteList()
+        self.layer = DrawableLayer()
         self.scaling_factor = 1
 
     def __iter__(self):
@@ -291,13 +292,14 @@ class UnitList(UnitListBase):
         item.sprite.scale = self.scaling_factor
         for sprite in item.sprite_list:
             self.sprites.append(sprite)
+            self.layer.queue(sprite)
         self.on_item_added(item)
 
     def remove(self, item: Unit):
         self.units.remove(item)
         for sprite in item.sprite_list:
             self.sprites.remove(sprite)
-        # self.sprites.remove(item.sprite)
+            self.layer.remove(sprite)
         self.on_item_removed(item)
 
     def __next__(self):
@@ -326,11 +328,13 @@ class UnitKeyedList(UnitListBase):
         self.on_item_added(value)
         for sprite in value.sprite_list:
             self.sprites.append(sprite)
+            self.layer.queue(sprite)
 
     def remove(self, item: Unit):
         self.on_item_removed(item)
         self.units.remove(item)
         self.sprites.remove(item.sprite)
+        self.layer.remove(item.sprite)
 
     def values(self):
         return self.units.values()
@@ -343,4 +347,3 @@ class UnitKeyedList(UnitListBase):
             return result
         else:
             raise StopIteration
-

@@ -4,8 +4,12 @@ from inac8hr.anim import *
 import pyglet
 import pyglet.clock
 from pyglet.gl import *
+from pyglet.image import *
 from pyglet.window import FPSDisplay
+from inac8hr.graphics import VisualRenderer, Sprite, DrawableLayer
+from inac8hr.anim import SpriteAnimator, ExponentialEaseOut
 import arcade
+from arcade import Sprite as ArcadeSprite
 import time
 
 
@@ -26,10 +30,32 @@ class InsomniaGame(arcade.Window):
         self.resolution = 0, 0
         arcade.set_background_color(arcade.color.WHEAT)
         self.set_update_rate(1/60)
+        self.renderer = VisualRenderer.instance()
+        self.renderer.schedule()
+        
+        self.test_sprite = Sprite("assets/images/bck.png")
+        self.test_layer = DrawableLayer()
+        layer = DrawableLayer()
+        
+        import random
+        self._sprite_list = []
+        names = ["assets/images/titles/lv1.png", "assets/images/bck.png"]
+        for _ in range(10):
+            
+            sprite = Sprite(names[random.randint(0, 1)])
+            sprite.center_x = random.randint(100, 500)
+            layer.queue(sprite)
+            sprite.animator = SpriteAnimator(sprite, animation=ExponentialEaseOut, duration=60)
+            sprite.animator.tween_to(555, 0)
+            self._sprite_list.append(sprite)
+
+        self.renderer.queue(layer)
+        self.counter = 0
 
     def on_draw(self):
-        arcade.start_render()
-        self.manager.draw()
+        pass
+        # arcade.start_render()
+        # self.manager.draw()
         
         # gl.glMatrixMode(gl.GL_MODELVIEW)
         # gl.glPushMatrix()
@@ -39,8 +65,7 @@ class InsomniaGame(arcade.Window):
         # gl.glPushMatrix()
         # gl.glLoadIdentity()
         # gl.glOrtho(0, self.width, 0, self.height, -1, 1)
-         
-    
+
         # self.label.draw()
 
         # gl.glPopMatrix()
@@ -82,5 +107,8 @@ class InsomniaGame(arcade.Window):
         super().on_mouse_scroll(x, y, scroll_x, scroll_y)
 
     def update(self, delta):
+        pass
+        # for sp in self._sprite_list:
+        #     sp.animator.update()
         # self.label.text = str(int(self.label.text) + 1)
-        self.manager.update(delta)
+        # self.manager.update(delta)

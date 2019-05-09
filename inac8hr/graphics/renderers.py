@@ -1,87 +1,156 @@
-from arcade import shader
+from arcade import shader, SpriteList
+from .primitives import GraphicDrawable, DrawableLayer
+from ..gui.basics import RectangularRegion
+from ..wrappers.inac8hr_arcade import PreferredSprite
+import pyglet.gl as gl
+import pyglet
+from threading import Thread
+from arcade import get_projection, VERTEX_SHADER, FRAGMENT_SHADER
+from collections import deque
 from PIL import Image
+from PIL import ImageFilter
+from .primitives import DrawableLayer
 import numpy as np
 import math
-
-VERTEX_SHADER = """
-#version 330
-uniform mat4 Projection;
-
-// per vertex
-in vec2 in_vert;
-in vec2 in_texture;
-
-// per instance
-in vec2 in_pos;
-in float in_angle;
-in vec2 in_scale;
-in vec4 in_sub_tex_coords;
-in vec4 in_color;
-
-out vec2 v_texture;
-out vec4 v_color;
-
-void main() {
-    mat2 rotate = mat2(
-                cos(in_angle), sin(in_angle),
-                -sin(in_angle), cos(in_angle)
-            );
-    vec2 pos;
-    pos = in_pos + vec2(rotate * (in_vert * in_scale));
-    gl_Position = Projection * vec4(pos, 0.0, 1.0);
-
-    vec2 tex_offset = in_sub_tex_coords.xy;
-    vec2 tex_size = in_sub_tex_coords.zw;
-
-    v_texture = (in_texture * tex_size + tex_offset) * vec2(1, -1);
-    v_color = in_color;
-}
-"""
-
-FRAGMENT_SHADER = """
-#version 330
-uniform sampler2D Texture;
-
-in vec2 v_texture;
-in vec4 v_color;
-
-out vec4 f_color;
-
-void main() {
-    vec4 basecolor = texture(Texture, v_texture);
-    basecolor = basecolor * v_color;
-    if (basecolor.a == 0.0){
-        discard;
-    }
-    f_color = basecolor;
-}
-"""
+import time
 
 
 class VisualRenderer:
+    __instance = None
+
     def __init__(self):
         self.vao = None
+        self._queue = deque()
+        self._layers = deque()
+        self.sprite_data_buf = None
+        self.texture_id = None
+        self._texture = None
         self.program = shader.program(
-                vertex_shader=VERTEX_SHADER,
-                fragment_shader=FRAGMENT_SHADER
+            vertex_shader=VERTEX_SHADER,
+            fragment_shader=FRAGMENT_SHADER
         )
 
-    def _calculate_sprite_buffer(self):
+        self.array_of_texture_names = []
+        self.array_of_images = []
+        self.array_of_layers = []
+        self.is_static = False
+        self.vertices = np.array([
+            #  x,    y,   u,   v in GL Triangle Strip Mode
+            -1.0, -1.0, 0.0, 0.0,
+            -1.0, 1.0, 0.0, 1.0,
+            1.0, -1.0, 1.0, 0.0,
+            1.0, 1.0, 1.0, 1.0,
+        ], dtype=np.float32
+        )
+        self.ended = False
 
-        if len(self.sprite_list) == 0:
-            return    
+    @staticmethod
+    def instance():
+        if VisualRenderer.__instance is None:
+            VisualRenderer.__instance = VisualRenderer()
+        return VisualRenderer.__instance
+
+    def queue(self, item: DrawableLayer):
+        self._queue.append(item)
+
+    def queue_one(self, item: GraphicDrawable):
+        # index = len(self._queue)
+        group = DrawableLayer()
+        group.queue(item)
+        self._queue.append(group)
+        # item.register_z_order(index)
+
+    def remove(self, item):
+        if item in self._queue:
+            self._queue.remove(item)
+
+    def schedule(self, rate=1/60):
+        pyglet.clock.unschedule(self.draw)
+        pyglet.clock.schedule_interval(self.draw, rate)
+
+    @staticmethod
+    def check_occlusion(outer, inner):
+        print([point for point in inner.region.vertex_loop if outer.is_point_inside(point)])
+        print([point for point in outer.region.vertex_loop if inner.is_point_inside(point)])
+
+    def clear_screen(self):
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+
+    def setup_shader_program_if_needed(self):
+        if self.program is None:
+            self.program = shader.program(
+             vertex_shader=VERTEX_SHADER,
+             fragment_shader=FRAGMENT_SHADER)
+
+    def draw(self, delta):
+        if len(self._queue) == 0:
+            return
+        self.clear_screen()
+        self.setup_shader_program_if_needed()
+
+        if self.vao is None:
+            self._calculate_sprite_buffer()
+
+        self._texture.use(0)
+
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+
+        with self.vao:
+            self.program['Texture'] = self.texture_id
+            self.program['Projection'] = get_projection().flatten()
+
+            if not self.is_static:
+                self.sprite_data_buf.write(self.sprite_data.tobytes())
+
+            self.vao.render(gl.GL_TRIANGLE_STRIP, instances=len(self._queue))
+
+            if not self.is_static:
+                self.sprite_data_buf.orphan()
+        self.vao = None
+
+    def _merge_down_to_image(self, total_width, max_height):
+        #
+        # SLUGGISH REGION: REDUCE IMAGES AS MANY AS POSSIBLE!
+        #
+        new_image = Image.new('RGBA', (total_width, max_height))  # Make a composite image
+        x_offset = 0
+        t = time.time()
+        for image in self.array_of_layers:
+            new_image.paste(image, (x_offset, 0))
+            x_offset += image.size[0]
+        print(f"elapsed: {time.time()-t}")
+        return new_image
+        #
+        #
+        #
+
+    def _calculate_sprite_buffer(self):
+        if len(self._queue) == 0:
+            return
+#
+# Initialize arrays
+#
         array_of_positions = []
         array_of_sizes = []
         array_of_colors = []
         array_of_angles = []
-
-        for sprite in self.sprite_list:
-            array_of_positions.append([sprite.center_x, sprite.center_y])
-            array_of_angles.append(math.radians(sprite.angle))
-            size_h = sprite.height / 2
-            size_w = sprite.width / 2
-            array_of_sizes.append([size_w, size_h])
-            array_of_colors.append(sprite.color + (sprite.alpha, ))
+        self.array_of_layers.clear()
+        num_sprites = 0
+#
+#
+# 
+        for layer in self._queue:
+            if layer._texture is not None:
+                self.array_of_layers.append(layer._texture.image)
+            for sprite in layer._queue:
+                array_of_positions.append([sprite.center_x, sprite.center_y])
+                array_of_angles.append(math.radians(sprite.angle))
+                size_h = sprite.height / 2
+                size_w = sprite.width / 2
+                array_of_sizes.append([size_w, size_h])
+                array_of_colors.append(sprite.color + (sprite.alpha, ))
+            num_sprites += len(layer._queue)
 
         new_array_of_texture_names = []
         new_array_of_images = []
@@ -89,20 +158,20 @@ class VisualRenderer:
         if self.array_of_images is None:
             new_texture = True
 
+        for layer in self._queue:
+            for sprite in layer._queue:
 
-        for sprite in self.sprite_list:
+                if sprite._texture is None:
+                    raise Exception("Error: Attempt to draw a sprite without a texture set.")
 
-            if sprite._texture is None:
-                raise Exception("Error: Attempt to draw a sprite without a texture set.")
+                name_of_texture_to_check = sprite._texture.name
+                if name_of_texture_to_check not in self.array_of_texture_names:
+                    new_texture = True
 
-            name_of_texture_to_check = sprite._texture.name
-            if name_of_texture_to_check not in self.array_of_texture_names:
-                new_texture = True
-
-            if name_of_texture_to_check not in new_array_of_texture_names:
-                new_array_of_texture_names.append(name_of_texture_to_check)
-                image = sprite._texture.image
-                new_array_of_images.append(image)
+                if name_of_texture_to_check not in new_array_of_texture_names:
+                    new_array_of_texture_names.append(name_of_texture_to_check)
+                    image = sprite._texture.image
+                    new_array_of_images.append(image)
 
         if new_texture:
             # Add back in any old textures. Chances are we'll need them.
@@ -125,26 +194,11 @@ class VisualRenderer:
         max_height = max(heights)
 
         if new_texture:
-
-            # TODO: This code isn't valid, but I think some releasing might be in order.
-            # if self.texture is not None:
-            #     shader.Texture.release(self.texture_id)
-
-            # Make the composite image
-            new_image = Image.new('RGBA', (total_width, max_height))
-
-            x_offset = 0
-            for image in self.array_of_images:
-                new_image.paste(image, (x_offset, 0))
-                x_offset += image.size[0]
-
+            new_image = self._merge_down_to_image(total_width, max_height)
             # Create a texture out the composite image
             self._texture = shader.texture(
                  (new_image.width, new_image.height),
-                 4,
-                 np.asarray(new_image)
-            )
-
+                 4, np.asarray(new_image))
             if self.texture_id is None:
                 self.texture_id = SpriteList.next_texture_id
 
@@ -162,9 +216,10 @@ class VisualRenderer:
         # Go through each sprite and pull from the coordinate list, the proper
         # coordinates for that sprite's image.
         array_of_sub_tex_coords = []
-        for sprite in self.sprite_list:
-            index = self.array_of_texture_names.index(sprite._texture.name)
-            array_of_sub_tex_coords.append(tex_coords[index])
+        for layer in self._queue:
+            for sprite in layer._queue:
+                index = self.array_of_texture_names.index(sprite._texture.name)
+                array_of_sub_tex_coords.append(tex_coords[index])
 
         # Create numpy array with info on location and such
         buffer_type = np.dtype([('position', '2f4'),
@@ -172,7 +227,7 @@ class VisualRenderer:
                                 ('size', '2f4'),
                                 ('sub_tex_coords', '4f4'),
                                 ('color', '4B')])
-        self.sprite_data = np.zeros(len(self.sprite_list), dtype=buffer_type)
+        self.sprite_data = np.zeros(num_sprites, dtype=buffer_type)
         self.sprite_data['position'] = array_of_positions
         self.sprite_data['angle'] = array_of_angles
         self.sprite_data['size'] = array_of_sizes
@@ -189,15 +244,7 @@ class VisualRenderer:
             usage=usage
         )
 
-        vertices = np.array([
-            #  x,    y,   u,   v
-            -1.0, -1.0, 0.0, 0.0,
-            -1.0, 1.0, 0.0, 1.0,
-            1.0, -1.0, 1.0, 0.0,
-            1.0, 1.0, 1.0, 1.0,
-        ], dtype=np.float32
-        )
-        self.vbo_buf = shader.buffer(vertices.tobytes())
+        self.vbo_buf = shader.buffer(self.vertices.tobytes())
         vbo_buf_desc = shader.BufferDescription(
             self.vbo_buf,
             '2f 2f',

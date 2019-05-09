@@ -27,6 +27,7 @@ class Label(Control):
         self._font_name = font_name
         self.__font_size__ = size
         self.cached = cached
+        self.blur_factor = 0
         self.width, self.height = PILText.determine_dimensions(self, self.text)
         if self.cached and self.visible:
             self.set_cached_sprite(PILText.render_text(self.text, self.position.x, self.position.y,
@@ -56,7 +57,7 @@ class Label(Control):
             PILText.draw_text(self, str(self.text), self.position.x, self.position.y,
                              self.fore_color, self.font_size, font_name=self.font_name,
                              align=self._get_text_alignment(), anchor_x=self._get_anchors_x(),
-                             anchor_y=self._get_anchors_y())
+                             anchor_y=self._get_anchors_y(), blur_factor=self.blur_factor)
 
     def _get_text_alignment(self):
         if self.alignment & AlignStyle.AlignXStyle.CENTER:

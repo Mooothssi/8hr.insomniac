@@ -1,16 +1,21 @@
 from inac8hr.gui import Point, Control, Container
 from inac8hr.anim import SceneControlAnimator
+from inac8hr.graphics import DrawableLayer
 
 
 class SceneLayer():
 
     def __init__(self, scene_name):
         self.name = scene_name
+        self.canvas = DrawableLayer()
         self.elements = []
         self.parent = None
 
     def get_by_index(self, key: int):
         return self.elements[key]
+
+    def add_element(self, ele):
+        self.elements.append(ele)
 
     @property
     def main_element(self):
@@ -29,7 +34,16 @@ class PlayableSceneLayer(SceneLayer):
 
     def __init__(self, scene_name, main_element):
         super().__init__(scene_name)
-        self.elements.append(main_element)
+        self.add_element(main_element)
+
+    def add_element(self, ele):
+        super().add_element(ele)
+
+    def add_drawable_child(self, item):
+        self.canvas.queue(item)
+
+    def remove_drawable_child(self, item):
+        self.canvas.remove(item)
 
     def play(self):
         pass

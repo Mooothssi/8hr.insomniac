@@ -1,4 +1,4 @@
-from arcade.sprite import Sprite
+from ..graphics import Sprite
 from ..globals import *
 from ..utils import LocationUtil
 from .particles import Bullet
