@@ -1,8 +1,10 @@
 import math
 import arcade
+from i18n import LocalizedText
 from inac8hr.gui.controls import Label, Control, AnimatedControl, LocalizedLabel
 from inac8hr.gui.controls.buttons import Button
 from inac8hr.gui.basics import Point, Padding
+from inac8hr.gui.controls.labels import Tooltip
 from inac8hr.events import Event
 from inac8hr.gui.controls.containers import Container
 from inac8hr.wrappers.inac8hr_arcade import DrawCommands
@@ -83,13 +85,20 @@ class PaneTile(Container):
         super().__init__(position, width, height, color)
         self.model = model
         self.caption = Label
+        self.tooltip = None
         self._generate_from_model()
 
     def _generate_from_model(self):
         if self.model is not None:
             self.thumbnail = self.model.thumbnail
+            self.set_localized_tooltip(self.model.unit_name.key)
         else:
             self.thumbnail = None
+
+    def set_localized_tooltip(self, name_key, text_key=""):
+        self.tooltip = Tooltip()
+        self.tooltip.caption.loc_text = LocalizedText(name_key)
+        self.add_child(self.tooltip)
 
     def draw(self):
         super().draw()
