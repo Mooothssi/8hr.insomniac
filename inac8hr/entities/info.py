@@ -45,8 +45,8 @@ class CalculatorUnitInfo(UnitInfo):
         self.strength = 10
         self.coverage_radius = 1
         self.description = LocalizedText("Units/Def/Calc/Desc")
-        self.blueprint = UnitBlueprint(["assets/images/chars/calculator.png", 
-                                        "assets/images/chars/calculator.png"], scaling=GAME_PREFS.scaling)
+        self.blueprint = UnitBlueprint(["assets/images/chars/calculator_unavail.png", 
+                                        "assets/images/chars/calculator_avail.png"], scaling=GAME_PREFS.scaling)
         self.abilities = None
         self.thumbnail = arcade.load_texture("assets/images/chars/thumb_calc.png")
 
