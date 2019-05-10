@@ -6,7 +6,7 @@ import random
 
 
 class PollingStaUnit(SelectableUnit):
-    DEFAULT_PER_CYCLE = 25
+    DEFAULT_PER_CYCLE = 10
 
     def __init__(self, texture_list: list, initial_pos, directions=[], scaling=1):
         super().__init__(texture_list, initial_pos, scaling)
