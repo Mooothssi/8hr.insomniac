@@ -220,7 +220,7 @@ class Level1HUD(UILayer):
         self.lblTurnout.text = str(sender.turnout)
         if sender.jumped:
             self.lblTurnout.fore_color = arcade.color.RED
-            self.lblTurnout.text += " (Jumped!)"
+            self.lblTurnout.text += str(LocalizedText("Stats/Jumped"))
         else:
             self.lblTurnout.fore_color = arcade.color.BLACK
 
