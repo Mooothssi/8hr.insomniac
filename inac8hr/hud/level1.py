@@ -46,7 +46,7 @@ class Level1HUD(UILayer):
         self.lblVoter.anchors = Control.ANCHOR_LEFT | Control.ANCHOR_TOP
         self.lblVoter.text = self.parent.lv1.scoring.voter_count
 
-        self.lblScore = Label(Point(260,29), size=20, font_name=noto)
+        self.lblScore = Label(Point(260,29-3), size=20, font_name=noto, color=arcade.color.WHITE)
         self.lblScore.anchors = Control.ANCHOR_LEFT | Control.ANCHOR_TOP
         self.lblScore.text = self.parent.lv1.scoring.total
 
