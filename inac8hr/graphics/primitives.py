@@ -60,7 +60,7 @@ class DrawableLayer:
 
     def queue(self, item: GraphicDrawable, cached=False):
         index = len(self._queue)
-        item.register_z_order(index)
+        # item.register_z_order(index)
         self._queue.append(item)
         if cached:
             self.on_texture_changed("add", item)
