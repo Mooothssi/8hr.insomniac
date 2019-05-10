@@ -39,15 +39,15 @@ class InsomniaGame(arcade.Window):
         import random
         self._sprite_list = arcade.SpriteList()
         names = ["assets/images/titles/lv1.png"]
-        for _ in range(1000):
+        # for _ in range(1000):
             
-            sprite = Sprite(names[random.randint(0, 0)])
-            sprite.center_x = random.randint(0, 500)
-            sprite.center_y = random.randint(0, 500)
-            layer.queue(sprite)
-            sprite.animator = SpriteAnimator(sprite, animation=ExponentialEaseOut, duration=60)
-            sprite.animator.tween_to(555, 0)
-            self._sprite_list.append(sprite)
+        #     sprite = Sprite(names[random.randint(0, 0)])
+        #     sprite.center_x = random.randint(0, 500)
+        #     sprite.center_y = random.randint(0, 500)
+        #     layer.queue(sprite)
+        #     sprite.animator = SpriteAnimator(sprite, animation=ExponentialEaseOut, duration=60)
+        #     sprite.animator.tween_to(555, 0)
+        #     self._sprite_list.append(sprite)
 
        
         # layer.merge_down()
@@ -59,7 +59,6 @@ class InsomniaGame(arcade.Window):
     def on_draw(self):
         arcade.start_render()
        
-        t = time.time()
         # self._sprite_list.draw()
        
         
