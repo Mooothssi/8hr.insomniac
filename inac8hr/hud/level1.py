@@ -27,8 +27,8 @@ class Level1HUD(UILayer):
         self.lblTotalScore = Label(Point(1065, 650-56), font_name=noto, size=78, color=arcade.color.WHITE)
         self.lblTotalScore.visible = False
 
-        self.lblTest2 = Label(Point(GAME_PREFS.screen_width//2, GAME_PREFS.screen_height//2), size=20)
-        self.lblTest2.text = "Jumping Ballot\n\nGet ready in 10 seconds!"
+        self.lblTest2 = LocalizedLabel(Point((GAME_PREFS.screen_width//2)-150,(GAME_PREFS.screen_height//2)-88), 
+                                       key="Levels/LV1Ballot/IntroText", size=20)
 #
 # Stats Panel
 #
@@ -115,7 +115,7 @@ class Level1HUD(UILayer):
         self.testMsg2.alpha = 0
         self.testMsg2.align_center()
         self.testMsg2.add_control(self.lblTest2)
-
+        
 
 
         self.awakeMsg = AnimatedTexturedMessageBox(Point(0, 0), "assets/images/titles/awake_screen.png", width=1920, height=1000)
@@ -170,6 +170,7 @@ class Level1HUD(UILayer):
         self.lv1.cycle.cycle_changed += self.on_cycle_changed
         self.lv1.cycle.cycle_end += self.on_cycle_end
         self.pgbTest.maximum = self.lv1.cycle.game_time_limit
+        self.lblTest2.position = Point((GAME_PREFS.screen_width//2)+130,(GAME_PREFS.screen_height//2)-180)
 
     def _register_controls(self):
         self.register_control(self.lblFPS)
@@ -230,7 +231,6 @@ class Level1HUD(UILayer):
     def btnSelect_Click(self, sender, parent, x, y, button, *args):
         if button == arcade.MOUSE_BUTTON_LEFT:
             self.cmd_handler.execute_by_keyword('select')
-            i18n.Localization.instance().set_language_by_code("th_TH")
 
     def btnPlace_Click(self, sender, parent, x, y, button, *args):
         if button == arcade.MOUSE_BUTTON_LEFT:

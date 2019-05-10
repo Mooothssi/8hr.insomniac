@@ -6,9 +6,7 @@ from ..codex import CodexCategory, CodexBook, In8acCategories
 class CodexLayer(UILayer):
     def __init__(self):
         super().__init__()
-        self.btnSelect = Button(Point(674,424), "assets/images/ui/btnStartGame_0.png", width=603, height=109)
-        self.btnSelect.append_texture("assets/images/ui/btn_SelectTool_pressed.png")
-        self.btnSelect.alignment = AlignStyle.AlignXStyle.CENTER
+        self.btnSelect = Button(Point(56,828), "assets/images/ui/btnBackToMain.png", width=548, height=91)
         self.btnSelect.click += self.btnStartGame_Click
 
         self.bckMainMenu = AnimatedTexturedMessageBox(Point(0, 0), "assets/images/bck_main.png", width=1924, height=1080)

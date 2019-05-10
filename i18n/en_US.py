@@ -1,5 +1,5 @@
 LOC_TEXTS_EN_US = {
-        "Intro/Instructions": "Press [Ctrl+P] to trigger placement mode, [ENTER] to trigger play/pause.",
+        "Intro/Instructions": "Press [Ctrl+P] to trigger placement mode",
         "Game/Title": "8-hour insomniac",
         "Game/Name/Leetspeak": "8-h0ur 1ns0mn18c",
         "LocalizedText/None": "None",
@@ -12,14 +12,14 @@ LOC_TEXTS_EN_US = {
         "Units/Def/Calc/Desc": "A machine used for calculating things,"
                                "esp. when the public eye watches\n"
                                "Damage: -10 on jumped ballots\n"
-                               "Accuracy: 88% (another 12% depending on the User's luck)\n"
+                               "Accuracy: 100% (another 12% depending on the User's luck)\n"
                                "Weakness: Sometimes, it's missing on duty.",
-        "Units/Def/DoNothingAgency/Name": "The Election Commission Precinct",
-        "Units/Def/DoNothingAgency/Desc": "An independent agency subdivision that administrate elections in the area"
-                                          "Maybe they'll just do nothing and chill out on (field) trips.\n"
-                                          "Damage: randomly around -5 to -50 on either ballots\n"
-                                          "Accuracy: 50%\n"
-                                          "Weakness: Why are they for? They're just going on trips again!",
+        "Units/Def/PPS/Name": "The EC Shredder",
+        "Units/Def/PPS/Desc": "An independent agency subdivision machine that administrate elections in the area"
+                                "Maybe they'll just do nothing and chill out on (field) trips.\n"
+                                "Damage: randomly around -5 to -50 on either ballots\n"
+                                "Accuracy: 100%\n"
+                                "Weakness: Why are they for? They're just going on trips again!",
         "Units/Gen/PollingSta/Name": "Polling Station",
         "Units/Gen/PollingSta/Desc": "A place where voters gather around"
                                      "to cast their votes. Hopefully, this place do not mistakenly consider some ballots spoilt,\n"
@@ -35,5 +35,6 @@ LOC_TEXTS_EN_US = {
         "Codex/Category/Inspectors": "Inspectors",
         "Codex/Category/Precincts": "Precincts",
         "Codex/Category/Intro": "How to Play",
-        "Codex/Category/Controls": "Controls"
+        "Codex/Category/Controls": "Controls",
+        "Levels/LV1Ballot/IntroText": "Jumping Ballot\n\nGet ready in 10 seconds!"
 }

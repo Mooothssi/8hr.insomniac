@@ -50,10 +50,10 @@ class InsomniaGame(arcade.Window):
             self._sprite_list.append(sprite)
 
        
-        layer.merge_down()
+        # layer.merge_down()
 
         self.times = []
-        self.renderer.queue(layer)
+        # self.renderer.queue(layer)
         self.counter = 0
 
     def on_draw(self):
