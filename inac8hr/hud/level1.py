@@ -38,11 +38,11 @@ class Level1HUD(UILayer):
         self.lblCycle.anchors = Control.ANCHOR_LEFT | Control.ANCHOR_TOP
         self.lblCycle.text = self.parent.lv1.cycle.current_cycle
 
-        self.lblTurnout = Label(Point(260,125), size=20, font_name=noto)
+        self.lblTurnout = Label(Point(260,125+3), size=20, font_name=noto)
         self.lblTurnout.anchors = Control.ANCHOR_LEFT | Control.ANCHOR_TOP
         self.lblTurnout.text = self.parent.lv1.scoring.turnout
 
-        self.lblVoter = Label(Point(260,77), size=20, font_name=noto)
+        self.lblVoter = Label(Point(260,77+1), size=20, font_name=noto)
         self.lblVoter.anchors = Control.ANCHOR_LEFT | Control.ANCHOR_TOP
         self.lblVoter.text = self.parent.lv1.scoring.voter_count
 
