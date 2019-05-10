@@ -2,7 +2,7 @@ from inac8hr.scenes import Scene
 from inac8hr.globals import LevelState, APP_VERSION
 from inac8hr.levels import LV1Level
 from inac8hr.hud.level1 import Level1HUD
-from inac8hr.layers import SceneLayer, UILayer, PlayableSceneLayer
+from inac8hr.scenes.layers import SceneLayer
 from inac8hr.utils import FPSCounter
 from i18n.loc import Localization
 
@@ -14,7 +14,7 @@ class Level1Scene(Scene):
         self.scene_start += self.on_scene_start
         self.lv1 = LV1Level()
         hud = Level1HUD(self)
-        lv1_canvas = PlayableSceneLayer("canvas_layer", self.lv1)
+        lv1_canvas = self.lv1
         for i in [lv1_canvas, hud, SceneLayer("tool_layer")]:
             self.append_layer(i)
         self.fps = FPSCounter()
@@ -26,7 +26,6 @@ class Level1Scene(Scene):
 
     def _reinit_scene(self):
         self.lv1.restart()
-        
 
     def freeze_canvas(self):
         self.frozen = True
@@ -35,9 +34,6 @@ class Level1Scene(Scene):
     def continue_canvas(self):
         self.frozen = False
         self.lv1.set_state(LevelState.PLAYING)
-
-    def draw(self):
-        super().draw()
 
     def tick(self):
         super().tick()
@@ -48,3 +44,7 @@ class Level1Scene(Scene):
         f"{Localization.instance().get_translated_text('Game/Title')} dev v{APP_VERSION} |-|"
         if self.fps.get_fps() < 10:
             self.lv1.set_state(LevelState.PAUSED)
+
+    def on_window_resize(self, *args):
+        super().on_window_resize(*args)
+        self.lv1.on_resize()

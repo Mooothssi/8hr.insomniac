@@ -12,4 +12,4 @@ def create_window():
     arcade.run()
 
 if __name__ == '__main__':
-    Thread(target=create_window).start()
+    create_window()

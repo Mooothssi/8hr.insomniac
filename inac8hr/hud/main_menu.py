@@ -1,6 +1,5 @@
 from inac8hr.gui import *
-from inac8hr.layers import *
-from inac8hr.anim import ControlAnimator, SceneSequence, SequenceInfo, ExponentialEaseOut, QuadEaseIn, TemporalSequence
+from inac8hr.scenes.layers import *
 
 
 class MainMenuLayer(UILayer):

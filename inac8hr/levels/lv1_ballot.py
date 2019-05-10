@@ -86,6 +86,10 @@ class LV1Level(Level):
         self.scoring.recount_ballot(self.generators)
         self.death = 0
 
+    def register_graphics(self):
+        super().register_graphics()
+        # self.add_drawable_child(self.generators)
+
     def draw(self):
         super().draw()
         self.generators.draw()
@@ -96,10 +100,11 @@ class LV1Level(Level):
             g.play()
 
     def on_resize(self):
-        super().on_resize()
         self.generators.scale(GAME_PREFS.scaling)
-        self.generators.displace_by_screen_res(GAME_PREFS.screen_width, GAME_PREFS.screen_height)
-        self.enemies.displace_by_screen_res(GAME_PREFS.screen_width, GAME_PREFS.screen_height)
+        if self.scaling != GAME_PREFS.scaling:
+            self.generators.displace_by_screen_res(GAME_PREFS.screen_width, GAME_PREFS.screen_height)
+            self.enemies.displace_by_screen_res(GAME_PREFS.screen_width, GAME_PREFS.screen_height)
+        super().on_resize()
 
     def on_cycle_changed(self, sender, *args):
         for g in self.generators:

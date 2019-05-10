@@ -260,6 +260,7 @@ class UnitListBase():
 
     def draw(self):
         self.sprites.draw()
+        self.layer.draw()
 
     def scale(self, scaling_factor):
         self.scaling_factor = scaling_factor

@@ -1,4 +1,6 @@
 from arcade import shader, SpriteList
+from ctypes import *
+from arcade.shader import VertexArray
 from .primitives import GraphicDrawable, DrawableLayer
 from ..gui.basics import RectangularRegion
 from ..wrappers.inac8hr_arcade import PreferredSprite
@@ -43,6 +45,7 @@ class VisualRenderer:
         ], dtype=np.float32
         )
         self.ended = False
+        self.times = []
 
     @staticmethod
     def instance():
@@ -85,29 +88,29 @@ class VisualRenderer:
     def draw(self, delta):
         if len(self._queue) == 0:
             return
-        self.clear_screen()
+        # self.clear_screen()
         self.setup_shader_program_if_needed()
+        for layer in self._queue:
+            if len(layer._queue) == 0 or not layer.visible:
+                continue
+            if layer.vao is None:
+                layer.rasterize()
+            layer.gl_texture.use(1)
 
-        if self.vao is None:
-            self._calculate_sprite_buffer()
+            gl.glEnable(gl.GL_BLEND)
+            gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
-        self._texture.use(0)
+            with layer.vao:
+                self.program['Texture'] = 1 # self.texture_id
+                self.program['Projection'] = get_projection().flatten()
 
-        gl.glEnable(gl.GL_BLEND)
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+                layer.gl_data_buf.write(layer.sprite_data)
 
-        with self.vao:
-            self.program['Texture'] = self.texture_id
-            self.program['Projection'] = get_projection().flatten()
+                layer.vao.render(gl.GL_TRIANGLE_STRIP, instances=len(layer._queue))
 
-            if not self.is_static:
-                self.sprite_data_buf.write(self.sprite_data.tobytes())
-
-            self.vao.render(gl.GL_TRIANGLE_STRIP, instances=len(self._queue))
-
-            if not self.is_static:
-                self.sprite_data_buf.orphan()
-        self.vao = None
+                layer.gl_data_buf.orphan()
+            layer.visible = False
+            layer.vao = None
 
     def _merge_down_to_image(self, total_width, max_height):
         #
@@ -141,8 +144,6 @@ class VisualRenderer:
 #
 # 
         for layer in self._queue:
-            if layer._texture is not None:
-                self.array_of_layers.append(layer._texture.image)
             for sprite in layer._queue:
                 array_of_positions.append([sprite.center_x, sprite.center_y])
                 array_of_angles.append(math.radians(sprite.angle))

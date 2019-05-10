@@ -1,7 +1,6 @@
-import arcade
 from inac8hr.gui import *
-from inac8hr.layers import *
-from inac8hr.anim import ControlAnimator, SceneSequence, SequenceInfo, ExponentialEaseOut, QuadEaseIn, TemporalSequence
+from inac8hr.scenes.layers import *
+from inac8hr.anim import SceneSequence, SequenceInfo, ExponentialEaseOut, QuadEaseIn, TemporalSequence
 from inac8hr.entities import In8acUnitInfo
 from inac8hr.commands import CommandHandler
 from inac8hr.tools import ToolHandler

@@ -1,5 +1,6 @@
 import arcade
 from inac8hr.gui import PaneTile, Point
+from ..graphics import Sprite
 from i18n.loc import LocalizedText
 from inac8hr.globals import GAME_PREFS
 from . import PaperShredderUnit, CalculatorUnit

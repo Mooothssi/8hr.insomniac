@@ -1,7 +1,7 @@
 from inac8hr.gui import Point, Control, Container
 from inac8hr.anim import SceneControlAnimator
-from inac8hr.graphics import DrawableLayer
-
+from inac8hr.graphics import DrawableLayer, VisualRenderer
+from abc import abstractmethod
 
 class SceneLayer():
 
@@ -22,6 +22,7 @@ class SceneLayer():
         return self.elements[0]
 
     def draw(self):
+        self.canvas.draw()
         for ele in self.elements:
             ele.draw()
 
@@ -29,21 +30,26 @@ class SceneLayer():
         for ele in self.elements:
             ele.clocked_update()
 
+    @abstractmethod
+    def register_graphics(self):
+        pass
+
 
 class PlayableSceneLayer(SceneLayer):
 
-    def __init__(self, scene_name, main_element):
+    def __init__(self, scene_name):
         super().__init__(scene_name)
-        self.add_element(main_element)
+        VisualRenderer.instance().queue(self.canvas)
 
     def add_element(self, ele):
         super().add_element(ele)
 
     def add_drawable_child(self, item):
-        self.canvas.queue(item)
+        VisualRenderer.instance().queue(item.layer)
+        # self.canvas.queue_group(item.layer)
 
     def remove_drawable_child(self, item):
-        self.canvas.remove(item)
+        self.canvas.remove_group(item)
 
     def play(self):
         pass

@@ -1,7 +1,6 @@
-from inac8hr.layers import SceneLayer
+from inac8hr.scenes.layers import SceneLayer
 from inac8hr.events import Event, EventDispatcher
 from inac8hr.globals import UserEvent
-import arcade
 
 
 class Scene():
@@ -46,6 +45,7 @@ class Scene():
             self.layers_coll.append(layer)
             self.register_layer(layer)
             self.layers[layer.name] = len(self.layers_coll) - 1
+        layer.register_graphics()
 
     def register_layer(self, layer: SceneLayer):
         if layer.name == 'ui_layer':

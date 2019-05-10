@@ -31,32 +31,47 @@ class InsomniaGame(arcade.Window):
         arcade.set_background_color(arcade.color.WHEAT)
         self.set_update_rate(1/60)
         self.renderer = VisualRenderer.instance()
-        self.renderer.schedule()
-        
+        # self.renderer.schedule()
         self.test_sprite = Sprite("assets/images/bck.png")
         self.test_layer = DrawableLayer()
-        layer = DrawableLayer()
-        
+        layer = DrawableLayer(1000)
+        layer.visible = True
         import random
-        self._sprite_list = []
-        names = ["assets/images/titles/lv1.png", "assets/images/bck.png"]
-        for _ in range(10):
+        self._sprite_list = arcade.SpriteList()
+        names = ["assets/images/titles/lv1.png"]
+        for _ in range(1000):
             
-            sprite = Sprite(names[random.randint(0, 1)])
-            sprite.center_x = random.randint(100, 500)
+            sprite = Sprite(names[random.randint(0, 0)])
+            sprite.center_x = random.randint(0, 500)
+            sprite.center_y = random.randint(0, 500)
             layer.queue(sprite)
             sprite.animator = SpriteAnimator(sprite, animation=ExponentialEaseOut, duration=60)
             sprite.animator.tween_to(555, 0)
             self._sprite_list.append(sprite)
 
+       
+        layer.merge_down()
+
+        self.times = []
         self.renderer.queue(layer)
         self.counter = 0
 
     def on_draw(self):
-        pass
-        # arcade.start_render()
-        # self.manager.draw()
+        arcade.start_render()
+       
+        t = time.time()
+        # self._sprite_list.draw()
+       
         
+        # print(sum(self.times)/len(self.times))
+        # SpriteList elapsed: 0.0005524028768193537
+        # Renderer elapsed: 0.001160556165427282
+        #
+        # arcade.start_render()
+        self.manager.draw()
+        
+        # self.renderer.draw(60)
+        # self.times.append(time.time() - t)
         # gl.glMatrixMode(gl.GL_MODELVIEW)
         # gl.glPushMatrix()
         # gl.glLoadIdentity()
@@ -79,7 +94,6 @@ class InsomniaGame(arcade.Window):
             self.resolution = width, height
             self.manager.reload_sprites(width, height)
             self.manager.on_resize(width, height)
-
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.F11:
@@ -107,8 +121,7 @@ class InsomniaGame(arcade.Window):
         super().on_mouse_scroll(x, y, scroll_x, scroll_y)
 
     def update(self, delta):
-        pass
         # for sp in self._sprite_list:
         #     sp.animator.update()
         # self.label.text = str(int(self.label.text) + 1)
-        # self.manager.update(delta)
+        self.manager.update(delta)

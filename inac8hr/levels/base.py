@@ -1,17 +1,14 @@
-import arcade
 import random
-from ..events import Event
 from ..loaders import ImageLoader
 from .tilemaps import TILEMAP
-from ..layers import PlayableSceneLayer
+from inac8hr.scenes.layers import PlayableSceneLayer
 from ..utils import LocationUtil
 from ..globals import *
-from ..entities import DefenderUnit, AgentUnit, UnitList, UnitKeyedList, PollingStaUnit, Bullet, PaperShredderUnit
+from ..entities import AgentUnit, UnitList, UnitKeyedList, PollingStaUnit, PaperShredderUnit
 from ..imports import *
+from ..graphics import DrawableLayer, Sprite
 from ..cycles import CycleClock
 from ..scoring import ScoringEngine
-from ..tuning import ScoringFactor
-from abc import abstractmethod
 
 BOARD = [
         '%&%###############',
@@ -34,6 +31,7 @@ class Level(PlayableSceneLayer):
     registered_inputs = [UserEvent.WINDOW_RESIZE]
 
     def __init__(self):
+        super().__init__("LV1Ballot")
         self.scaling = 1
         self.scoring = ScoringEngine()
         self.cycle = CycleClock()
@@ -53,15 +51,21 @@ class Level(PlayableSceneLayer):
     # Arcade base overload functions
     #
     def draw(self):
+        super().draw()
         self.map_plan.draw()
         self.enemies.draw()
         self.defenders.draw()
         self.particles.draw()
 
-    def queued_draw(self):
+    def register_graphics(self):
         pass
+        # self.add_drawable_child(self.map_plan)
+        # self.add_drawable_child(self.enemies)
+        # self.add_drawable_child(self.defenders)
 
-    def clocked_update(self):
+    def tick(self):
+        self.map_plan.layer.visible = True
+        self.enemies.layer.visible = True
         self.cycle.update()
         if self.state == LevelState.PAUSED:
             self.pause()
@@ -175,6 +179,7 @@ class MapPlan():
         self.ballot_switch_points = []
         self.determine_dimensions()
         self.gen_ballot_flow_points()
+        self.layer = DrawableLayer()
         self.sprites = ExtendedSpriteList()
         self.init_sprites()
         self.exit = arcade.Sprite('assets/images/chars/ballot_box.png')
@@ -262,6 +267,7 @@ class MapPlan():
     def init_sprites(self, scaling=1):
         for s in self.get_all_sprites(scaling):
             self.sprites.append(s)
+            self.layer.queue(s)
 
     def draw_sprite(self, sprite, r, c):
         x, y = LocationUtil.get_sprite_position(r, c)
@@ -321,7 +327,7 @@ class MapPlan():
         angle = 0
         if idx == "=":
             angle = 90
-        sprite = arcade.Sprite(ImageLoader.get_texture_filename_from_index(idx),
+        sprite = Sprite(ImageLoader.get_texture_filename_from_index(idx),
                                scale=scaling)
         sprite.angle = angle
         x, y = LocationUtil.get_sprite_position(r, c)

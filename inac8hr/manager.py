@@ -1,17 +1,6 @@
-import arcade
-import math
-import pyglet
 from inac8hr.engines import GameEngine
-from inac8hr.hud.level1 import Level1HUD
-from inac8hr.scenes.lv1_scene import Level1Scene
-from inac8hr.commands import CommandHandler
-from inac8hr.levels import LV1Level
 from inac8hr.globals import *
-from inac8hr.events import EventDispatcher
-from inac8hr.scenes import Scene, Viewport
-from inac8hr.layers import SceneLayer, UILayer, PlayableSceneLayer
 from inac8hr.globals import GAME_PREFS
-from inac8hr.utils import LocationUtil
 from inac8hr.anim import *
 from inac8hr.imports import *
 

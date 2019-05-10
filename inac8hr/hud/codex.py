@@ -1,6 +1,5 @@
 from ..gui import *
-from ..layers import UILayer
-from ..anim import ControlAnimator, SceneSequence, SequenceInfo, ExponentialEaseOut, QuadEaseIn, TemporalSequence
+from inac8hr.scenes.layers import UILayer
 from ..codex import CodexCategory, CodexBook, In8acCategories
 
 
