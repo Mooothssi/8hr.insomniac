@@ -36,5 +36,7 @@ LOC_TEXTS_EN_US = {
         "Codex/Category/Precincts": "Precincts",
         "Codex/Category/Intro": "How to Play",
         "Codex/Category/Controls": "Controls",
-        "Levels/LV1Ballot/IntroText": "Jumping Ballot\n\nGet ready in 10 seconds!"
+        "Levels/LV1Ballot/IntroText": "Jumping Ballot\n\nGet ready in 10 seconds!",
+        "Frontend/Menu/ChangeToTH": "Change to Thai (Partial)",
+        "Frontend/Menu/ChangeToEN": "Change to English (UK)"
 }

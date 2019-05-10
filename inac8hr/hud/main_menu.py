@@ -31,8 +31,8 @@ class MainMenuLayer(UILayer):
         self.btnLangEN_UK.click += self.btnLangEN_UK_Click
 
 
-
-
+        self.btnLangTH.set_localized_tooltip("Frontend/Menu/ChangeToTH")
+        self.btnLangEN_UK.set_localized_tooltip("Frontend/Menu/ChangeToEN")
 
         self._register_controls()
 

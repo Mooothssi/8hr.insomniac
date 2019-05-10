@@ -4,6 +4,7 @@ from inac8hr.wrappers.inac8hr_arcade import DrawCommands
 from inac8hr.gui.controls.base import Control, AnimatedControl
 from inac8hr.gui.controls.containers import Container
 from inac8hr.gui.basics import Point
+from inac8hr.gui.controls.labels import Tooltip
 
 
 class Button(Container):
@@ -19,6 +20,7 @@ class Button(Container):
         self._current_tex_index = self.STATE_NORMAL
         self.alpha = 255
         self._background_drawn = False
+        self.tooltip = None
         # self.set_region_from_center()
 
     def draw(self):
@@ -36,6 +38,11 @@ class Button(Container):
         if len(self._textures) > 1:
             assert(0 <= tex_no <= len(self._textures) - 1)
             self._current_tex_index = tex_no
+    
+    def set_localized_tooltip(self, name_key, text_key=""):
+        self.tooltip = Tooltip()
+        self.tooltip.caption.loc_text = LocalizedText(name_key)
+        self.add_child(self.tooltip)
 
     @property
     def current_texture(self):
